@@ -1,8 +1,20 @@
 <!-- Top bar -->
 <header class="topbar">
-  <span class="topbar-left" aria-hidden="true">&#8592;</span>
-  <h1 class="topbar-title">Bread Dough Calculator</h1>
-  <button class="topbar-reset" type="button" aria-label="Reset all inputs" (click)="reset()">
+  <button
+    class="topbar-lang"
+    type="button"
+    aria-label="Switch language"
+    (click)="i18n.toggleLang()"
+  >
+    {{ i18n.currentLang() === 'en' ? '🇸🇪' : '🇬🇧' }}
+  </button>
+  <h1 class="topbar-title">{{ i18n.t().appTitle }}</h1>
+  <button
+    class="topbar-reset"
+    type="button"
+    [attr.aria-label]="i18n.t().reset"
+    (click)="reset()"
+  >
     &#8635;
   </button>
 </header>
@@ -12,13 +24,18 @@
   <section class="section">
     <div class="section-header">
       <span class="section-icon" aria-hidden="true">&#127829;</span>
-      <h2 class="section-title">Dough</h2>
-      <button class="info-btn" type="button" aria-label="Dough info" [appTooltip]="INFO['dough']">
+      <h2 class="section-title">{{ i18n.t().dough }}</h2>
+      <button
+        class="info-btn"
+        type="button"
+        [attr.aria-label]="i18n.t().dough"
+        [appTooltip]="i18n.t().infoDough"
+      >
         &#9432;
       </button>
     </div>
 
-    <label class="field-label">Number of breads</label>
+    <label class="field-label">{{ i18n.t().numberOfBreads }}</label>
     <app-stepper
       [(value)]="breadCount"
       [step]="1"
@@ -27,7 +44,7 @@
       (valueChange)="onStepperChange()"
     />
 
-    <label class="field-label">Ball weight (g)</label>
+    <label class="field-label">{{ i18n.t().ballWeight }}</label>
     <app-stepper
       [(value)]="targetBallWeight"
       [step]="10"
@@ -41,17 +58,25 @@
   <section class="section">
     <div class="section-header">
       <span class="section-icon" aria-hidden="true">&#9881;&#65039;</span>
-      <h2 class="section-title">Yeast</h2>
-      <button class="info-btn" type="button" aria-label="Yeast info" [appTooltip]="INFO['yeast']">
+      <h2 class="section-title">{{ i18n.t().yeast }}</h2>
+      <button
+        class="info-btn"
+        type="button"
+        [attr.aria-label]="i18n.t().yeast"
+        [appTooltip]="i18n.t().infoYeast"
+      >
         &#9432;
       </button>
     </div>
 
-    <label class="field-label">Yeast type</label>
+    <label class="field-label">{{ i18n.t().yeastType }}</label>
     <div class="select-wrap">
-      <select [value]="yeastType()" (change)="onYeastTypeChange($any($event.target).value)">
-        @for (opt of yeastOptions; track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
+      <select
+        [value]="yeastType()"
+        (change)="onYeastTypeChange($any($event.target).value)"
+      >
+        @for (opt of yeastOptions(); track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
         }
       </select>
       <span class="select-chevron" aria-hidden="true">&#9662;</span>
@@ -66,89 +91,89 @@
     [attr.aria-expanded]="advancedOpen()"
     (click)="toggleAdvanced()"
   >
-    <span>Advanced settings</span>
+    <span>{{ i18n.t().advancedSettings }}</span>
     <span class="advanced-chevron" [class.open]="advancedOpen()">&#9662;</span>
   </button>
 
   <!-- Percentages section (collapsible) -->
   @if (advancedOpen()) {
-    <section class="section section-collapsible">
-      <div class="section-header">
-        <span class="section-icon" aria-hidden="true">&#128295;</span>
-        <h2 class="section-title">Percentages</h2>
-        <button
-          class="info-btn"
-          type="button"
-          aria-label="Percentages info"
-          [appTooltip]="INFO['percentages']"
-        >
-          &#9432;
-        </button>
-      </div>
+  <section class="section section-collapsible">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#128295;</span>
+      <h2 class="section-title">{{ i18n.t().percentages }}</h2>
+      <button
+        class="info-btn"
+        type="button"
+        [attr.aria-label]="i18n.t().percentages"
+        [appTooltip]="i18n.t().infoPercentages"
+      >
+        &#9432;
+      </button>
+    </div>
 
-      <label class="field-label">Hydration</label>
-      <app-stepper
-        [(value)]="hydrationPct"
-        [step]="1"
-        [min]="1"
-        suffix="%"
-        (valueChange)="onStepperChange()"
-      />
+    <label class="field-label">{{ i18n.t().hydration }}</label>
+    <app-stepper
+      [(value)]="hydrationPct"
+      [step]="1"
+      [min]="1"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
 
-      <label class="field-label">Salt</label>
-      <app-stepper
-        [(value)]="saltPct"
-        [step]="0.1"
-        [min]="0.1"
-        suffix="%"
-        (valueChange)="onStepperChange()"
-      />
+    <label class="field-label">{{ i18n.t().salt }}</label>
+    <app-stepper
+      [(value)]="saltPct"
+      [step]="0.1"
+      [min]="0.1"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
 
-      <label class="field-label">Sugar</label>
-      <app-stepper
-        [(value)]="sugarPct"
-        [step]="0.5"
-        [min]="0"
-        suffix="%"
-        (valueChange)="onStepperChange()"
-      />
+    <label class="field-label">{{ i18n.t().sugar }}</label>
+    <app-stepper
+      [(value)]="sugarPct"
+      [step]="0.5"
+      [min]="0"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
 
-      <label class="field-label">Oil</label>
-      <app-stepper
-        [(value)]="oilPct"
-        [step]="0.5"
-        [min]="0"
-        suffix="%"
-        (valueChange)="onStepperChange()"
-      />
+    <label class="field-label">{{ i18n.t().oil }}</label>
+    <app-stepper
+      [(value)]="oilPct"
+      [step]="0.5"
+      [min]="0"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
 
-      <label class="field-label">Milk as % of added water</label>
-      <app-stepper
-        [(value)]="milkPctOfWater"
-        [step]="5"
-        [min]="0"
-        suffix="%"
-        (valueChange)="onStepperChange()"
-      />
-    </section>
+    <label class="field-label">{{ i18n.t().milkAsPctOfWater }}</label>
+    <app-stepper
+      [(value)]="milkPctOfWater"
+      [step]="5"
+      [min]="0"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
+  </section>
   }
 
   <!-- Starter section -->
   <section class="section">
     <div class="section-header">
       <span class="section-icon" aria-hidden="true">&#127793;</span>
-      <h2 class="section-title">Starter</h2>
+      <h2 class="section-title">{{ i18n.t().starter }}</h2>
       <button
         class="info-btn"
         type="button"
-        aria-label="Starter info"
-        [appTooltip]="INFO['starter']"
+        [attr.aria-label]="i18n.t().starter"
+        [appTooltip]="i18n.t().infoStarter"
       >
         &#9432;
       </button>
     </div>
 
-    <label class="field-label">Starter total weight (g)</label>
+    <label class="field-label">{{ i18n.t().starterTotalWeight }}</label>
     <app-stepper
       [(value)]="starterWeight"
       [step]="10"
@@ -157,7 +182,7 @@
       (valueChange)="onStepperChange()"
     />
 
-    <label class="field-label">Starter hydration (%)</label>
+    <label class="field-label">{{ i18n.t().starterHydration }}</label>
     <app-stepper
       [(value)]="starterHydrationPct"
       [step]="5"
@@ -171,18 +196,18 @@
   <section class="section">
     <div class="section-header">
       <span class="section-icon" aria-hidden="true">&#128336;</span>
-      <h2 class="section-title">Proofing</h2>
+      <h2 class="section-title">{{ i18n.t().proofing }}</h2>
       <button
         class="info-btn"
         type="button"
-        aria-label="Proofing info"
-        [appTooltip]="INFO['proofing']"
+        [attr.aria-label]="i18n.t().proofing"
+        [appTooltip]="i18n.t().infoProofing"
       >
         &#9432;
       </button>
     </div>
 
-    <label class="field-label">Time until oven (hours)</label>
+    <label class="field-label">{{ i18n.t().timeUntilOven }}</label>
     <app-stepper
       [(value)]="totalHours"
       [step]="0.5"
@@ -191,7 +216,7 @@
       (valueChange)="onStepperChange()"
     />
 
-    <label class="field-label">Room temperature (&deg;C)</label>
+    <label class="field-label">{{ i18n.t().roomTemperature }}</label>
     <app-stepper
       [(value)]="roomTemp"
       [step]="1"
@@ -202,21 +227,26 @@
   </section>
 
   <!-- Calculate button -->
-  <button class="calculate-btn" type="button" (click)="runCalculation()">Calculate</button>
+  <button class="calculate-btn" type="button" (click)="runCalculation()">
+    {{ i18n.t().calculate }}
+  </button>
 
   @if (validationError()) {
-    <p class="validation-msg">{{ validationError() }}</p>
-  }
-
-  @if (resultsVisible() && result()) {
-    <app-results [data]="result()!" />
-    <app-instructions [data]="result()!" />
+  <p class="validation-msg">{{ validationError() }}</p>
+  } @if (resultsVisible() && result()) {
+  <app-results [data]="result()!" />
+  <app-instructions [data]="result()!" />
   }
 </main>
 
 <!-- Scroll to top button -->
 @if (showScrollTop()) {
-  <button class="scroll-top-btn" type="button" aria-label="Scroll to top" (click)="scrollToTop()">
-    &#8593;
-  </button>
+<button
+  class="scroll-top-btn"
+  type="button"
+  aria-label="Scroll to top"
+  (click)="scrollToTop()"
+>
+  &#8593;
+</button>
 }

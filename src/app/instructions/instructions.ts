@@ -1,5 +1,13 @@
-import { Component, inject, input, signal, computed, OnDestroy } from '@angular/core';
-import { CalcResult, CalcService } from '../calc.service';
+import {
+  Component,
+  inject,
+  input,
+  signal,
+  computed,
+  OnDestroy,
+} from "@angular/core";
+import { CalcResult, CalcService } from "../calc.service";
+import { I18nService } from "../i18n.service";
 
 interface InstructionStep {
   title: string;
@@ -9,75 +17,114 @@ interface InstructionStep {
 }
 
 @Component({
-  selector: 'app-instructions',
-  templateUrl: './instructions.html',
-  styleUrl: './instructions.css',
+  selector: "app-instructions",
+  templateUrl: "./instructions.html",
+  styleUrl: "./instructions.css",
 })
 export class InstructionsComponent implements OnDestroy {
   private readonly calc = inject(CalcService);
+  readonly i18n = inject(I18nService);
   readonly data = input.required<CalcResult>();
 
   // Timer state
   protected activeTimerIndex = signal<number | null>(null);
   protected activeTimerPaused = signal(false);
   protected activeTimerRemaining = signal(0);
-  private activeTimerTitle = '';
+  private activeTimerTitle = "";
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
   protected readonly timerDisplays = signal<Record<number, string>>({});
+  protected readonly completedSteps = signal<Record<number, boolean>>({});
+
+  private formatDuration(minutes: number): string {
+    if (minutes < 60) return `${minutes} min`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m === 0 ? `${h}h` : `${h}h ${m}m`;
+  }
 
   protected readonly steps = computed<InstructionStep[]>(() => {
     const d = this.data();
     const roundG = (v: number) => Math.round(v);
     const round1 = this.calc.round1;
+    const fmt = (m: number) => this.formatDuration(m);
+    const t = this.i18n.t();
+
+    const milkPart = d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g milk` : "";
+    const yeastPart =
+      d.yeastToAdd > 0
+        ? `, and ${round1(d.yeastToAdd)} g ${d.yeastTypeLabel.toLowerCase()}`
+        : "";
+    const sugarPart =
+      d.sugarToAdd > 0
+        ? `, ${round1(d.sugarToAdd)} g ${t.sugarIngredient.toLowerCase()}`
+        : "";
+    const oilPart =
+      d.oilToAdd > 0
+        ? `, and ${round1(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`
+        : "";
 
     return [
       {
-        title: '1. Mix',
-        time: `${d.mixMinutes} min`,
-        body: `Mix ${roundG(d.starterWeight)} g starter, ${roundG(d.waterToAdd)} g water${d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g milk` : ''}${d.yeastToAdd > 0 ? `, and ${round1(d.yeastToAdd)} g ${d.yeastTypeLabel.toLowerCase()}` : ''}. Add ${roundG(d.flourToAdd)} g flour and mix until no dry flour remains. Rest about 20 minutes, then add ${round1(d.saltToAdd)} g salt${d.sugarToAdd > 0 ? `, ${round1(d.sugarToAdd)} g sugar` : ''}${d.oilToAdd > 0 ? `, and ${round1(d.oilToAdd)} g oil` : ''}. Mix until smooth, elastic, and slightly tacky.`,
+        title: t.stepMix,
+        time: fmt(d.mixMinutes),
+        body: t.bodyMix(
+          roundG(d.starterWeight),
+          roundG(d.waterToAdd),
+          milkPart,
+          yeastPart,
+          roundG(d.flourToAdd),
+          round1(d.saltToAdd),
+          sugarPart,
+          oilPart,
+        ),
         minutes: d.mixMinutes,
       },
       {
-        title: '2. Bulk fermentation',
-        time: `${d.bulkMinutes} min`,
-        body: `Ferment around ${d.roomTemp}°C for about ${d.bulkMinutes} minutes. Give one fold at about ${d.fold1} minutes and another at about ${d.fold2} minutes. Dough should feel lighter and puffier by the end.`,
+        title: t.stepBulk,
+        time: fmt(d.bulkMinutes),
+        body: t.bodyBulk(
+          d.roomTemp,
+          fmt(d.bulkMinutes),
+          fmt(d.fold1),
+          fmt(d.fold2),
+        ),
         minutes: d.bulkMinutes,
       },
       {
-        title: '3. Divide and pre-shape',
-        time: `${d.divideAndShapeMinutes} min`,
-        body: `Divide into ${d.breadCount} pieces. Actual dough weight per piece is about ${roundG(d.actualPerBall)} g. Pre-shape gently.`,
+        title: t.stepDivide,
+        time: fmt(d.divideAndShapeMinutes),
+        body: t.bodyDivide(d.breadCount, roundG(d.actualPerBall)),
         minutes: d.divideAndShapeMinutes,
       },
       {
-        title: '4. Bench rest',
-        time: `${d.benchRestMinutes} min`,
-        body: `Rest covered for ${d.benchRestMinutes} minutes so the dough relaxes before final shaping.`,
+        title: t.stepBenchRest,
+        time: fmt(d.benchRestMinutes),
+        body: t.bodyBenchRest(fmt(d.benchRestMinutes)),
         minutes: d.benchRestMinutes,
       },
       {
-        title: '5. Final shape',
-        time: '10 min',
-        body: 'Shape into rolls or rustic squares. Build enough surface tension for height without squeezing out too much gas.',
+        title: t.stepFinalShape,
+        time: "10 min",
+        body: t.bodyFinalShape,
         minutes: 10,
       },
       {
-        title: '6. Final proof',
-        time: `${d.finalProofMinutes} min`,
-        body: `Proof at about ${d.roomTemp}°C for around ${d.finalProofMinutes} minutes. A fingertip dent should spring back slowly, not immediately.`,
+        title: t.stepFinalProof,
+        time: fmt(d.finalProofMinutes),
+        body: t.bodyFinalProof(d.roomTemp, fmt(d.finalProofMinutes)),
         minutes: d.finalProofMinutes,
       },
       {
-        title: '7. Preheat oven',
-        time: `${d.preheatMinutes} min`,
-        body: `Preheat during the last ${d.preheatMinutes} minutes of final proof. For rolls, 230–240°C is a strong starting point.`,
+        title: t.stepPreheat,
+        time: fmt(d.preheatMinutes),
+        body: t.bodyPreheat(fmt(d.preheatMinutes)),
         minutes: d.preheatMinutes,
       },
       {
-        title: '8. Bake',
-        time: `${d.bakeMinutes} min`,
-        body: `Bake with steam if possible. Start hot, then reduce slightly if needed. Bake about ${d.bakeMinutes} minutes until golden and set.`,
+        title: t.stepBake,
+        time: fmt(d.bakeMinutes),
+        body: t.bodyBake(fmt(d.bakeMinutes)),
         minutes: d.bakeMinutes,
       },
     ];
@@ -95,8 +142,8 @@ export class InstructionsComponent implements OnDestroy {
   }
 
   private formatTime(seconds: number): string {
-    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const ss = String(seconds % 60).padStart(2, '0');
+    const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const ss = String(seconds % 60).padStart(2, "0");
     return `${mm}:${ss}`;
   }
 
@@ -104,21 +151,44 @@ export class InstructionsComponent implements OnDestroy {
     this.timerDisplays.update((d) => ({ ...d, [index]: text }));
   }
 
+  private playAlarm(): void {
+    try {
+      const ctx = new AudioContext();
+      const beepCount = 5;
+      for (let i = 0; i < beepCount; i++) {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.type = "square";
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.3;
+        const start = ctx.currentTime + i * 0.4;
+        oscillator.start(start);
+        oscillator.stop(start + 0.2);
+      }
+    } catch {
+      /* Web Audio API not available */
+    }
+  }
+
+  toggleCompleted(index: number): void {
+    this.completedSteps.update((c) => ({ ...c, [index]: !c[index] }));
+  }
+
   private onTimerFinished(stepIndex: number, title: string): void {
+    const t = this.i18n.t();
     this.clearTimer();
-    this.setDisplay(stepIndex, `${title} finished.`);
+    this.setDisplay(stepIndex, `${title} ${t.finished}`);
     this.activeTimerIndex.set(null);
     this.activeTimerPaused.set(false);
     this.activeTimerRemaining.set(0);
-    this.activeTimerTitle = '';
-    try {
-      alert(`${title} finished.`);
-    } catch {
-      /* noop */
-    }
-    if ('Notification' in window && Notification.permission === 'granted') {
+    this.activeTimerTitle = "";
+    this.completedSteps.update((c) => ({ ...c, [stepIndex]: true }));
+    this.playAlarm();
+    if ("Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification(`${title} finished.`);
+        new Notification(`${title} ${t.finished}`);
       } catch {
         /* noop */
       }
@@ -132,7 +202,10 @@ export class InstructionsComponent implements OnDestroy {
         this.onTimerFinished(stepIndex, title);
         return;
       }
-      this.setDisplay(stepIndex, `Running: ${this.formatTime(remaining)}`);
+      this.setDisplay(
+        stepIndex,
+        `${this.i18n.t().running}: ${this.formatTime(remaining)}`,
+      );
       this.activeTimerRemaining.update((r) => r - 1);
     };
     tick();
@@ -141,7 +214,7 @@ export class InstructionsComponent implements OnDestroy {
 
   startTimer(stepIndex: number, minutes: number, title: string): void {
     this.stopActiveTimer(true);
-    if ('Notification' in window && Notification.permission === 'default') {
+    if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
 
@@ -157,7 +230,10 @@ export class InstructionsComponent implements OnDestroy {
     this.clearTimer();
     this.activeTimerPaused.set(true);
     const remaining = this.activeTimerRemaining();
-    this.setDisplay(this.activeTimerIndex()!, `Paused: ${this.formatTime(remaining)}`);
+    this.setDisplay(
+      this.activeTimerIndex()!,
+      `${this.i18n.t().paused}: ${this.formatTime(remaining)}`,
+    );
   }
 
   resumeTimer(): void {
@@ -180,9 +256,9 @@ export class InstructionsComponent implements OnDestroy {
       this.activeTimerIndex.set(null);
       this.activeTimerPaused.set(false);
       this.activeTimerRemaining.set(0);
-      this.activeTimerTitle = '';
+      this.activeTimerTitle = "";
     }
-    this.setDisplay(stepIndex, '');
+    this.setDisplay(stepIndex, "");
   }
 
   stopActiveTimer(showStopped: boolean): void {
@@ -190,12 +266,12 @@ export class InstructionsComponent implements OnDestroy {
     this.clearTimer();
     if (idx !== null) {
       if (showStopped) {
-        this.setDisplay(idx, 'Stopped.');
+        this.setDisplay(idx, this.i18n.t().stopped);
       }
     }
     this.activeTimerIndex.set(null);
     this.activeTimerPaused.set(false);
     this.activeTimerRemaining.set(0);
-    this.activeTimerTitle = '';
+    this.activeTimerTitle = "";
   }
 }

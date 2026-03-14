@@ -1,25 +1,25 @@
 <section class="section">
   <div class="section-header">
-    <h2 class="section-title">Results</h2>
+    <h2 class="section-title">{{ i18n.t().results }}</h2>
   </div>
 
   <div class="stats-grid">
     @for (stat of stats(); track stat.label) {
-      <div class="stat-card">
-        <div class="stat-value">{{ stat.value }}</div>
-        <div class="stat-label">{{ stat.label }}</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stat.value }}</div>
+      <div class="stat-label">{{ stat.label }}</div>
+    </div>
     }
   </div>
 
-  <h3 class="sub-heading">Ingredients</h3>
+  <h3 class="sub-heading">{{ i18n.t().ingredients }}</h3>
   <table class="ingredient-table">
     <tbody>
       @for (row of ingredients(); track row[0]) {
-        <tr>
-          <td>{{ row[0] }}</td>
-          <td>{{ row[1] }}</td>
-        </tr>
+      <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+      </tr>
       }
     </tbody>
   </table>

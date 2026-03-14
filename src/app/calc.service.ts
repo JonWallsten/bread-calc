@@ -1,9 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
+import {
+  YEAST_LABELS,
+  TIMER_CONSTANTS,
+  BULK_CLAMP,
+  SHAPE_CLAMP,
+} from "./config";
+export { YEAST_LABELS } from "./config";
+export { DEFAULT_INPUTS } from "./config";
 
 export interface CalcInputs {
   breadCount: number;
   targetBallWeight: number;
-  yeastType: 'fresh' | 'activeDry' | 'instant';
+  yeastType: "fresh" | "activeDry" | "instant";
   hydrationPct: number;
   saltPct: number;
   sugarPct: number;
@@ -59,28 +67,7 @@ export interface CalcResult {
 
 export type CalcOutput = CalcResult | { error: string };
 
-export const YEAST_LABELS: Record<string, string> = {
-  fresh: 'Fresh yeast',
-  activeDry: 'Active dry yeast',
-  instant: 'Instant yeast',
-};
-
-export const DEFAULT_INPUTS: CalcInputs = {
-  breadCount: 6,
-  targetBallWeight: 120,
-  yeastType: 'fresh',
-  hydrationPct: 68,
-  saltPct: 2.0,
-  sugarPct: 0,
-  oilPct: 0,
-  milkPctOfWater: 0,
-  starterWeight: 380,
-  starterHydrationPct: 100,
-  totalHours: 8,
-  roomTemp: 22,
-};
-
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class CalcService {
   readonly clamp = (val: number, min: number, max: number): number =>
     Math.max(min, Math.min(max, val));
@@ -101,11 +88,11 @@ export class CalcService {
   }
 
   waterTempRange(roomTemp: number): string {
-    if (roomTemp >= 27) return '12–14 °C';
-    if (roomTemp >= 24) return '14–16 °C';
-    if (roomTemp >= 21) return '16–18 °C';
-    if (roomTemp >= 18) return '18–20 °C';
-    return '20–22 °C';
+    if (roomTemp >= 27) return "12–14 °C";
+    if (roomTemp >= 24) return "14–16 °C";
+    if (roomTemp >= 21) return "16–18 °C";
+    if (roomTemp >= 18) return "18–20 °C";
+    return "20–22 °C";
   }
 
   calculate(inputs: CalcInputs): CalcOutput {
@@ -133,7 +120,7 @@ export class CalcService {
       totalHours <= 0
     ) {
       return {
-        error: 'Please enter valid values. Salt must be greater than zero.',
+        error: "validation",
       };
     }
 
@@ -152,16 +139,23 @@ export class CalcService {
     freshPct *= Math.pow(0.9, roomTemp - 22);
 
     const starterRatio = starterWeight / targetDoughWeight;
-    const starterHydrationFactor = this.clamp(0.9 + (starterHydration - 1.0) * 0.25, 0.82, 1.08);
-    const reduction = Math.min(0.48, starterRatio * 1.15 * starterHydrationFactor);
+    const starterHydrationFactor = this.clamp(
+      0.9 + (starterHydration - 1.0) * 0.25,
+      0.82,
+      1.08,
+    );
+    const reduction = Math.min(
+      0.48,
+      starterRatio * 1.15 * starterHydrationFactor,
+    );
     freshPct *= 1 - reduction;
     freshPct = Math.max(0.0005, freshPct);
 
     const freshPctFinal = freshPct;
     let chosenYeastPct: number;
-    if (yeastType === 'activeDry') {
+    if (yeastType === "activeDry") {
       chosenYeastPct = freshPctFinal / 2.5;
-    } else if (yeastType === 'instant') {
+    } else if (yeastType === "instant") {
       chosenYeastPct = freshPctFinal / 3.0;
     } else {
       chosenYeastPct = freshPctFinal;
@@ -180,8 +174,7 @@ export class CalcService {
 
     if (flourToAdd <= 0 || !isFinite(flourToAdd)) {
       return {
-        error:
-          'These inputs do not produce a valid recipe. Try increasing target weight or reducing starter.',
+        error: "recipe",
       };
     }
 
@@ -195,20 +188,38 @@ export class CalcService {
     const oilToAdd = totalFlour * oil;
     const yeastToAdd = totalFlour * chosenYeastPct;
     const finalDoughWeight =
-      flourToAdd + starterWeight + addedWaterTotal + saltToAdd + sugarToAdd + oilToAdd + yeastToAdd;
+      flourToAdd +
+      starterWeight +
+      addedWaterTotal +
+      saltToAdd +
+      sugarToAdd +
+      oilToAdd +
+      yeastToAdd;
     const actualPerBall = finalDoughWeight / breadCount;
     const prefermentedFlourPct = (starterFlour / totalFlour) * 100;
 
+    const round5 = (v: number) => Math.round(v / 5) * 5;
     const totalMinutes = totalHours * 60;
-    const mixMinutes = 35;
-    const bulkMinutes = Math.round(this.clamp(totalMinutes * 0.42, 135, 240));
-    const divideAndShapeMinutes = Math.round(this.clamp(breadCount * 1.2, 22, 48));
-    const benchRestMinutes = 15;
-    const preheatMinutes = 45;
-    const bakeMinutes = 15;
+    const {
+      mixMinutes,
+      benchRestMinutes,
+      preheatMinutes,
+      bakeMinutes,
+      finalProofMinMinutes,
+    } = TIMER_CONSTANTS;
+    const bulkMinutes = round5(
+      this.clamp(totalMinutes * 0.42, BULK_CLAMP.min, BULK_CLAMP.max),
+    );
+    const divideAndShapeMinutes = round5(
+      this.clamp(
+        breadCount * SHAPE_CLAMP.perLoafFactor,
+        SHAPE_CLAMP.min,
+        SHAPE_CLAMP.max,
+      ),
+    );
     const finalProofMinutes = Math.max(
-      50,
-      Math.round(
+      finalProofMinMinutes,
+      round5(
         totalMinutes -
           mixMinutes -
           bulkMinutes -
@@ -219,8 +230,8 @@ export class CalcService {
       ),
     );
 
-    const fold1 = Math.round(bulkMinutes * 0.33);
-    const fold2 = Math.round(bulkMinutes * 0.66);
+    const fold1 = round5(bulkMinutes * 0.33);
+    const fold2 = round5(bulkMinutes * 0.66);
     const yeastTypeLabel = YEAST_LABELS[yeastType];
 
     return {

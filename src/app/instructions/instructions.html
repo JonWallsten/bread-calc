@@ -1,29 +1,58 @@
 <section class="section">
   <div class="section-header">
-    <h2 class="section-title">Instructions</h2>
+    <h2 class="section-title">{{ i18n.t().instructions }}</h2>
   </div>
 
   @for (step of steps(); track step.title; let i = $index) {
-    <div class="instruction-card">
-      <div class="instruction-header">
+  <div class="instruction-card" [class.completed]="completedSteps()[i]">
+    <div class="instruction-header">
+      <div class="instruction-title-group">
         <span class="instruction-title">{{ step.title }}</span>
-        <span class="instruction-time">{{ step.time }}</span>
       </div>
-      <p class="instruction-body">{{ step.body }}</p>
-      <div class="timer-row">
-        @if (activeTimerIndex() !== i) {
-          <button class="timer-btn" type="button" (click)="startTimer(i, step.minutes, step.title)">
-            Start timer
-          </button>
+      <button
+        class="check-btn"
+        [class.checked]="completedSteps()[i]"
+        type="button"
+        (click)="toggleCompleted(i)"
+        [attr.aria-label]="completedSteps()[i] ? 'Mark ' + step.title + ' incomplete' : 'Mark ' + step.title + ' complete'"
+      >
+        @if (completedSteps()[i]) {
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
         }
-        @if (activeTimerIndex() === i) {
-          <button class="timer-btn" type="button" (click)="togglePause()">
-            {{ activeTimerPaused() ? 'Resume' : 'Pause' }}
-          </button>
-          <button class="timer-btn" type="button" (click)="resetTimer(i)">Reset</button>
-        }
-        <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
-      </div>
+      </button>
     </div>
+    <p class="instruction-body">{{ step.body }}</p>
+    <div class="timer-row">
+      @if (activeTimerIndex() !== i) {
+      <button
+        class="timer-btn"
+        type="button"
+        (click)="startTimer(i, step.minutes, step.title)"
+      >
+        {{ i18n.t().startTimer }}
+        <span class="timer-btn-time">&middot; {{ step.time }}</span>
+      </button>
+      } @if (activeTimerIndex() === i) {
+      <button class="timer-btn" type="button" (click)="togglePause()">
+        {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
+      </button>
+      <button class="timer-btn" type="button" (click)="resetTimer(i)">
+        {{ i18n.t().reset }}
+      </button>
+      }
+      <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
+    </div>
+  </div>
   }
 </section>

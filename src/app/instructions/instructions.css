@@ -28,14 +28,57 @@
 .instruction-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
     margin-bottom: 8px;
+}
+
+.instruction-title-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.check-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: transparent;
+    transition: all 0.2s ease;
+}
+
+.check-btn.checked {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: #fff;
+}
+
+.check-btn:hover {
+    border-color: #4caf50;
+}
+
+.instruction-card.completed {
+    opacity: 0.55;
+}
+
+.instruction-card.completed .instruction-title {
+    text-decoration: line-through;
 }
 
 .instruction-title {
     font-size: 16px;
     font-weight: 700;
 }
+
+.instruction-title {}
 
 .instruction-time {
     font-size: 13px;
@@ -73,6 +116,12 @@
 
 .timer-btn:hover {
     background: var(--bg);
+}
+
+.timer-btn-time {
+    font-weight: 400;
+    opacity: 0.65;
+    margin-left: 2px;
 }
 
 .timer-display {

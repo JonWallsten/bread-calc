@@ -6,37 +6,26 @@ import {
   viewChild,
   OnInit,
   HostListener,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import {
   CalcService,
   CalcInputs,
   CalcResult,
   CalcOutput,
-  DEFAULT_INPUTS,
-  YEAST_LABELS,
-} from './calc.service';
-import { StorageService } from './storage.service';
-import { StepperComponent } from './stepper/stepper';
-import { ResultsComponent } from './results/results';
-import { InstructionsComponent } from './instructions/instructions';
-import { TooltipDirective } from './tooltip.directive';
+} from "./calc.service";
+import { DEFAULT_INPUTS, YEAST_LABELS } from "./config";
+import { I18nService } from "./i18n.service";
+import { StorageService } from "./storage.service";
+import { StepperComponent } from "./stepper/stepper";
+import { ResultsComponent } from "./results/results";
+import { InstructionsComponent } from "./instructions/instructions";
+import { TooltipDirective } from "./tooltip.directive";
 
-const INFO_MESSAGES: Record<string, string> = {
-  dough:
-    'Enter how many breads you want and the target weight per ball. Final weight per ball is approximate because the final dough weight depends on rounding.',
-  yeast:
-    'Choose the yeast type. The calculator estimates the amount from total time until oven, room temperature, starter amount, and starter hydration.',
-  percentages:
-    'Hydration is total liquid divided by total flour, including the flour and water inside the starter. Salt is required. Sugar and oil are optional. Milk replaces part of the added water.',
-  starter:
-    'Starter total weight is the full starter amount in grams. Starter hydration is the water-to-flour ratio inside the starter. For example, 100% hydration means equal parts water and flour by weight.',
-  proofing:
-    'Enter the total time until the dough should go into the oven and the room temperature. The calculator splits this into mixing, bulk fermentation, shaping, final proof, and preheating.',
-};
+const INFO_MESSAGES: Record<string, string> = {};
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   imports: [
     FormsModule,
     StepperComponent,
@@ -44,20 +33,23 @@ const INFO_MESSAGES: Record<string, string> = {
     InstructionsComponent,
     TooltipDirective,
   ],
-  templateUrl: './app.html',
-  styleUrl: './app.css',
+  templateUrl: "./app.html",
+  styleUrl: "./app.css",
 })
 export class App implements OnInit {
   private readonly calc = inject(CalcService);
   private readonly storage = inject(StorageService);
   private readonly instructionsRef = viewChild(InstructionsComponent);
+  readonly i18n = inject(I18nService);
 
   readonly INFO = INFO_MESSAGES;
 
   // Input signals
   readonly breadCount = signal(DEFAULT_INPUTS.breadCount);
   readonly targetBallWeight = signal(DEFAULT_INPUTS.targetBallWeight);
-  readonly yeastType = signal<CalcInputs['yeastType']>(DEFAULT_INPUTS.yeastType);
+  readonly yeastType = signal<CalcInputs["yeastType"]>(
+    DEFAULT_INPUTS.yeastType,
+  );
   readonly hydrationPct = signal(DEFAULT_INPUTS.hydrationPct);
   readonly saltPct = signal(DEFAULT_INPUTS.saltPct);
   readonly sugarPct = signal(DEFAULT_INPUTS.sugarPct);
@@ -78,16 +70,20 @@ export class App implements OnInit {
   // Yeast recommendation text
   readonly yeastRecommendation = computed(() => {
     const r = this.result();
-    if (!r) return 'Estimated yeast will appear after calculate.';
+    const t = this.i18n.t();
+    if (!r) return t.yeastRecommendationPending;
     const pct = r.chosenYeastPct * 100;
     return `${r.yeastTypeLabel}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
   });
 
-  readonly yeastOptions = [
-    { value: 'fresh', label: YEAST_LABELS['fresh'] },
-    { value: 'activeDry', label: YEAST_LABELS['activeDry'] },
-    { value: 'instant', label: YEAST_LABELS['instant'] },
-  ];
+  readonly yeastOptions = computed(() => {
+    const t = this.i18n.t();
+    return [
+      { value: "fresh", label: t.freshYeast },
+      { value: "activeDry", label: t.activeDryYeast },
+      { value: "instant", label: t.instantYeast },
+    ];
+  });
 
   ngOnInit(): void {
     const saved = this.storage.load();
@@ -106,7 +102,7 @@ export class App implements OnInit {
     this.runCalculation();
   }
 
-  @HostListener('window:scroll')
+  @HostListener("window:scroll")
   onScroll(): void {
     this.showScrollTop.set(window.scrollY > 300);
   }
@@ -136,8 +132,11 @@ export class App implements OnInit {
     this.validationError.set(null);
     this.saveInputs();
     const output: CalcOutput = this.calc.calculate(this.getInputs());
-    if ('error' in output) {
-      this.validationError.set(output.error);
+    if ("error" in output) {
+      const t = this.i18n.t();
+      const msg =
+        output.error === "validation" ? t.validationError : t.recipeError;
+      this.validationError.set(msg);
       this.resultsVisible.set(false);
       this.result.set(null);
       return;
@@ -147,7 +146,7 @@ export class App implements OnInit {
   }
 
   onYeastTypeChange(value: string): void {
-    this.yeastType.set(value as CalcInputs['yeastType']);
+    this.yeastType.set(value as CalcInputs["yeastType"]);
     this.saveInputs();
     if (this.resultsVisible()) {
       this.runCalculation();
@@ -183,10 +182,10 @@ export class App implements OnInit {
     this.resultsVisible.set(false);
     this.result.set(null);
     this.storage.clear();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }

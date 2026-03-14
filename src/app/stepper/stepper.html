@@ -7,7 +7,19 @@
   >
     −
   </button>
-  <span class="stepper-value">{{ displayValue() }}</span>
+  <input
+    class="stepper-input"
+    type="text"
+    inputmode="decimal"
+    [value]="editingValue() ?? displayNumber()"
+    (focus)="onFocus($event)"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    (keydown.enter)="onEnter($event)"
+  />
+  @if (suffix()) {
+  <span class="stepper-suffix">{{ suffix() }}</span>
+  }
   <button
     class="stepper-btn stepper-plus"
     type="button"

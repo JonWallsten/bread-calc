@@ -67,6 +67,11 @@ input[type="number"] {
     transition: opacity 0.15s ease;
 }
 
+.app-tooltip--sticky {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
 /* ── Responsive: desktop ───────────────────────────────── */
 @media (min-width: 900px) {
     :root {

@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { CalcInputs, DEFAULT_INPUTS } from './calc.service';
+import { Injectable } from "@angular/core";
+import { CalcInputs } from "./calc.service";
+import { DEFAULT_INPUTS } from "./config";
 
-const STORAGE_KEY = 'breadCalcInputs';
+const STORAGE_KEY = "breadCalcInputs";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class StorageService {
   save(inputs: CalcInputs): void {
     try {
