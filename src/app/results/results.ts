@@ -52,7 +52,7 @@ export class ResultsComponent {
     if (d.oilToAdd > 0) {
       rows.push([t.oilIngredient, `${Math.round(d.oilToAdd)} g`]);
     }
-    rows.push([d.yeastTypeLabel, `${Math.round(d.yeastToAdd)} g`]);
+    rows.push([d.yeastTypeLabel, `${this.calc.round1(d.yeastToAdd)} g`]);
     return rows;
   });
 

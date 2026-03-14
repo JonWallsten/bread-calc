@@ -50,10 +50,11 @@ export class InstructionsComponent implements OnDestroy {
     const fmt = (m: number) => this.formatDuration(m);
     const t = this.i18n.t();
 
-    const milkPart = d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g milk` : "";
+    const milkPart =
+      d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g ${t.milk}` : "";
     const yeastPart =
       d.yeastToAdd > 0
-        ? `, and ${round1(d.yeastToAdd)} g ${d.yeastTypeLabel.toLowerCase()}`
+        ? `, ${t.and} ${round1(d.yeastToAdd)} g ${d.yeastTypeLabel.toLowerCase()}`
         : "";
     const sugarPart =
       d.sugarToAdd > 0
@@ -61,7 +62,7 @@ export class InstructionsComponent implements OnDestroy {
         : "";
     const oilPart =
       d.oilToAdd > 0
-        ? `, and ${round1(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`
+        ? `, ${t.and} ${round1(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`
         : "";
 
     return [

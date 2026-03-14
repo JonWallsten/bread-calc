@@ -3,7 +3,7 @@
   <button
     class="topbar-lang"
     type="button"
-    aria-label="Switch language"
+    [attr.aria-label]="i18n.t().switchLanguage"
     (click)="i18n.toggleLang()"
   >
     {{ i18n.currentLang() === 'en' ? '🇸🇪' : '🇬🇧' }}
@@ -244,7 +244,7 @@
 <button
   class="scroll-top-btn"
   type="button"
-  aria-label="Scroll to top"
+  [attr.aria-label]="i18n.t().scrollToTop"
   (click)="scrollToTop()"
 >
   &#8593;

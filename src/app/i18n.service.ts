@@ -125,6 +125,18 @@ interface Translations {
   paused: string;
   stopped: string;
 
+  // Short words / connectors
+  milk: string;
+  and: string;
+
+  // Aria-labels
+  switchLanguage: string;
+  scrollToTop: string;
+  decrease: string;
+  increase: string;
+  markComplete: (title: string) => string;
+  markIncomplete: (title: string) => string;
+
   // Validation
   validationError: string;
   recipeError: string;
@@ -169,7 +181,7 @@ const en: Translations = {
     "Enter the total time until the dough should go into the oven and the room temperature. The calculator splits this into mixing, bulk fermentation, shaping, final proof, and preheating.",
   totalDoughWeight: "Total dough weight",
   actualPerBall: "Actual per ball",
-  starterFlourShare: "Starter flour share",
+  starterFlourShare: "Pre-fermented flour",
   waterTemperature: "Water temperature",
   ingredients: "Ingredients",
   flourToAdd: "Flour to add",
@@ -225,6 +237,14 @@ const en: Translations = {
   running: "Running",
   paused: "Paused",
   stopped: "Stopped.",
+  milk: "milk",
+  and: "and",
+  switchLanguage: "Switch language",
+  scrollToTop: "Scroll to top",
+  decrease: "Decrease",
+  increase: "Increase",
+  markComplete: (title: string) => `Mark ${title} complete`,
+  markIncomplete: (title: string) => `Mark ${title} incomplete`,
   validationError: "Please enter valid values. Salt must be greater than zero.",
   recipeError:
     "These inputs do not produce a valid recipe. Try increasing target weight or reducing starter.",
@@ -269,7 +289,7 @@ const sv: Translations = {
     "Ange den totala tiden tills degen ska in i ugnen och rumstemperaturen. Kalkylatorn delar upp detta i blandning, bulkjäsning, formning, slutjäsning och förvärmning.",
   totalDoughWeight: "Total degvikt",
   actualPerBall: "Faktisk per boll",
-  starterFlourShare: "Surdegens mjölandel",
+  starterFlourShare: "Förjäst mjöl",
   waterTemperature: "Vattentemperatur",
   ingredients: "Ingredienser",
   flourToAdd: "Mjöl att tillsätta",
@@ -325,6 +345,14 @@ const sv: Translations = {
   running: "Pågår",
   paused: "Pausad",
   stopped: "Stoppad.",
+  milk: "mjölk",
+  and: "och",
+  switchLanguage: "Byt språk",
+  scrollToTop: "Scrolla upp",
+  decrease: "Minska",
+  increase: "Öka",
+  markComplete: (title: string) => `Markera ${title} som klar`,
+  markIncomplete: (title: string) => `Markera ${title} som ej klar`,
   validationError: "Ange giltiga värden. Salt måste vara större än noll.",
   recipeError:
     "Dessa värden ger inget giltigt recept. Prova att öka målvikten eller minska surdegen.",

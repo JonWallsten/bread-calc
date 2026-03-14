@@ -6,7 +6,9 @@ import {
   viewChild,
   OnInit,
   HostListener,
+  effect,
 } from "@angular/core";
+import { Title } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
 import {
   CalcService,
@@ -40,7 +42,14 @@ export class App implements OnInit {
   private readonly calc = inject(CalcService);
   private readonly storage = inject(StorageService);
   private readonly instructionsRef = viewChild(InstructionsComponent);
+  private readonly titleService = inject(Title);
   readonly i18n = inject(I18nService);
+
+  constructor() {
+    effect(() => {
+      this.titleService.setTitle(this.i18n.t().appTitle);
+    });
+  }
 
   readonly INFO = INFO_MESSAGES;
 

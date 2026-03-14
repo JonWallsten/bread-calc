@@ -1,4 +1,12 @@
-import { Component, input, model, computed, signal } from "@angular/core";
+import {
+  Component,
+  inject,
+  input,
+  model,
+  computed,
+  signal,
+} from "@angular/core";
+import { I18nService } from "../i18n.service";
 
 @Component({
   selector: "app-stepper",
@@ -6,6 +14,7 @@ import { Component, input, model, computed, signal } from "@angular/core";
   styleUrl: "./stepper.css",
 })
 export class StepperComponent {
+  readonly i18n = inject(I18nService);
   readonly value = model.required<number>();
   readonly step = input(1);
   readonly min = input(0);

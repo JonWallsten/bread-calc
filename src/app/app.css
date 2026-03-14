@@ -155,8 +155,8 @@
     width: 100%;
     padding: 14px 16px;
     margin-top: var(--gap);
-    background: #e8e8e8;
-    border: none;
+    background: #d6e4f0;
+    border: 1px solid #b0c9e0;
     border-radius: var(--radius);
     font-family: var(--font);
     font-size: 15px;

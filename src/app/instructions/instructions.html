@@ -14,7 +14,7 @@
         [class.checked]="completedSteps()[i]"
         type="button"
         (click)="toggleCompleted(i)"
-        [attr.aria-label]="completedSteps()[i] ? 'Mark ' + step.title + ' incomplete' : 'Mark ' + step.title + ' complete'"
+        [attr.aria-label]="completedSteps()[i] ? i18n.t().markIncomplete(step.title) : i18n.t().markComplete(step.title)"
       >
         @if (completedSteps()[i]) {
         <svg

@@ -2,7 +2,7 @@
   <button
     class="stepper-btn stepper-minus"
     type="button"
-    aria-label="Decrease"
+    [attr.aria-label]="i18n.t().decrease"
     (click)="decrement()"
   >
     −
@@ -23,7 +23,7 @@
   <button
     class="stepper-btn stepper-plus"
     type="button"
-    aria-label="Increase"
+    [attr.aria-label]="i18n.t().increase"
     (click)="increment()"
   >
     +
