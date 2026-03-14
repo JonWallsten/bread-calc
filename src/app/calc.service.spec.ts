@@ -1,0 +1,251 @@
+import { describe, it, expect } from 'vitest';
+import { CalcService, CalcInputs, CalcResult, DEFAULT_INPUTS } from './calc.service';
+
+const service = new CalcService();
+
+const calc = (overrides: Partial<CalcInputs> = {}): CalcResult & { error?: string } => {
+  return service.calculate({ ...DEFAULT_INPUTS, ...overrides }) as any;
+};
+
+const approx = (a: number, b: number, tol = 0.5): boolean => Math.abs(a - b) <= tol;
+
+describe('Helper functions', () => {
+  it('clamp: within range', () => expect(service.clamp(5, 1, 10)).toBe(5));
+  it('clamp: below min', () => expect(service.clamp(-1, 0, 10)).toBe(0));
+  it('clamp: above max', () => expect(service.clamp(20, 0, 10)).toBe(10));
+  it('round1: 3.14159 → 3.1', () => expect(service.round1(3.14159)).toBe(3.1));
+  it('round1: 2.05 → 2.1', () => expect(service.round1(2.05)).toBe(2.1));
+  it('round1: 0 → 0', () => expect(service.round1(0)).toBe(0));
+});
+
+describe('Yeast baseline', () => {
+  it('2h → 2.8%', () => expect(service.yeastBaseline(2)).toBe(2.8));
+  it('3h → 2.8%', () => expect(service.yeastBaseline(3)).toBe(2.8));
+  it('4h → 2.0%', () => expect(service.yeastBaseline(4)).toBe(2.0));
+  it('5h → 1.5%', () => expect(service.yeastBaseline(5)).toBe(1.5));
+  it('6h → 1.1%', () => expect(service.yeastBaseline(6)).toBe(1.1));
+  it('7h → 0.85%', () => expect(service.yeastBaseline(7)).toBe(0.85));
+  it('8h → 0.65%', () => expect(service.yeastBaseline(8)).toBe(0.65));
+  it('9h → 0.5%', () => expect(service.yeastBaseline(9)).toBe(0.5));
+  it('10h → 0.4%', () => expect(service.yeastBaseline(10)).toBe(0.4));
+  it('12h → 0.3%', () => expect(service.yeastBaseline(12)).toBe(0.3));
+  it('15h → 0.2%', () => expect(service.yeastBaseline(15)).toBe(0.2));
+  it('24h → 0.2%', () => expect(service.yeastBaseline(24)).toBe(0.2));
+});
+
+describe('Water temperature', () => {
+  it('30°C → 12–14', () => expect(service.waterTempRange(30)).toBe('12–14 °C'));
+  it('27°C → 12–14', () => expect(service.waterTempRange(27)).toBe('12–14 °C'));
+  it('25°C → 14–16', () => expect(service.waterTempRange(25)).toBe('14–16 °C'));
+  it('22°C → 16–18', () => expect(service.waterTempRange(22)).toBe('16–18 °C'));
+  it('19°C → 18–20', () => expect(service.waterTempRange(19)).toBe('18–20 °C'));
+  it('15°C → 20–22', () => expect(service.waterTempRange(15)).toBe('20–22 °C'));
+});
+
+describe('Starter breakdown', () => {
+  it('100% hydration: flour ≈ 190', () => {
+    const r = calc();
+    expect(approx(r.starterFlour, 190, 0.01)).toBe(true);
+  });
+  it('100% hydration: water ≈ 190', () => {
+    const r = calc();
+    expect(approx(r.starterWater, 190, 0.01)).toBe(true);
+  });
+  it('80% hydration: flour ≈ 211.11', () => {
+    const r = calc({ starterHydrationPct: 80 });
+    expect(approx(r.starterFlour, 211.11, 0.1)).toBe(true);
+  });
+  it('80% hydration: water ≈ 168.89', () => {
+    const r = calc({ starterHydrationPct: 80 });
+    expect(approx(r.starterWater, 168.89, 0.1)).toBe(true);
+  });
+});
+
+describe('Default calculation', () => {
+  it('no error on defaults', () => expect(calc().error).toBeUndefined());
+  it('targetDoughWeight = 720', () => expect(calc().targetDoughWeight).toBe(720));
+  it('flourToAdd > 0', () => expect(calc().flourToAdd).toBeGreaterThan(0));
+  it('totalFlour > 0', () => expect(calc().totalFlour).toBeGreaterThan(0));
+  it('waterToAdd >= 0', () => expect(calc().waterToAdd).toBeGreaterThanOrEqual(0));
+  it('finalDoughWeight ≈ 720', () => expect(approx(calc().finalDoughWeight, 720, 2)).toBe(true));
+  it('actualPerBall ≈ 120', () => expect(approx(calc().actualPerBall, 120, 1)).toBe(true));
+  it('hydrationPct = 68', () => expect(calc().hydrationPct).toBe(68));
+  it('yeastTypeLabel = Fresh yeast', () => expect(calc().yeastTypeLabel).toBe('Fresh yeast'));
+  it('yeastToAdd > 0', () => expect(calc().yeastToAdd).toBeGreaterThan(0));
+  it('prefermented in range', () => {
+    const r = calc();
+    expect(r.prefermentedFlourPct).toBeGreaterThan(0);
+    expect(r.prefermentedFlourPct).toBeLessThan(100);
+  });
+});
+
+describe('Yeast type conversions', () => {
+  it('fresh label', () => expect(calc({ yeastType: 'fresh' }).yeastTypeLabel).toBe('Fresh yeast'));
+  it('activeDry label', () =>
+    expect(calc({ yeastType: 'activeDry' }).yeastTypeLabel).toBe('Active dry yeast'));
+  it('instant label', () =>
+    expect(calc({ yeastType: 'instant' }).yeastTypeLabel).toBe('Instant yeast'));
+
+  it('fresh% > activeDry%', () => {
+    expect(calc({ yeastType: 'fresh' }).chosenYeastPct).toBeGreaterThan(
+      calc({ yeastType: 'activeDry' }).chosenYeastPct,
+    );
+  });
+  it('activeDry% > instant%', () => {
+    expect(calc({ yeastType: 'activeDry' }).chosenYeastPct).toBeGreaterThan(
+      calc({ yeastType: 'instant' }).chosenYeastPct,
+    );
+  });
+  it('fresh/activeDry ≈ 2.5', () => {
+    const ratio =
+      calc({ yeastType: 'fresh' }).chosenYeastPct / calc({ yeastType: 'activeDry' }).chosenYeastPct;
+    expect(approx(ratio, 2.5, 0.01)).toBe(true);
+  });
+  it('fresh/instant ≈ 3.0', () => {
+    const ratio =
+      calc({ yeastType: 'fresh' }).chosenYeastPct / calc({ yeastType: 'instant' }).chosenYeastPct;
+    expect(approx(ratio, 3.0, 0.01)).toBe(true);
+  });
+});
+
+describe('Milk handling', () => {
+  it('no milk: milkToAdd = 0', () => expect(calc({ milkPctOfWater: 0 }).milkToAdd).toBe(0));
+  it('20% milk: milkToAdd > 0', () =>
+    expect(calc({ milkPctOfWater: 20 }).milkToAdd).toBeGreaterThan(0));
+  it('milk reduces water', () => {
+    expect(calc({ milkPctOfWater: 20 }).waterToAdd).toBeLessThan(
+      calc({ milkPctOfWater: 0 }).waterToAdd,
+    );
+  });
+  it('milk is 20% of added liquid', () => {
+    const r = calc({ milkPctOfWater: 20 });
+    const total = r.waterToAdd + r.milkToAdd;
+    expect(approx(r.milkToAdd / total, 0.2, 0.001)).toBe(true);
+  });
+});
+
+describe('Sugar and oil', () => {
+  it('no sugar default', () => expect(calc().sugarToAdd).toBe(0));
+  it('no oil default', () => expect(calc().oilToAdd).toBe(0));
+  it('sugar added', () => expect(calc({ sugarPct: 5, oilPct: 3 }).sugarToAdd).toBeGreaterThan(0));
+  it('oil added', () => expect(calc({ sugarPct: 5, oilPct: 3 }).oilToAdd).toBeGreaterThan(0));
+  it('dough weight valid with extras', () => {
+    expect(calc({ sugarPct: 5, oilPct: 3 }).finalDoughWeight).toBeGreaterThan(0);
+  });
+});
+
+describe('Zero starter', () => {
+  it('no error with starter = 0', () => expect(calc({ starterWeight: 0 }).error).toBeUndefined());
+  it('starterFlour = 0', () => expect(calc({ starterWeight: 0 }).starterFlour).toBe(0));
+  it('starterWater = 0', () => expect(calc({ starterWeight: 0 }).starterWater).toBe(0));
+  it('still produces flour', () =>
+    expect(calc({ starterWeight: 0 }).flourToAdd).toBeGreaterThan(0));
+  it('dough weight still ≈ 720', () => {
+    expect(approx(calc({ starterWeight: 0 }).finalDoughWeight, 720, 2)).toBe(true);
+  });
+});
+
+describe('Temperature adjustment', () => {
+  it('cold room needs more yeast', () => {
+    expect(calc({ roomTemp: 18 }).freshPctFinal).toBeGreaterThan(
+      calc({ roomTemp: 28 }).freshPctFinal,
+    );
+  });
+});
+
+describe('Time allocation', () => {
+  it('mix = 35 min', () => expect(calc().mixMinutes).toBe(35));
+  it('bench rest = 15 min', () => expect(calc().benchRestMinutes).toBe(15));
+  it('preheat = 45 min', () => expect(calc().preheatMinutes).toBe(45));
+  it('bake = 15 min', () => expect(calc().bakeMinutes).toBe(15));
+  it('bulk in [135, 240]', () => {
+    const r = calc();
+    expect(r.bulkMinutes).toBeGreaterThanOrEqual(135);
+    expect(r.bulkMinutes).toBeLessThanOrEqual(240);
+  });
+  it('divide in [22, 48]', () => {
+    const r = calc();
+    expect(r.divideAndShapeMinutes).toBeGreaterThanOrEqual(22);
+    expect(r.divideAndShapeMinutes).toBeLessThanOrEqual(48);
+  });
+  it('final proof >= 50', () => expect(calc().finalProofMinutes).toBeGreaterThanOrEqual(50));
+  it('fold1 within bulk', () => {
+    const r = calc();
+    expect(r.fold1).toBeGreaterThan(0);
+    expect(r.fold1).toBeLessThan(r.bulkMinutes);
+  });
+  it('fold2 after fold1 within bulk', () => {
+    const r = calc();
+    expect(r.fold2).toBeGreaterThan(r.fold1);
+    expect(r.fold2).toBeLessThan(r.bulkMinutes);
+  });
+  it('total steps >= input time', () => {
+    const r = calc();
+    const total =
+      r.mixMinutes +
+      r.bulkMinutes +
+      r.divideAndShapeMinutes +
+      r.benchRestMinutes +
+      r.finalProofMinutes +
+      r.preheatMinutes +
+      r.bakeMinutes;
+    expect(total).toBeGreaterThanOrEqual(r.totalHours * 60);
+  });
+});
+
+describe('Validation', () => {
+  it('breadCount=0 → error', () => expect(calc({ breadCount: 0 }).error).toBeDefined());
+  it('saltPct=0 → error', () => expect(calc({ saltPct: 0 }).error).toBeDefined());
+  it('totalHours=0 → error', () => expect(calc({ totalHours: 0 }).error).toBeDefined());
+  it('starterHydrationPct=0 → error', () =>
+    expect(calc({ starterHydrationPct: 0 }).error).toBeDefined());
+  it('hydrationPct=0 → error', () => expect(calc({ hydrationPct: 0 }).error).toBeDefined());
+});
+
+describe('Impossible recipe', () => {
+  it('huge starter → error', () => {
+    const r = calc({ starterWeight: 5000, targetBallWeight: 50 });
+    expect(r.error).toBeDefined();
+    expect(r.error).toContain('not produce a valid recipe');
+  });
+});
+
+describe('Edge cases', () => {
+  it('2h: no error', () => expect(calc({ totalHours: 2 }).error).toBeUndefined());
+  it('2h: bulk clamped to 135', () => expect(calc({ totalHours: 2 }).bulkMinutes).toBe(135));
+  it('2h: proof clamped to 50', () => expect(calc({ totalHours: 2 }).finalProofMinutes).toBe(50));
+  it('24h: no error', () => expect(calc({ totalHours: 24 }).error).toBeUndefined());
+  it('24h: bulk clamped to 240', () => expect(calc({ totalHours: 24 }).bulkMinutes).toBe(240));
+  it('24h: proof >= 50', () =>
+    expect(calc({ totalHours: 24 }).finalProofMinutes).toBeGreaterThanOrEqual(50));
+  it('50 breads: no error', () => expect(calc({ breadCount: 50 }).error).toBeUndefined());
+  it('50 breads: divide clamped to 48', () =>
+    expect(calc({ breadCount: 50 }).divideAndShapeMinutes).toBe(48));
+});
+
+describe('Dough weight identity', () => {
+  const configs: Partial<CalcInputs>[] = [
+    {},
+    { sugarPct: 5, oilPct: 3 },
+    { milkPctOfWater: 30 },
+    { starterHydrationPct: 80 },
+    { yeastType: 'instant', totalHours: 4, roomTemp: 28 },
+  ];
+
+  for (const cfg of configs) {
+    it(`ingredient sum ≈ finalDoughWeight (${JSON.stringify(cfg)})`, () => {
+      const r = calc(cfg);
+      if (r.error) return;
+      const sum =
+        r.flourToAdd +
+        r.starterWeight +
+        r.waterToAdd +
+        r.milkToAdd +
+        r.saltToAdd +
+        r.sugarToAdd +
+        r.oilToAdd +
+        r.yeastToAdd;
+      expect(approx(sum, r.finalDoughWeight, 0.01)).toBe(true);
+    });
+  }
+});

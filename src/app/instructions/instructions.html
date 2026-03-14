@@ -1,0 +1,29 @@
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Instructions</h2>
+  </div>
+
+  @for (step of steps(); track step.title; let i = $index) {
+    <div class="instruction-card">
+      <div class="instruction-header">
+        <span class="instruction-title">{{ step.title }}</span>
+        <span class="instruction-time">{{ step.time }}</span>
+      </div>
+      <p class="instruction-body">{{ step.body }}</p>
+      <div class="timer-row">
+        @if (activeTimerIndex() !== i) {
+          <button class="timer-btn" type="button" (click)="startTimer(i, step.minutes, step.title)">
+            Start timer
+          </button>
+        }
+        @if (activeTimerIndex() === i) {
+          <button class="timer-btn" type="button" (click)="togglePause()">
+            {{ activeTimerPaused() ? 'Resume' : 'Pause' }}
+          </button>
+          <button class="timer-btn" type="button" (click)="resetTimer(i)">Reset</button>
+        }
+        <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
+      </div>
+    </div>
+  }
+</section>

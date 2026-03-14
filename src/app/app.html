@@ -1,0 +1,222 @@
+<!-- Top bar -->
+<header class="topbar">
+  <span class="topbar-left" aria-hidden="true">&#8592;</span>
+  <h1 class="topbar-title">Bread Dough Calculator</h1>
+  <button class="topbar-reset" type="button" aria-label="Reset all inputs" (click)="reset()">
+    &#8635;
+  </button>
+</header>
+
+<main class="container">
+  <!-- Dough section -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#127829;</span>
+      <h2 class="section-title">Dough</h2>
+      <button class="info-btn" type="button" aria-label="Dough info" [appTooltip]="INFO['dough']">
+        &#9432;
+      </button>
+    </div>
+
+    <label class="field-label">Number of breads</label>
+    <app-stepper
+      [(value)]="breadCount"
+      [step]="1"
+      [min]="1"
+      suffix=""
+      (valueChange)="onStepperChange()"
+    />
+
+    <label class="field-label">Ball weight (g)</label>
+    <app-stepper
+      [(value)]="targetBallWeight"
+      [step]="10"
+      [min]="10"
+      suffix="g"
+      (valueChange)="onStepperChange()"
+    />
+  </section>
+
+  <!-- Yeast section -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#9881;&#65039;</span>
+      <h2 class="section-title">Yeast</h2>
+      <button class="info-btn" type="button" aria-label="Yeast info" [appTooltip]="INFO['yeast']">
+        &#9432;
+      </button>
+    </div>
+
+    <label class="field-label">Yeast type</label>
+    <div class="select-wrap">
+      <select [value]="yeastType()" (change)="onYeastTypeChange($any($event.target).value)">
+        @for (opt of yeastOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <span class="select-chevron" aria-hidden="true">&#9662;</span>
+    </div>
+    <p class="yeast-recommendation">{{ yeastRecommendation() }}</p>
+  </section>
+
+  <!-- Advanced settings banner -->
+  <button
+    class="advanced-banner"
+    type="button"
+    [attr.aria-expanded]="advancedOpen()"
+    (click)="toggleAdvanced()"
+  >
+    <span>Advanced settings</span>
+    <span class="advanced-chevron" [class.open]="advancedOpen()">&#9662;</span>
+  </button>
+
+  <!-- Percentages section (collapsible) -->
+  @if (advancedOpen()) {
+    <section class="section section-collapsible">
+      <div class="section-header">
+        <span class="section-icon" aria-hidden="true">&#128295;</span>
+        <h2 class="section-title">Percentages</h2>
+        <button
+          class="info-btn"
+          type="button"
+          aria-label="Percentages info"
+          [appTooltip]="INFO['percentages']"
+        >
+          &#9432;
+        </button>
+      </div>
+
+      <label class="field-label">Hydration</label>
+      <app-stepper
+        [(value)]="hydrationPct"
+        [step]="1"
+        [min]="1"
+        suffix="%"
+        (valueChange)="onStepperChange()"
+      />
+
+      <label class="field-label">Salt</label>
+      <app-stepper
+        [(value)]="saltPct"
+        [step]="0.1"
+        [min]="0.1"
+        suffix="%"
+        (valueChange)="onStepperChange()"
+      />
+
+      <label class="field-label">Sugar</label>
+      <app-stepper
+        [(value)]="sugarPct"
+        [step]="0.5"
+        [min]="0"
+        suffix="%"
+        (valueChange)="onStepperChange()"
+      />
+
+      <label class="field-label">Oil</label>
+      <app-stepper
+        [(value)]="oilPct"
+        [step]="0.5"
+        [min]="0"
+        suffix="%"
+        (valueChange)="onStepperChange()"
+      />
+
+      <label class="field-label">Milk as % of added water</label>
+      <app-stepper
+        [(value)]="milkPctOfWater"
+        [step]="5"
+        [min]="0"
+        suffix="%"
+        (valueChange)="onStepperChange()"
+      />
+    </section>
+  }
+
+  <!-- Starter section -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#127793;</span>
+      <h2 class="section-title">Starter</h2>
+      <button
+        class="info-btn"
+        type="button"
+        aria-label="Starter info"
+        [appTooltip]="INFO['starter']"
+      >
+        &#9432;
+      </button>
+    </div>
+
+    <label class="field-label">Starter total weight (g)</label>
+    <app-stepper
+      [(value)]="starterWeight"
+      [step]="10"
+      [min]="0"
+      suffix="g"
+      (valueChange)="onStepperChange()"
+    />
+
+    <label class="field-label">Starter hydration (%)</label>
+    <app-stepper
+      [(value)]="starterHydrationPct"
+      [step]="5"
+      [min]="1"
+      suffix="%"
+      (valueChange)="onStepperChange()"
+    />
+  </section>
+
+  <!-- Proofing section -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#128336;</span>
+      <h2 class="section-title">Proofing</h2>
+      <button
+        class="info-btn"
+        type="button"
+        aria-label="Proofing info"
+        [appTooltip]="INFO['proofing']"
+      >
+        &#9432;
+      </button>
+    </div>
+
+    <label class="field-label">Time until oven (hours)</label>
+    <app-stepper
+      [(value)]="totalHours"
+      [step]="0.5"
+      [min]="0.5"
+      suffix="h"
+      (valueChange)="onStepperChange()"
+    />
+
+    <label class="field-label">Room temperature (&deg;C)</label>
+    <app-stepper
+      [(value)]="roomTemp"
+      [step]="1"
+      [min]="5"
+      suffix="&deg;C"
+      (valueChange)="onStepperChange()"
+    />
+  </section>
+
+  <!-- Calculate button -->
+  <button class="calculate-btn" type="button" (click)="runCalculation()">Calculate</button>
+
+  @if (validationError()) {
+    <p class="validation-msg">{{ validationError() }}</p>
+  }
+
+  @if (resultsVisible() && result()) {
+    <app-results [data]="result()!" />
+    <app-instructions [data]="result()!" />
+  }
+</main>
+
+<!-- Scroll to top button -->
+@if (showScrollTop()) {
+  <button class="scroll-top-btn" type="button" aria-label="Scroll to top" (click)="scrollToTop()">
+    &#8593;
+  </button>
+}

@@ -1,0 +1,19 @@
+<div class="stepper">
+  <button
+    class="stepper-btn stepper-minus"
+    type="button"
+    aria-label="Decrease"
+    (click)="decrement()"
+  >
+    −
+  </button>
+  <span class="stepper-value">{{ displayValue() }}</span>
+  <button
+    class="stepper-btn stepper-plus"
+    type="button"
+    aria-label="Increase"
+    (click)="increment()"
+  >
+    +
+  </button>
+</div>

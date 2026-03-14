@@ -1,0 +1,88 @@
+.section {
+    background: var(--surface);
+    padding: 20px 16px;
+    margin-top: var(--gap);
+    border-radius: var(--radius);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.instruction-card {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.instruction-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.instruction-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.instruction-time {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.instruction-body {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.timer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.timer-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+.timer-btn:hover {
+    background: var(--bg);
+}
+
+.timer-display {
+    font-size: 14px;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    color: var(--text-muted);
+}
+
+@media (min-width: 600px) {
+    .section {
+        padding: 24px 20px;
+    }
+}

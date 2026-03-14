@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bread Dough Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Top bar -->
+    <header class="topbar">
+      <span class="topbar-left" aria-hidden="true">←</span>
+      <h1 class="topbar-title">Bread Dough Calculator</h1>
+      <button
+        class="topbar-reset"
+        id="resetBtn"
+        type="button"
+        aria-label="Reset all inputs"
+      >
+        ↻
+      </button>
+    </header>
+
+    <main class="container">
+      <!-- Dough section -->
+      <section class="section" id="sectionDough">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🍕</span>
+          <h2 class="section-title">Dough</h2>
+          <button
+            class="info-btn"
+            type="button"
+            data-info="dough"
+            aria-label="Dough info"
+          >
+            ⓘ
+          </button>
+        </div>
+
+        <label class="field-label" for="breadCount">Number of breads</label>
+        <div
+          class="stepper"
+          data-target="breadCount"
+          data-step="1"
+          data-min="1"
+          data-suffix=""
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="breadCountDisplay">6</span>
+          <input
+            type="number"
+            id="breadCount"
+            value="6"
+            min="1"
+            step="1"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="targetBallWeight"
+          >Ball weight (g)</label
+        >
+        <div
+          class="stepper"
+          data-target="targetBallWeight"
+          data-step="10"
+          data-min="10"
+          data-suffix="g"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="targetBallWeightDisplay">120g</span>
+          <input
+            type="number"
+            id="targetBallWeight"
+            value="120"
+            min="10"
+            step="10"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+      </section>
+
+      <!-- Yeast section -->
+      <section class="section" id="sectionYeast">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">⚙️</span>
+          <h2 class="section-title">Yeast</h2>
+          <button
+            class="info-btn"
+            type="button"
+            data-info="yeast"
+            aria-label="Yeast info"
+          >
+            ⓘ
+          </button>
+        </div>
+
+        <label class="field-label" for="yeastType">Yeast type</label>
+        <div class="select-wrap">
+          <select id="yeastType">
+            <option value="fresh">Fresh yeast</option>
+            <option value="activeDry">Active dry yeast</option>
+            <option value="instant">Instant yeast</option>
+          </select>
+          <span class="select-chevron" aria-hidden="true">▾</span>
+        </div>
+        <p class="yeast-recommendation" id="yeastRecommendation">
+          Estimated yeast will appear after calculate.
+        </p>
+      </section>
+
+      <!-- Advanced settings banner -->
+      <button class="advanced-banner" id="advancedToggle" type="button">
+        <span>Advanced settings</span>
+        <span class="advanced-chevron" id="advancedChevron">▾</span>
+      </button>
+
+      <!-- Percentages section (collapsible) -->
+      <section
+        class="section section-collapsible"
+        id="sectionPercentages"
+        hidden
+      >
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🔧</span>
+          <h2 class="section-title">Percentages</h2>
+          <button
+            class="info-btn"
+            type="button"
+            data-info="percentages"
+            aria-label="Percentages info"
+          >
+            ⓘ
+          </button>
+        </div>
+
+        <label class="field-label" for="hydrationPct">Hydration</label>
+        <div
+          class="stepper"
+          data-target="hydrationPct"
+          data-step="1"
+          data-min="1"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="hydrationPctDisplay">68%</span>
+          <input
+            type="number"
+            id="hydrationPct"
+            value="68"
+            min="1"
+            step="1"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="saltPct">Salt</label>
+        <div
+          class="stepper"
+          data-target="saltPct"
+          data-step="0.1"
+          data-min="0.1"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="saltPctDisplay">2.0%</span>
+          <input
+            type="number"
+            id="saltPct"
+            value="2.0"
+            min="0.1"
+            step="0.1"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="sugarPct">Sugar</label>
+        <div
+          class="stepper"
+          data-target="sugarPct"
+          data-step="0.5"
+          data-min="0"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="sugarPctDisplay">0%</span>
+          <input
+            type="number"
+            id="sugarPct"
+            value="0"
+            min="0"
+            step="0.5"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="oilPct">Oil</label>
+        <div
+          class="stepper"
+          data-target="oilPct"
+          data-step="0.5"
+          data-min="0"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="oilPctDisplay">0%</span>
+          <input
+            type="number"
+            id="oilPct"
+            value="0"
+            min="0"
+            step="0.5"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="milkPctOfWater"
+          >Milk as % of added water</label
+        >
+        <div
+          class="stepper"
+          data-target="milkPctOfWater"
+          data-step="5"
+          data-min="0"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="milkPctOfWaterDisplay">0%</span>
+          <input
+            type="number"
+            id="milkPctOfWater"
+            value="0"
+            min="0"
+            step="5"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+      </section>
+
+      <!-- Starter section -->
+      <section class="section" id="sectionStarter">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🌱</span>
+          <h2 class="section-title">Starter</h2>
+          <button
+            class="info-btn"
+            type="button"
+            data-info="starter"
+            aria-label="Starter info"
+          >
+            ⓘ
+          </button>
+        </div>
+
+        <label class="field-label" for="starterWeight"
+          >Starter total weight (g)</label
+        >
+        <div
+          class="stepper"
+          data-target="starterWeight"
+          data-step="10"
+          data-min="0"
+          data-suffix="g"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="starterWeightDisplay">380g</span>
+          <input
+            type="number"
+            id="starterWeight"
+            value="380"
+            min="0"
+            step="10"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="starterHydrationPct"
+          >Starter hydration (%)</label
+        >
+        <div
+          class="stepper"
+          data-target="starterHydrationPct"
+          data-step="5"
+          data-min="1"
+          data-suffix="%"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="starterHydrationPctDisplay"
+            >100%</span
+          >
+          <input
+            type="number"
+            id="starterHydrationPct"
+            value="100"
+            min="1"
+            step="5"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+      </section>
+
+      <!-- Proofing section -->
+      <section class="section" id="sectionProofing">
+        <div class="section-header">
+          <span class="section-icon" aria-hidden="true">🕐</span>
+          <h2 class="section-title">Proofing</h2>
+          <button
+            class="info-btn"
+            type="button"
+            data-info="proofing"
+            aria-label="Proofing info"
+          >
+            ⓘ
+          </button>
+        </div>
+
+        <label class="field-label" for="totalHours"
+          >Time until oven (hours)</label
+        >
+        <div
+          class="stepper"
+          data-target="totalHours"
+          data-step="0.5"
+          data-min="0.5"
+          data-suffix="h"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="totalHoursDisplay">8h</span>
+          <input
+            type="number"
+            id="totalHours"
+            value="8"
+            min="0.5"
+            step="0.5"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+
+        <label class="field-label" for="roomTemp">Room temperature (°C)</label>
+        <div
+          class="stepper"
+          data-target="roomTemp"
+          data-step="1"
+          data-min="5"
+          data-suffix="°C"
+        >
+          <button
+            class="stepper-btn stepper-minus"
+            type="button"
+            aria-label="Decrease"
+          >
+            −
+          </button>
+          <span class="stepper-value" id="roomTempDisplay">22°C</span>
+          <input
+            type="number"
+            id="roomTemp"
+            value="22"
+            min="5"
+            step="1"
+            hidden
+          />
+          <button
+            class="stepper-btn stepper-plus"
+            type="button"
+            aria-label="Increase"
+          >
+            +
+          </button>
+        </div>
+      </section>
+
+      <!-- Calculate button -->
+      <button class="calculate-btn" id="calculateBtn" type="button">
+        Calculate
+      </button>
+
+      <!-- Results section (hidden until Calculate) -->
+      <section class="section" id="sectionResults" hidden>
+        <div class="section-header">
+          <h2 class="section-title">Results</h2>
+        </div>
+
+        <!-- Stats cards -->
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <!-- Ingredient table -->
+        <h3 class="sub-heading">Ingredients</h3>
+        <table class="ingredient-table" id="ingredientTable">
+          <tbody id="ingredientBody"></tbody>
+        </table>
+
+        <!-- Support text -->
+        <p class="support-text" id="supportText"></p>
+      </section>
+
+      <!-- Instructions section (hidden until Calculate) -->
+      <section class="section" id="sectionInstructions" hidden>
+        <div class="section-header">
+          <h2 class="section-title">Instructions</h2>
+        </div>
+        <div id="instructionCards"></div>
+      </section>
+    </main>
+
+    <!-- Scroll to top button -->
+    <button
+      class="scroll-top-btn"
+      id="scrollTopBtn"
+      type="button"
+      aria-label="Scroll to top"
+      hidden
+    >
+      ↑
+    </button>
+
+    <script src="calc.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
