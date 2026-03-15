@@ -26,6 +26,16 @@ export class InstructionsComponent implements OnDestroy {
   readonly i18n = inject(I18nService);
   readonly data = input.required<CalcResult>();
 
+  private yeastLabel(yeastType: string): string {
+    const t = this.i18n.t();
+    const labels: Record<string, string> = {
+      fresh: t.freshYeast,
+      activeDry: t.activeDryYeast,
+      instant: t.instantYeast,
+    };
+    return labels[yeastType] ?? yeastType;
+  }
+
   protected readonly showFlourBlendNote = computed(() => {
     return this.data().flourBlendAdjustment > 1.5;
   });
@@ -58,7 +68,7 @@ export class InstructionsComponent implements OnDestroy {
       d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g ${t.milk}` : "";
     const yeastPart =
       d.yeastToAdd > 0
-        ? `, ${t.and} ${round1(d.yeastToAdd)} g ${d.yeastTypeLabel.toLowerCase()}`
+        ? `, ${t.and} ${round1(d.yeastToAdd)} g ${this.yeastLabel(d.yeastType).toLowerCase()}`
         : "";
     const sugarPart =
       d.sugarToAdd > 0

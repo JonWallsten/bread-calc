@@ -51,6 +51,16 @@ export class App implements OnInit {
   private readonly titleService = inject(Title);
   readonly i18n = inject(I18nService);
 
+  private yeastLabel(yeastType: string): string {
+    const t = this.i18n.t();
+    const labels: Record<string, string> = {
+      fresh: t.freshYeast,
+      activeDry: t.activeDryYeast,
+      instant: t.instantYeast,
+    };
+    return labels[yeastType] ?? yeastType;
+  }
+
   constructor() {
     effect(() => {
       this.titleService.setTitle(this.i18n.t().appTitle);
@@ -89,7 +99,8 @@ export class App implements OnInit {
     const t = this.i18n.t();
     if (!r) return t.yeastRecommendationPending;
     const pct = r.chosenYeastPct * 100;
-    return `${r.yeastTypeLabel}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
+    const label = this.yeastLabel(r.yeastType);
+    return `${label}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
   });
 
   readonly yeastOptions = computed(() => {

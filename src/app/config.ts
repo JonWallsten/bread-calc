@@ -10,7 +10,7 @@ export const DEFAULT_INPUTS: CalcInputs = {
   sugarPct: 2.0,
   oilPct: 2.0,
   milkPctOfWater: 0,
-  starterWeight: 380,
+  starterWeight: 0,
   starterHydrationPct: 100,
   totalHours: 8,
   roomTemp: 22,

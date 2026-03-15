@@ -64,7 +64,9 @@
         (change)="onFlourChange(i, $any($event.target).value)"
       >
         @for (f of flourDefs; track f.id) {
-        <option [value]="f.id">{{ flourName(f.id) }}</option>
+        <option [value]="f.id" [selected]="f.id === row.flourId">
+          {{ flourName(f.id) }}
+        </option>
         }
       </select>
       <span class="select-chevron" aria-hidden="true">&#9662;</span>

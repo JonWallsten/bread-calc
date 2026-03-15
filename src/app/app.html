@@ -233,10 +233,15 @@
     />
   </section>
 
-  <!-- Calculate button -->
-  <button class="calculate-btn" type="button" (click)="runCalculation()">
-    {{ i18n.t().calculate }}
-  </button>
+  <!-- Action buttons -->
+  <div class="action-row">
+    <button class="reset-btn" type="button" (click)="reset()">
+      {{ i18n.t().reset }}
+    </button>
+    <button class="calculate-btn" type="button" (click)="runCalculation()">
+      {{ i18n.t().calculate }}
+    </button>
+  </div>
 
   @if (validationError()) {
   <p class="validation-msg">{{ validationError() }}</p>

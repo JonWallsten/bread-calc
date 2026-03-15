@@ -12,6 +12,16 @@ export class ResultsComponent {
   readonly i18n = inject(I18nService);
   readonly data = input.required<CalcResult>();
 
+  private yeastLabel(yeastType: string): string {
+    const t = this.i18n.t();
+    const labels: Record<string, string> = {
+      fresh: t.freshYeast,
+      activeDry: t.activeDryYeast,
+      instant: t.instantYeast,
+    };
+    return labels[yeastType] ?? yeastType;
+  }
+
   protected readonly stats = computed(() => {
     const d = this.data();
     const t = this.i18n.t();
@@ -28,7 +38,10 @@ export class ResultsComponent {
       },
       { value: `${Math.round(d.actualPerBall)} g`, label: t.actualPerBall },
       { value: hydrationDisplay, label: hydrationLabel },
-      { value: `${this.calc.round1(d.yeastToAdd)} g`, label: d.yeastTypeLabel },
+      {
+        value: `${this.calc.round1(d.yeastToAdd)} g`,
+        label: this.yeastLabel(d.yeastType),
+      },
       {
         value: `${this.calc.round1(d.prefermentedFlourPct)}%`,
         label: t.starterFlourShare,
@@ -58,7 +71,10 @@ export class ResultsComponent {
     if (d.oilToAdd > 0) {
       rows.push([t.oilIngredient, `${Math.round(d.oilToAdd)} g`]);
     }
-    rows.push([d.yeastTypeLabel, `${this.calc.round1(d.yeastToAdd)} g`]);
+    rows.push([
+      this.yeastLabel(d.yeastType),
+      `${this.calc.round1(d.yeastToAdd)} g`,
+    ]);
     return rows;
   });
 
@@ -73,6 +89,6 @@ export class ResultsComponent {
       d.roomTemp % 1 === 0
         ? `${d.roomTemp}`
         : `${this.calc.round1(d.roomTemp)}`;
-    return `${t.supportStarterCalc(Math.round(d.starterHydrationPct), Math.round(d.starterFlour), Math.round(d.starterWater))} ${t.supportYeastEstimated(d.yeastTypeLabel, hoursStr, tempStr)} ${t.supportHeuristic}`;
+    return `${t.supportStarterCalc(Math.round(d.starterHydrationPct), Math.round(d.starterFlour), Math.round(d.starterWater))} ${t.supportYeastEstimated(this.yeastLabel(d.yeastType), hoursStr, tempStr)} ${t.supportHeuristic}`;
   });
 }

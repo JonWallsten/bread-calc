@@ -182,12 +182,35 @@
     margin: 20px 0 12px;
 }
 
-/* ── Calculate button ──────────────────────────────────── */
-.calculate-btn {
-    display: block;
-    width: 100%;
-    height: 52px;
+/* ── Action buttons ────────────────────────────────────── */
+.action-row {
+    display: flex;
+    gap: 10px;
     margin-top: var(--gap);
+}
+
+.reset-btn {
+    height: 52px;
+    padding: 0 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+}
+
+.reset-btn:hover {
+    background: var(--bg);
+}
+
+.calculate-btn {
+    flex: 1;
+    height: 52px;
     border: none;
     border-radius: var(--radius-pill);
     background: var(--accent);
