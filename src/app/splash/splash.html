@@ -1,0 +1,42 @@
+<div class="splash-overlay" (click)="dismiss()">
+  <div class="splash-card" (click)="$event.stopPropagation()">
+    <button
+      class="splash-lang"
+      type="button"
+      [attr.aria-label]="i18n.t().switchLanguage"
+      (click)="i18n.toggleLang()"
+    >
+      {{ i18n.currentLang() === 'en' ? '🇸🇪' : '🇬🇧' }}
+    </button>
+    <div class="splash-icon" aria-hidden="true">&#127838;</div>
+    <h1 class="splash-title">{{ i18n.t().splashTitle }}</h1>
+    <p class="splash-subtitle">{{ i18n.t().splashSubtitle }}</p>
+
+    <ul class="splash-features">
+      <li>
+        <span class="feature-icon" aria-hidden="true">&#127849;</span>{{
+        i18n.t().splashFeature1 }}
+      </li>
+      <li>
+        <span class="feature-icon" aria-hidden="true">&#9881;&#65039;</span>{{
+        i18n.t().splashFeature2 }}
+      </li>
+      <li>
+        <span class="feature-icon" aria-hidden="true">&#128336;</span>{{
+        i18n.t().splashFeature3 }}
+      </li>
+      <li>
+        <span class="feature-icon" aria-hidden="true">&#128295;</span>{{
+        i18n.t().splashFeature4 }}
+      </li>
+      <li>
+        <span class="feature-icon" aria-hidden="true">&#127760;</span>{{
+        i18n.t().splashFeature5 }}
+      </li>
+    </ul>
+
+    <button class="splash-btn" type="button" (click)="dismiss()">
+      {{ i18n.t().splashGetStarted }}
+    </button>
+  </div>
+</div>

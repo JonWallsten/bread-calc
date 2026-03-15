@@ -1,3 +1,7 @@
+@if (showSplash()) {
+<app-splash (dismissed)="showSplash.set(false)" />
+}
+
 <!-- Top bar -->
 <header class="topbar">
   <button

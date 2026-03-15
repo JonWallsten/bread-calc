@@ -137,6 +137,16 @@ interface Translations {
   markComplete: (title: string) => string;
   markIncomplete: (title: string) => string;
 
+  // Splash screen
+  splashTitle: string;
+  splashSubtitle: string;
+  splashFeature1: string;
+  splashFeature2: string;
+  splashFeature3: string;
+  splashFeature4: string;
+  splashFeature5: string;
+  splashGetStarted: string;
+
   // Validation
   validationError: string;
   recipeError: string;
@@ -237,6 +247,14 @@ const en: Translations = {
   running: "Running",
   paused: "Paused",
   stopped: "Stopped.",
+  splashTitle: "Welcome to Bread Dough Calculator",
+  splashSubtitle: "Everything you need to bake great bread",
+  splashFeature1: "Calculate dough for any number of breads",
+  splashFeature2: "Automatic yeast estimation based on time and temperature",
+  splashFeature3: "Step-by-step instructions with built-in timers",
+  splashFeature4: "Adjustable hydration, salt, sugar, oil & milk",
+  splashFeature5: "Works in English and Swedish",
+  splashGetStarted: "Get started",
   milk: "milk",
   and: "and",
   switchLanguage: "Switch language",
@@ -345,6 +363,14 @@ const sv: Translations = {
   running: "Pågår",
   paused: "Pausad",
   stopped: "Stoppad.",
+  splashTitle: "Välkommen till Degkalkylatorn",
+  splashSubtitle: "Allt du behöver för att baka fantastiskt bröd",
+  splashFeature1: "Beräkna deg för valfritt antal bröd",
+  splashFeature2: "Automatisk jästuppskattning baserad på tid och temperatur",
+  splashFeature3: "Steg-för-steg instruktioner med inbyggda timers",
+  splashFeature4: "Justerbar hydrering, salt, socker, olja & mjölk",
+  splashFeature5: "Fungerar på engelska och svenska",
+  splashGetStarted: "Kom igång",
   milk: "mjölk",
   and: "och",
   switchLanguage: "Byt språk",
@@ -371,6 +397,12 @@ export class I18nService {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved === "sv" || saved === "en") return saved;
+    } catch {
+      /* noop */
+    }
+    try {
+      const browserLang = navigator.language || navigator.languages?.[0] || "";
+      if (browserLang.startsWith("sv")) return "sv";
     } catch {
       /* noop */
     }

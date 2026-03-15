@@ -23,6 +23,7 @@ import { StepperComponent } from "./stepper/stepper";
 import { ResultsComponent } from "./results/results";
 import { InstructionsComponent } from "./instructions/instructions";
 import { TooltipDirective } from "./tooltip.directive";
+import { SplashComponent } from "./splash/splash";
 
 const INFO_MESSAGES: Record<string, string> = {};
 
@@ -34,6 +35,7 @@ const INFO_MESSAGES: Record<string, string> = {};
     ResultsComponent,
     InstructionsComponent,
     TooltipDirective,
+    SplashComponent,
   ],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
@@ -75,6 +77,7 @@ export class App implements OnInit {
   readonly validationError = signal<string | null>(null);
   readonly result = signal<CalcResult | null>(null);
   readonly showScrollTop = signal(false);
+  readonly showSplash = signal(SplashComponent.shouldShow());
 
   // Yeast recommendation text
   readonly yeastRecommendation = computed(() => {
