@@ -28,6 +28,9 @@ import { FlourBlendComponent } from "./flour-blend/flour-blend";
 import { FlourBlendService } from "./flour-blend.service";
 import { RecipeService } from "./recipe.service";
 import { Recipe } from "./recipe-presets";
+import { AuthService } from "./auth.service";
+import { BakingSessionComponent } from "./baking-session/baking-session";
+import { CompareComponent } from "./compare/compare";
 
 const INFO_MESSAGES: Record<string, string> = {};
 
@@ -41,6 +44,8 @@ const INFO_MESSAGES: Record<string, string> = {};
     TooltipDirective,
     SplashComponent,
     FlourBlendComponent,
+    BakingSessionComponent,
+    CompareComponent,
   ],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
@@ -50,6 +55,7 @@ export class App implements OnInit {
   private readonly storage = inject(StorageService);
   private readonly blend = inject(FlourBlendService);
   readonly recipes = inject(RecipeService);
+  readonly auth = inject(AuthService);
   private readonly instructionsRef = viewChild(InstructionsComponent);
   private readonly titleService = inject(Title);
   readonly i18n = inject(I18nService);
@@ -71,6 +77,9 @@ export class App implements OnInit {
   }
 
   readonly INFO = INFO_MESSAGES;
+
+  // Auth state
+  readonly showProfileMenu = signal(false);
 
   // Input signals
   readonly breadCount = signal(DEFAULT_INPUTS.breadCount);
@@ -99,6 +108,13 @@ export class App implements OnInit {
   // Recipe UI state
   readonly showSaveDialog = signal(false);
   readonly saveRecipeName = signal("");
+
+  // Active recipe cloud id for baking session
+  readonly activeRecipeCloudId = computed(() => {
+    const id = this.recipes.activeId();
+    if (!id || !id.startsWith("cloud-")) return null;
+    return parseInt(id.replace("cloud-", ""), 10);
+  });
 
   // Yeast recommendation text
   readonly yeastRecommendation = computed(() => {
@@ -160,6 +176,63 @@ export class App implements OnInit {
     this.totalHours.set(saved.totalHours);
     this.roomTemp.set(saved.roomTemp);
     this.runCalculation();
+    this.initGoogleSignIn();
+  }
+
+  // ── Google Sign-In ──────────────────────────────────
+
+  private initGoogleSignIn(): void {
+    const tryInit = () => {
+      const google = (window as unknown as Record<string, unknown>)[
+        "google"
+      ] as
+        | {
+            accounts?: {
+              id?: { initialize: Function; renderButton: Function };
+            };
+          }
+        | undefined;
+      if (!google?.accounts?.id) {
+        setTimeout(tryInit, 200);
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: this.getGoogleClientId(),
+        callback: (response: { credential: string }) => {
+          this.handleGoogleResponse(response.credential);
+        },
+      });
+      const btnEl = document.getElementById("google-signin-btn");
+      if (btnEl) {
+        google.accounts.id.renderButton(btnEl, {
+          theme: "outline",
+          size: "medium",
+          shape: "pill",
+        });
+      }
+    };
+    tryInit();
+  }
+
+  private getGoogleClientId(): string {
+    return "389010640560-4b3ha79fg8om1qq0d4pdfsmf6hjclf6o.apps.googleusercontent.com";
+  }
+
+  private async handleGoogleResponse(credential: string): Promise<void> {
+    const ok = await this.auth.loginWithGoogle(credential);
+    if (ok) {
+      await this.recipes.syncToCloud();
+      await this.blend.syncToCloud();
+    }
+  }
+
+  doLogout(): void {
+    this.auth.logout();
+    this.showProfileMenu.set(false);
+  }
+
+  toggleProfileMenu(): void {
+    this.showProfileMenu.update((v) => !v);
   }
 
   @HostListener("window:scroll")
@@ -167,7 +240,7 @@ export class App implements OnInit {
     this.showScrollTop.set(window.scrollY > 300);
   }
 
-  private getInputs(): CalcInputs {
+  getInputs(): CalcInputs {
     return {
       breadCount: this.breadCount(),
       targetBallWeight: this.targetBallWeight(),

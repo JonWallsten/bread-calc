@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from "@angular/core";
+import { Injectable, inject, signal, computed } from "@angular/core";
 import {
   FlourBlendRow,
   UserFlourPreset,
@@ -7,12 +7,17 @@ import {
   calculateFlourBlendAdjustment,
   getFlourDefinitionById,
 } from "./flour.config";
+import { AuthService } from "./auth.service";
+import { ApiService } from "./api.service";
 
 const STORAGE_KEY = "breadCalcUserFlourPresets";
 const BLEND_STORAGE_KEY = "breadCalcFlourBlend";
 
 @Injectable({ providedIn: "root" })
 export class FlourBlendService {
+  private readonly auth = inject(AuthService);
+  private readonly api = inject(ApiService);
+
   readonly blendRows = signal<FlourBlendRow[]>(this.loadBlend());
   readonly userPresets = signal<UserFlourPreset[]>(this.loadPresets());
   readonly selectedPresetId = signal<string | null>(null);
@@ -204,6 +209,62 @@ export class FlourBlendService {
       localStorage.setItem(BLEND_STORAGE_KEY, JSON.stringify(this.blendRows()));
     } catch {
       /* noop */
+    }
+  }
+
+  /** Sync local flour blend presets to cloud on login */
+  async syncToCloud(): Promise<void> {
+    if (!this.auth.isLoggedIn()) return;
+
+    try {
+      const data = await this.api.get<{
+        flour_blends: Array<{
+          id: number;
+          name: string;
+          notes: string | null;
+          flours: FlourBlendRow[];
+          custom_hydration_adjustment: number;
+        }>;
+      }>("/flour-blends");
+
+      const cloudPresets: UserFlourPreset[] = data.flour_blends.map((b) => ({
+        id: `cloud-${b.id}`,
+        name: b.name,
+        flours: b.flours,
+        customHydrationAdjustment: b.custom_hydration_adjustment,
+        notes: b.notes ?? "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
+      // Upload any local-only presets
+      const localOnly = this.userPresets().filter(
+        (p) => !p.id.startsWith("cloud-"),
+      );
+      for (const local of localOnly) {
+        try {
+          const res = await this.api.post<{ flour_blend: { id: number } }>(
+            "/flour-blends",
+            {
+              name: local.name,
+              notes: local.notes,
+              flours: local.flours,
+              custom_hydration_adjustment: local.customHydrationAdjustment,
+            },
+          );
+          cloudPresets.push({
+            ...local,
+            id: `cloud-${res.flour_blend.id}`,
+          });
+        } catch {
+          cloudPresets.push(local);
+        }
+      }
+
+      this.userPresets.set(cloudPresets);
+      this.savePresets();
+    } catch {
+      // Network error — keep local state
     }
   }
 }

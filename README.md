@@ -14,7 +14,7 @@ A mobile-first sourdough calculator that figures out flour, water, yeast, salt a
 
 **[🔗 Live demo → jonwallsten.com/bread-calc](https://jonwallsten.com/bread-calc/)**
 
-Built with **Angular 19+** · Standalone components · Signals · Zero backend
+Built with **Angular 21+** · Standalone components · Signals · PHP API · MySQL
 
 </div>
 
@@ -39,6 +39,9 @@ Built with **Angular 19+** · Standalone components · Signals · Zero backend
 | ℹ️   | **Info tooltips**                 | Hover or tap the ⓘ buttons for context on every section                                                      |
 | 🔔   | **Alarm & notifications**         | Web Audio API beeps + browser notification on timer completion                                               |
 | 🌾   | **Flour blend & presets**         | Build custom flour blends from 9 flour types, auto-adjust hydration, save/load personal presets              |
+| 🔐   | **Google login & cloud sync**     | Sign in with Google to sync recipes and flour blends across devices — works fully offline without login      |
+| 📸   | **Baking sessions**               | Save bakes as snapshots with notes, 1–5 star rating, and up to 3 photos — trace back every bake              |
+| 🔍   | **Recipe comparison**             | Side-by-side table of two recipes with all calculated differences highlighted                                |
 
 ---
 
@@ -160,15 +163,17 @@ Blends can be saved as **personal presets** (stored in localStorage) for quick r
 
 ## 🛠️ Tech stack
 
-|                 |                                                                 |
-| --------------- | --------------------------------------------------------------- |
-| **Framework**   | Angular 21 (standalone components, signals, computed, effect)   |
-| **Styling**     | Plain CSS with custom properties, mobile-first                  |
-| **State**       | Angular signals — no RxJS, no NgRx                              |
-| **Persistence** | localStorage for inputs, language preference, and flour presets |
-| **Audio**       | Web Audio API (square wave alarm, 880 Hz, 5 beeps)              |
-| **i18n**        | Custom signal-based service, no `@angular/localize`             |
-| **Build**       | Angular CLI, output ~53 kB gzipped                              |
+|                 |                                                               |
+| --------------- | ------------------------------------------------------------- |
+| **Framework**   | Angular 21 (standalone components, signals, computed, effect) |
+| **Styling**     | Plain CSS with custom properties, mobile-first                |
+| **State**       | Angular signals — no RxJS, no NgRx                            |
+| **Persistence** | localStorage (offline) + MySQL cloud sync (when logged in)    |
+| **Backend**     | PHP 8.5, vanilla router, PDO + prepared statements            |
+| **Auth**        | Google Identity Services (GSI) + JWT (HMAC-SHA256)            |
+| **Audio**       | Web Audio API (square wave alarm, 880 Hz, 5 beeps)            |
+| **i18n**        | Custom signal-based service, no `@angular/localize`           |
+| **Build**       | Angular CLI, output ~53 kB gzipped                            |
 
 ---
 

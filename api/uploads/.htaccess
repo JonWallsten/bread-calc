@@ -1,0 +1,14 @@
+# Serve images directly
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>
+
+# Block PHP execution in uploads directory
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
+
+# Deny access to everything that isn't an image
+<FilesMatch "(?<!\.(jpg|jpeg|png|gif|webp))$">
+    Require all denied
+</FilesMatch>

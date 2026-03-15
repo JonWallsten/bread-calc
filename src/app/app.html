@@ -13,14 +13,39 @@
     {{ i18n.currentLang() === 'en' ? '🇸🇪' : '🇬🇧' }}
   </button>
   <h1 class="topbar-title">{{ i18n.t().appTitle }}</h1>
-  <button
-    class="topbar-reset"
-    type="button"
-    [attr.aria-label]="i18n.t().reset"
-    (click)="reset()"
-  >
-    &#8635;
-  </button>
+  <div class="topbar-right">
+    @if (auth.isLoggedIn()) { @if (auth.user(); as user) {
+    <button class="topbar-avatar" type="button" (click)="toggleProfileMenu()">
+      @if (user.picture_url) {
+      <img
+        [src]="user.picture_url"
+        [alt]="user.name"
+        class="avatar-img"
+        referrerpolicy="no-referrer"
+      />
+      } @else {
+      <span class="avatar-initial">{{ user.name.charAt(0) }}</span>
+      }
+    </button>
+    @if (showProfileMenu()) {
+    <div class="profile-menu">
+      <p class="profile-name">{{ user.name }}</p>
+      <button class="profile-logout" type="button" (click)="doLogout()">
+        {{ i18n.t().logout }}
+      </button>
+    </div>
+    } } } @else {
+    <div id="google-signin-btn" class="google-btn-wrap"></div>
+    }
+    <button
+      class="topbar-reset"
+      type="button"
+      [attr.aria-label]="i18n.t().reset"
+      (click)="reset()"
+    >
+      &#8635;
+    </button>
+  </div>
 </header>
 
 <main class="container">
@@ -356,7 +381,15 @@
   } @if (resultsVisible() && result()) {
   <app-results [data]="result()!" />
   <app-instructions [data]="result()!" />
+
+  <app-baking-session
+    [currentInputs]="getInputs()"
+    [currentResults]="result()"
+    [activeRecipeCloudId]="activeRecipeCloudId()"
+  />
   }
+
+  <app-compare />
 </main>
 
 <!-- Scroll to top button -->

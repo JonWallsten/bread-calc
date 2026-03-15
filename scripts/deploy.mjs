@@ -1,0 +1,196 @@
+#!/usr/bin/env node
+
+import { execSync } from "node:child_process";
+import { readdirSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+import { Client } from "basic-ftp";
+import {
+  loadCredentials,
+  loadFtpCredentials,
+  validateCredentials,
+  PROJECT_ROOT,
+} from "./lib/credentials.mjs";
+
+// ── Flag parsing ──────────────────────────────────────────
+
+export function parseDeployFlags(argv) {
+  const flags = { dryRun: false, apiOnly: false, frontendOnly: false };
+  for (const arg of argv) {
+    switch (arg) {
+      case "--dry-run":
+        flags.dryRun = true;
+        break;
+      case "--api-only":
+        flags.apiOnly = true;
+        break;
+      case "--frontend-only":
+        flags.frontendOnly = true;
+        break;
+      default:
+        throw new Error(`Unknown flag: ${arg}`);
+    }
+  }
+  return flags;
+}
+
+// ── Recursive upload with exclusion ───────────────────────
+
+async function uploadDir(client, localDir, remoteDir, excludes = []) {
+  await client.ensureDir(remoteDir);
+  await client.cd("/");
+  const entries = readdirSync(localDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (excludes.includes(entry.name)) continue;
+
+    const localPath = join(localDir, entry.name);
+    const remotePath = `${remoteDir}/${entry.name}`;
+
+    if (entry.isDirectory()) {
+      await uploadDir(client, localPath, remotePath, excludes);
+    } else {
+      const rel = relative(PROJECT_ROOT, localPath);
+      console.log(`  ↑ ${rel}`);
+      await client.uploadFrom(localPath, remotePath);
+    }
+  }
+}
+
+/** Delete remote entries that don't exist locally (recursive). */
+/** Server-managed files/dirs that should never be deleted. */
+const SKIP_REMOTE = new Set([".ftpquota", ".htpasswd"]);
+
+async function deleteExtra(client, localDir, remoteDir, excludes = []) {
+  let remoteList;
+  try {
+    remoteList = await client.list(remoteDir);
+  } catch {
+    return; // directory doesn't exist remotely
+  }
+
+  const localNames = new Set(
+    readdirSync(localDir, { withFileTypes: true }).map((e) => e.name),
+  );
+
+  for (const entry of remoteList) {
+    if (excludes.includes(entry.name) || SKIP_REMOTE.has(entry.name)) continue;
+    if (localNames.has(entry.name)) {
+      // If it's a directory in both, recurse
+      if (entry.isDirectory) {
+        const localPath = join(localDir, entry.name);
+        const remotePath = `${remoteDir}/${entry.name}`;
+        await deleteExtra(client, localPath, remotePath, excludes);
+      }
+      continue;
+    }
+
+    const remotePath = `${remoteDir}/${entry.name}`;
+    console.log(`  ✕ ${remotePath}`);
+    try {
+      if (entry.isDirectory) {
+        await client.removeDir(remotePath);
+      } else {
+        await client.remove(remotePath);
+      }
+    } catch (err) {
+      console.warn(`  ⚠ Could not delete ${remotePath}: ${err.message}`);
+    }
+  }
+}
+
+// ── Deploy functions ──────────────────────────────────────
+
+async function deployFrontend(client, ftpPath, dryRun) {
+  console.log("📦  Uploading frontend...");
+  const localDir = join(PROJECT_ROOT, "dist", "bread-calc", "browser");
+  if (dryRun) {
+    listLocalFiles(localDir);
+    return;
+  }
+  await uploadDir(client, localDir, ftpPath);
+  await deleteExtra(client, localDir, ftpPath, ["api", ".credentials.env"]);
+}
+
+async function deployApi(client, ftpPath, dryRun) {
+  console.log("📦  Uploading API...");
+  const localDir = join(PROJECT_ROOT, "api");
+  const remoteDir = `${ftpPath}/api`;
+  if (dryRun) {
+    listLocalFiles(localDir, ["uploads"]);
+    return;
+  }
+  await uploadDir(client, localDir, remoteDir, ["uploads"]);
+  await deleteExtra(client, localDir, remoteDir, ["uploads"]);
+}
+
+function listLocalFiles(dir, excludes = [], prefix = "") {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (excludes.includes(entry.name)) continue;
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      listLocalFiles(join(dir, entry.name), excludes, rel);
+    } else {
+      console.log(`  (dry-run) ${rel}`);
+    }
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────
+
+async function main() {
+  const flags = parseDeployFlags(process.argv.slice(2));
+  const creds = loadFtpCredentials();
+  validateCredentials(creds, ["FTP_HOST", "FTP_USER", "FTP_PASS", "FTP_PATH"]);
+
+  if (flags.dryRun) {
+    console.log("🔍  Dry run — no files will be transferred");
+  }
+
+  // Build frontend (unless --api-only)
+  if (!flags.apiOnly) {
+    console.log("🔨  Building Angular app...");
+    execSync("npm run build", { cwd: PROJECT_ROOT, stdio: "inherit" });
+  }
+
+  const client = new Client();
+  // Uncomment for FTP debugging: client.ftp.verbose = true;
+
+  try {
+    console.log(`🚀  Deploying to ${creds.FTP_HOST}...`);
+
+    if (!flags.dryRun) {
+      await client.access({
+        host: creds.FTP_HOST,
+        user: creds.FTP_USER,
+        password: creds.FTP_PASS,
+        secure: true,
+        // Shared hosts often have self-signed or mismatched certs
+        secureOptions: { rejectUnauthorized: false },
+      });
+    }
+
+    if (flags.frontendOnly) {
+      await deployFrontend(client, creds.FTP_PATH, flags.dryRun);
+    } else if (flags.apiOnly) {
+      await deployApi(client, creds.FTP_PATH, flags.dryRun);
+    } else {
+      await deployFrontend(client, creds.FTP_PATH, flags.dryRun);
+      await deployApi(client, creds.FTP_PATH, flags.dryRun);
+    }
+
+    console.log("✅  Deploy complete!");
+  } finally {
+    client.close();
+  }
+}
+
+// Only run when executed directly, not when imported for testing
+if (
+  process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))
+) {
+  main().catch((err) => {
+    console.error("❌ ", err.message);
+    process.exit(1);
+  });
+}

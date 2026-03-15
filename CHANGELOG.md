@@ -8,10 +8,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Split credentials into three files: `.credentials.env` (app), `.credentials.local.env` (local overrides), `.ftp.env` (FTP only)
+- Local credential overlay: `.credentials.local.env` values override `.credentials.env` for local dev (both Node.js scripts and PHP)
+- `--remote` flag on `db-migrate` to skip local overlay and use production credentials
+- `loadAppCredentials()` and `loadFtpCredentials()` helpers in credential parser
 - Field hints below each advanced percentage stepper (hydration, salt, sugar, oil, milk) showing typical baker's ranges, in both EN and SV\n- Colour-coded field validation: amber for outside recommended range, red for extreme values\n- `FIELD_RANGES` config in `config.ts` with recommended, warn, and error thresholds for all percentage fields
 - Recipe system: save, load, update, and delete custom recipes via localStorage
 - Two built-in recipe presets: Neapolitan Pizza (270 g, 65% hydration, 24 h proof, no sugar/oil) and Everyday Bread (90 g, 66% hydration, sugar & oil)
 - Recipe selector dropdown in UI with save dialog, update, and delete buttons for user recipes
+- PHP 8.5 + MySQL backend under `/bread-calc/api/` with vanilla router, PDO, and prepared statements
+- Google OAuth login via Google Identity Services (GSI) — exchange ID token for JWT (HMAC-SHA256, 30-day expiry)
+- Cloud sync for recipes and flour blend presets when logged in (local-first: app works fully without login)
+- Baking session history: save current recipe + calculated results as a snapshot, with notes, 1–5 star rating, and up to 3 photos per session
+- Client-side photo compression (Canvas API resize + WebP conversion, max 2 MB)
+- Recipe comparison: side-by-side table of two recipes with calculated differences highlighted in green/red
+- `AuthService` (signal-based JWT + user state), `ApiService` (fetch wrapper with auth headers), `BakingSessionService`
+- Login UI in topbar: Google Sign-In button when logged out, avatar + profile menu when logged in
+- FTP deployment script (`scripts/deploy.mjs`) using `basic-ftp` with `--dry-run`, `--api-only`, `--frontend-only` flags
+- SQL migration system: 5 migration files + `scripts/db-migrate.mjs` with `_migrations` tracking table using `mysql2`
+- Shared credential loader (`scripts/lib/credentials.mjs`) for parsing `.credentials.env` files
+- npm scripts: `deploy`, `deploy:frontend`, `deploy:api`, `db:migrate`, `db:status`, `test:scripts`
+- i18n keys for auth, baking sessions, and compare features in both EN and SV
+- Tests for all new Angular services (AuthService, ApiService, BakingSessionService, RecipeService, FlourBlendService)
+- Tests for BakingSessionComponent and CompareComponent
+- Tests for Node.js deploy/migrate scripts (credential parsing, flag parsing, migration file discovery)
 
 ## [0.11.0] — 2026-03-15
 

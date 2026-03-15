@@ -1,0 +1,176 @@
+@if (auth.isLoggedIn()) {
+<section class="section">
+  <div class="section-header">
+    <span class="section-icon" aria-hidden="true">&#128247;</span>
+    <h2 class="section-title">{{ i18n.t().bakingSessions }}</h2>
+  </div>
+
+  <!-- Save this bake button -->
+  @if (currentResults()) { @if (!showSaveForm()) {
+  <button class="save-bake-btn" type="button" (click)="openSaveForm()">
+    {{ i18n.t().saveThisBake }}
+  </button>
+  } @else {
+  <div class="save-form">
+    <label class="field-label">{{ i18n.t().bakingNotes }}</label>
+    <textarea
+      class="notes-input"
+      rows="3"
+      [value]="saveNotes()"
+      (input)="saveNotes.set($any($event.target).value)"
+    ></textarea>
+
+    <label class="field-label">{{ i18n.t().bakingRating }}</label>
+    <div class="rating-row">
+      @for (s of stars; track s) {
+      <button
+        class="star-btn"
+        type="button"
+        [class.active]="s <= saveRating()"
+        (click)="setRating(s)"
+        [attr.aria-label]="s + ' star'"
+      >
+        &#9733;
+      </button>
+      }
+    </div>
+
+    <div class="save-form-actions">
+      <button class="reset-btn" type="button" (click)="closeSaveForm()">
+        {{ i18n.t().cancel }}
+      </button>
+      <button
+        class="calculate-btn"
+        type="button"
+        [disabled]="saving()"
+        (click)="confirmSave()"
+      >
+        {{ i18n.t().save }}
+      </button>
+    </div>
+  </div>
+  } }
+
+  <!-- Session list -->
+  @if (loading()) {
+  <p class="loading-text">...</p>
+  } @else if (sessions().length === 0) {
+  <p class="empty-text">{{ i18n.t().noBakingSessions }}</p>
+  } @else {
+  <div class="session-list">
+    @for (s of sessions(); track s.id) {
+    <div class="session-card" (click)="viewSession(s.id)">
+      @if (s.thumbnail) {
+      <img
+        class="session-thumb"
+        [src]="photoUrl(s.thumbnail)"
+        alt=""
+        loading="lazy"
+      />
+      }
+      <div class="session-info">
+        <div class="session-date">
+          {{ formatDate(s.baked_at || s.created_at) }}
+        </div>
+        @if (s.recipe_name) {
+        <div class="session-recipe">{{ s.recipe_name }}</div>
+        } @if (s.rating) {
+        <div class="session-rating">
+          @for (star of stars; track star) {
+          <span [class.active]="star <= s.rating!">&#9733;</span>
+          }
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+  <div class="pagination">
+    @for (p of [].constructor(totalPages()); track $index) {
+    <button
+      class="page-btn"
+      type="button"
+      [class.active]="$index + 1 === currentPage()"
+      (click)="loadPage($index + 1)"
+    >
+      {{ $index + 1 }}
+    </button>
+    }
+  </div>
+  } }
+
+  <!-- Session detail overlay -->
+  @if (selectedSession(); as detail) {
+  <div class="detail-overlay" (click)="closeDetail()">
+    <div class="detail-panel" (click)="$event.stopPropagation()">
+      <button class="detail-close" type="button" (click)="closeDetail()">
+        &#10005;
+      </button>
+      <h3>{{ formatDate(detail.baked_at || detail.created_at) }}</h3>
+      @if (detail.recipe_name) {
+      <p class="detail-recipe">{{ detail.recipe_name }}</p>
+      } @if (detail.rating) {
+      <div class="session-rating detail-rating">
+        @for (star of stars; track star) {
+        <span [class.active]="star <= detail.rating!">&#9733;</span>
+        }
+      </div>
+      } @if (detail.notes) {
+      <p class="detail-notes">{{ detail.notes }}</p>
+      }
+
+      <!-- Photos -->
+      <div class="detail-photos">
+        @for (photo of detail.photos; track photo.id) {
+        <div class="photo-wrapper">
+          <img
+            [src]="photoUrl(photo.filename)"
+            [alt]="photo.original_name"
+            loading="lazy"
+          />
+          <button
+            class="photo-delete-btn"
+            type="button"
+            (click)="removePhoto(photo.id)"
+            [attr.aria-label]="i18n.t().deletePhoto"
+          >
+            &#10005;
+          </button>
+        </div>
+        }
+      </div>
+
+      @if (detail.photos.length < 3) {
+      <input
+        #fileInput
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        class="visually-hidden"
+        (change)="onPhotoSelected($event)"
+      />
+      <button
+        class="upload-btn"
+        type="button"
+        [disabled]="uploadingPhoto()"
+        (click)="fileInput.click()"
+      >
+        {{ i18n.t().uploadPhoto }}
+      </button>
+      } @else {
+      <p class="max-photos-text">{{ i18n.t().maxPhotos }}</p>
+      }
+
+      <button
+        class="delete-session-btn"
+        type="button"
+        (click)="deleteSession(detail.id)"
+      >
+        &#128465; {{ i18n.t().deleteRecipe }}
+      </button>
+    </div>
+  </div>
+  }
+</section>
+}

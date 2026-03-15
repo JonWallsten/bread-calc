@@ -14,6 +14,13 @@
 
 # Environment files
 /.env
+.credentials.env
+.credentials.local.env
+.ftp.env
+
+# API uploads (user photos)
+api/uploads/*
+!api/uploads/.htaccess
 
 # Angular CLI and build artefacts
 /.angular-cli.json

@@ -1,0 +1,65 @@
+<section class="section">
+  <div class="section-header">
+    <span class="section-icon" aria-hidden="true">&#128200;</span>
+    <h2 class="section-title">{{ i18n.t().compareRecipes }}</h2>
+  </div>
+
+  <div class="compare-selectors">
+    <div class="compare-select">
+      <label class="field-label">{{ i18n.t().selectRecipeA }}</label>
+      <div class="select-wrap">
+        <select
+          [value]="recipeIdA()"
+          (change)="onSelectA($any($event.target).value)"
+        >
+          <option value="">—</option>
+          @for (r of allRecipes(); track r.id) {
+          <option [value]="r.id">{{ recipeName(r) }}</option>
+          }
+        </select>
+        <span class="select-chevron" aria-hidden="true">&#9662;</span>
+      </div>
+    </div>
+
+    <div class="compare-select">
+      <label class="field-label">{{ i18n.t().selectRecipeB }}</label>
+      <div class="select-wrap">
+        <select
+          [value]="recipeIdB()"
+          (change)="onSelectB($any($event.target).value)"
+        >
+          <option value="">—</option>
+          @for (r of allRecipes(); track r.id) {
+          <option [value]="r.id">{{ recipeName(r) }}</option>
+          }
+        </select>
+        <span class="select-chevron" aria-hidden="true">&#9662;</span>
+      </div>
+    </div>
+  </div>
+
+  @if (rows().length > 0) {
+  <div class="compare-table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>A</th>
+          <th>B</th>
+          <th>{{ i18n.t().difference }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.label) {
+        <tr>
+          <td class="compare-label">{{ row.label }}</td>
+          <td class="compare-value">{{ row.valueA }}</td>
+          <td class="compare-value">{{ row.valueB }}</td>
+          <td class="compare-diff" [class]="row.diffClass">{{ row.diff }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</section>

@@ -204,6 +204,33 @@ interface Translations {
   recipeEverydayBread: string;
   recipeSaved: string;
   recipeLoaded: string;
+
+  // Auth
+  loginWithGoogle: string;
+  logout: string;
+  loggedInAs: string;
+
+  // Baking sessions
+  bakingSessions: string;
+  saveThisBake: string;
+  bakingNotes: string;
+  bakingRating: string;
+  bakedOn: string;
+  noBakingSessions: string;
+  confirmDeleteSession: string;
+  uploadPhoto: string;
+  deletePhoto: string;
+  maxPhotos: string;
+  viewSession: string;
+
+  // Compare
+  compareRecipes: string;
+  selectRecipeA: string;
+  selectRecipeB: string;
+  difference: string;
+  noChange: string;
+  higher: string;
+  lower: string;
 }
 
 const en: Translations = {
@@ -372,6 +399,33 @@ const en: Translations = {
   recipeEverydayBread: "Everyday Bread",
   recipeSaved: "Recipe saved.",
   recipeLoaded: "Recipe loaded.",
+
+  // Auth
+  loginWithGoogle: "Sign in with Google",
+  logout: "Sign out",
+  loggedInAs: "Signed in as",
+
+  // Baking sessions
+  bakingSessions: "Baking sessions",
+  saveThisBake: "Save this bake",
+  bakingNotes: "Notes",
+  bakingRating: "Rating",
+  bakedOn: "Baked on",
+  noBakingSessions: "No baking sessions yet.",
+  confirmDeleteSession: "Delete this baking session?",
+  uploadPhoto: "Upload photo",
+  deletePhoto: "Delete photo",
+  maxPhotos: "Maximum 3 photos per session.",
+  viewSession: "View session",
+
+  // Compare
+  compareRecipes: "Compare recipes",
+  selectRecipeA: "Recipe A",
+  selectRecipeB: "Recipe B",
+  difference: "Difference",
+  noChange: "No change",
+  higher: "higher",
+  lower: "lower",
 };
 
 const sv: Translations = {
@@ -540,6 +594,33 @@ const sv: Translations = {
   recipeEverydayBread: "Vardagsbröd",
   recipeSaved: "Recept sparat.",
   recipeLoaded: "Recept laddat.",
+
+  // Auth
+  loginWithGoogle: "Logga in med Google",
+  logout: "Logga ut",
+  loggedInAs: "Inloggad som",
+
+  // Baking sessions
+  bakingSessions: "Baksessioner",
+  saveThisBake: "Spara denna bakning",
+  bakingNotes: "Anteckningar",
+  bakingRating: "Betyg",
+  bakedOn: "Bakad den",
+  noBakingSessions: "Inga baksessioner ännu.",
+  confirmDeleteSession: "Ta bort denna baksession?",
+  uploadPhoto: "Ladda upp bild",
+  deletePhoto: "Ta bort bild",
+  maxPhotos: "Maximalt 3 bilder per session.",
+  viewSession: "Visa session",
+
+  // Compare
+  compareRecipes: "Jämför recept",
+  selectRecipeA: "Recept A",
+  selectRecipeB: "Recept B",
+  difference: "Skillnad",
+  noChange: "Ingen skillnad",
+  higher: "högre",
+  lower: "lägre",
 };
 
 const translations: Record<Lang, Translations> = { en, sv };

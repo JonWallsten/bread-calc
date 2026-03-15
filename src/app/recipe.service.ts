@@ -1,12 +1,24 @@
-import { Injectable, signal, computed } from "@angular/core";
+import { Injectable, signal, computed, inject } from "@angular/core";
 import { Recipe, BUILT_IN_RECIPES } from "./recipe-presets";
 import { CalcInputs } from "./calc.service";
+import { AuthService } from "./auth.service";
+import { ApiService } from "./api.service";
 
 const STORAGE_KEY = "breadCalcUserRecipes";
 const ACTIVE_KEY = "breadCalcActiveRecipe";
 
+interface ApiRecipe {
+  id: number;
+  name: string;
+  inputs: CalcInputs;
+  is_default: number;
+}
+
 @Injectable({ providedIn: "root" })
 export class RecipeService {
+  private readonly auth = inject(AuthService);
+  private readonly api = inject(ApiService);
+
   private readonly userRecipes = signal<Recipe[]>(this.loadUserRecipes());
   private readonly activeRecipeId = signal<string | null>(this.loadActiveId());
 
@@ -80,6 +92,26 @@ export class RecipeService {
     this.activeRecipeId.set(recipe.id);
     this.persistUserRecipes();
     this.persistActiveId();
+
+    if (this.auth.isLoggedIn()) {
+      this.api.post<{ recipe: ApiRecipe }>("/recipes", { name, inputs }).then(
+        (res) => {
+          const cloudId = `cloud-${res.recipe.id}`;
+          this.userRecipes.update((list) =>
+            list.map((r) => (r.id === recipe.id ? { ...r, id: cloudId } : r)),
+          );
+          if (this.activeRecipeId() === recipe.id) {
+            this.activeRecipeId.set(cloudId);
+            this.persistActiveId();
+          }
+          this.persistUserRecipes();
+        },
+        () => {
+          /* fallback to local */
+        },
+      );
+    }
+
     return recipe;
   }
 
@@ -88,6 +120,11 @@ export class RecipeService {
       list.map((r) => (r.id === id ? { ...r, inputs: { ...inputs } } : r)),
     );
     this.persistUserRecipes();
+
+    if (this.auth.isLoggedIn() && id.startsWith("cloud-")) {
+      const cloudId = parseInt(id.replace("cloud-", ""), 10);
+      this.api.put(`/recipes/${cloudId}`, { inputs }).catch(() => {});
+    }
   }
 
   deleteRecipe(id: string): void {
@@ -97,6 +134,11 @@ export class RecipeService {
     }
     this.persistUserRecipes();
     this.persistActiveId();
+
+    if (this.auth.isLoggedIn() && id.startsWith("cloud-")) {
+      const cloudId = parseInt(id.replace("cloud-", ""), 10);
+      this.api.delete(`/recipes/${cloudId}`).catch(() => {});
+    }
   }
 
   renameRecipe(id: string, name: string): void {
@@ -104,10 +146,56 @@ export class RecipeService {
       list.map((r) => (r.id === id ? { ...r, name } : r)),
     );
     this.persistUserRecipes();
+
+    if (this.auth.isLoggedIn() && id.startsWith("cloud-")) {
+      const cloudId = parseInt(id.replace("cloud-", ""), 10);
+      this.api.put(`/recipes/${cloudId}`, { name }).catch(() => {});
+    }
   }
 
   clearActive(): void {
     this.activeRecipeId.set(null);
     this.persistActiveId();
+  }
+
+  /** Sync local recipes to cloud on login */
+  async syncToCloud(): Promise<void> {
+    if (!this.auth.isLoggedIn()) return;
+
+    try {
+      const data = await this.api.get<{ recipes: ApiRecipe[] }>("/recipes");
+      const cloudRecipes: Recipe[] = data.recipes.map((r) => ({
+        id: `cloud-${r.id}`,
+        name: r.name,
+        builtIn: false,
+        inputs: r.inputs,
+      }));
+
+      // Upload any local-only recipes
+      const localOnly = this.userRecipes().filter(
+        (r) => !r.id.startsWith("cloud-"),
+      );
+      for (const local of localOnly) {
+        try {
+          const res = await this.api.post<{ recipe: ApiRecipe }>("/recipes", {
+            name: local.name,
+            inputs: local.inputs,
+          });
+          cloudRecipes.push({
+            id: `cloud-${res.recipe.id}`,
+            name: local.name,
+            builtIn: false,
+            inputs: local.inputs,
+          });
+        } catch {
+          cloudRecipes.push(local);
+        }
+      }
+
+      this.userRecipes.set(cloudRecipes);
+      this.persistUserRecipes();
+    } catch {
+      // Network error — keep local state
+    }
   }
 }
