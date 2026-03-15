@@ -33,10 +33,15 @@ interface Translations {
 
   // Percentages fields
   hydration: string;
+  hintHydration: string;
   salt: string;
+  hintSalt: string;
   sugar: string;
+  hintSugar: string;
   oil: string;
+  hintOil: string;
   milkAsPctOfWater: string;
+  hintMilk: string;
 
   // Starter fields
   starterTotalWeight: string;
@@ -183,6 +188,22 @@ interface Translations {
   // Validation
   validationError: string;
   recipeError: string;
+
+  // Recipes
+  recipes: string;
+  saveRecipe: string;
+  loadRecipe: string;
+  deleteRecipe: string;
+  updateRecipe: string;
+  recipeName: string;
+  enterRecipeName: string;
+  confirmDeleteRecipe: string;
+  savedRecipes: string;
+  noSavedRecipes: string;
+  recipeNeapolitanPizza: string;
+  recipeEverydayBread: string;
+  recipeSaved: string;
+  recipeLoaded: string;
 }
 
 const en: Translations = {
@@ -203,10 +224,15 @@ const en: Translations = {
   yeastRecommendationPending: "Estimated yeast will appear after calculate.",
   advancedSettings: "Advanced settings",
   hydration: "Hydration",
+  hintHydration: "Typical: 60–80%",
   salt: "Salt",
+  hintSalt: "Typical: 1.8–2.2%",
   sugar: "Sugar",
+  hintSugar: "Optional, 0–5%",
   oil: "Oil",
+  hintOil: "Optional, 0–5%",
   milkAsPctOfWater: "Milk as % of added water",
+  hintMilk: "Optional, 0–50%",
   starterTotalWeight: "Starter total weight (g)",
   starterHydration: "Starter hydration (%)",
   timeUntilOven: "Time until oven (hours)",
@@ -332,6 +358,20 @@ const en: Translations = {
   validationError: "Please enter valid values. Salt must be greater than zero.",
   recipeError:
     "These inputs do not produce a valid recipe. Try increasing target weight or reducing starter.",
+  recipes: "Recipes",
+  saveRecipe: "Save recipe",
+  loadRecipe: "Load",
+  deleteRecipe: "Delete",
+  updateRecipe: "Update",
+  recipeName: "Recipe name",
+  enterRecipeName: "Enter a recipe name.",
+  confirmDeleteRecipe: "Delete this recipe?",
+  savedRecipes: "Saved recipes",
+  noSavedRecipes: "No saved recipes yet.",
+  recipeNeapolitanPizza: "Neapolitan Pizza",
+  recipeEverydayBread: "Everyday Bread",
+  recipeSaved: "Recipe saved.",
+  recipeLoaded: "Recipe loaded.",
 };
 
 const sv: Translations = {
@@ -352,10 +392,15 @@ const sv: Translations = {
   yeastRecommendationPending: "Beräknad jäst visas efter beräkning.",
   advancedSettings: "Avancerade inställningar",
   hydration: "Hydrering",
+  hintHydration: "Typiskt: 60–80%",
   salt: "Salt",
+  hintSalt: "Typiskt: 1,8–2,2%",
   sugar: "Socker",
+  hintSugar: "Valfritt, 0–5%",
   oil: "Olja",
+  hintOil: "Valfritt, 0–5%",
   milkAsPctOfWater: "Mjölk som % av tillsatt vatten",
+  hintMilk: "Valfritt, 0–50%",
   starterTotalWeight: "Surdeg totalvikt (g)",
   starterHydration: "Surdeg hydrering (%)",
   timeUntilOven: "Tid till ugnen (timmar)",
@@ -481,6 +526,20 @@ const sv: Translations = {
   validationError: "Ange giltiga värden. Salt måste vara större än noll.",
   recipeError:
     "Dessa värden ger inget giltigt recept. Prova att öka målvikten eller minska surdegen.",
+  recipes: "Recept",
+  saveRecipe: "Spara recept",
+  loadRecipe: "Ladda",
+  deleteRecipe: "Ta bort",
+  updateRecipe: "Uppdatera",
+  recipeName: "Receptnamn",
+  enterRecipeName: "Ange ett receptnamn.",
+  confirmDeleteRecipe: "Ta bort detta recept?",
+  savedRecipes: "Sparade recept",
+  noSavedRecipes: "Inga sparade recept ännu.",
+  recipeNeapolitanPizza: "Napolitansk pizza",
+  recipeEverydayBread: "Vardagsbröd",
+  recipeSaved: "Recept sparat.",
+  recipeLoaded: "Recept laddat.",
 };
 
 const translations: Record<Lang, Translations> = { en, sv };

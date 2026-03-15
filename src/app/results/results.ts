@@ -1,6 +1,8 @@
 import { Component, computed, inject, input } from "@angular/core";
 import { CalcResult, CalcService } from "../calc.service";
 import { I18nService } from "../i18n.service";
+import { FlourBlendService } from "../flour-blend.service";
+import { getFlourDefinitionById } from "../flour.config";
 
 @Component({
   selector: "app-results",
@@ -10,6 +12,7 @@ import { I18nService } from "../i18n.service";
 export class ResultsComponent {
   private readonly calc = inject(CalcService);
   readonly i18n = inject(I18nService);
+  private readonly blend = inject(FlourBlendService);
   readonly data = input.required<CalcResult>();
 
   private yeastLabel(yeastType: string): string {
@@ -56,11 +59,29 @@ export class ResultsComponent {
   protected readonly ingredients = computed(() => {
     const d = this.data();
     const t = this.i18n.t();
-    const rows: [string, string][] = [
-      [t.flourToAdd, `${Math.round(d.flourToAdd)} g`],
-      [t.starter, `${Math.round(d.starterWeight)} g`],
-      [t.waterToAdd, `${Math.round(d.waterToAdd)} g`],
-    ];
+    const rows: [string, string][] = [];
+
+    // Flour — expand into per-type rows when blend is active and valid
+    const blendRows = this.blend.blendRows();
+    if (blendRows.length > 0 && this.blend.blendValid()) {
+      const lang = this.i18n.currentLang();
+      rows.push([t.flourToAdd, `${Math.round(d.flourToAdd)} g`]);
+      for (const br of blendRows) {
+        const def = getFlourDefinitionById(br.flourId);
+        const name = def
+          ? lang === "sv"
+            ? def.nameSv
+            : def.nameEn
+          : br.flourId;
+        const amount = Math.round((d.flourToAdd * br.percent) / 100);
+        rows.push([`↳ ${name}`, `${amount} g`]);
+      }
+    } else {
+      rows.push([t.flourToAdd, `${Math.round(d.flourToAdd)} g`]);
+    }
+
+    rows.push([t.starter, `${Math.round(d.starterWeight)} g`]);
+    rows.push([t.waterToAdd, `${Math.round(d.waterToAdd)} g`]);
     if (d.milkToAdd > 0) {
       rows.push([t.milkToAdd, `${Math.round(d.milkToAdd)} g`]);
     }

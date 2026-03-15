@@ -16,7 +16,7 @@ import {
   CalcResult,
   CalcOutput,
 } from "./calc.service";
-import { DEFAULT_INPUTS, YEAST_LABELS } from "./config";
+import { DEFAULT_INPUTS, YEAST_LABELS, FIELD_RANGES } from "./config";
 import { I18nService } from "./i18n.service";
 import { StorageService } from "./storage.service";
 import { StepperComponent } from "./stepper/stepper";
@@ -26,6 +26,8 @@ import { TooltipDirective } from "./tooltip.directive";
 import { SplashComponent } from "./splash/splash";
 import { FlourBlendComponent } from "./flour-blend/flour-blend";
 import { FlourBlendService } from "./flour-blend.service";
+import { RecipeService } from "./recipe.service";
+import { Recipe } from "./recipe-presets";
 
 const INFO_MESSAGES: Record<string, string> = {};
 
@@ -47,6 +49,7 @@ export class App implements OnInit {
   private readonly calc = inject(CalcService);
   private readonly storage = inject(StorageService);
   private readonly blend = inject(FlourBlendService);
+  readonly recipes = inject(RecipeService);
   private readonly instructionsRef = viewChild(InstructionsComponent);
   private readonly titleService = inject(Title);
   readonly i18n = inject(I18nService);
@@ -93,6 +96,10 @@ export class App implements OnInit {
   readonly showScrollTop = signal(false);
   readonly showSplash = signal(SplashComponent.shouldShow());
 
+  // Recipe UI state
+  readonly showSaveDialog = signal(false);
+  readonly saveRecipeName = signal("");
+
   // Yeast recommendation text
   readonly yeastRecommendation = computed(() => {
     const r = this.result();
@@ -111,6 +118,32 @@ export class App implements OnInit {
       { value: "instant", label: t.instantYeast },
     ];
   });
+
+  // Field validation states: 'ok' | 'warn' | 'error'
+  readonly hydrationState = computed(() =>
+    this.fieldState(this.hydrationPct(), FIELD_RANGES["hydration"]),
+  );
+  readonly saltState = computed(() =>
+    this.fieldState(this.saltPct(), FIELD_RANGES["salt"]),
+  );
+  readonly sugarState = computed(() =>
+    this.fieldState(this.sugarPct(), FIELD_RANGES["sugar"]),
+  );
+  readonly oilState = computed(() =>
+    this.fieldState(this.oilPct(), FIELD_RANGES["oil"]),
+  );
+  readonly milkState = computed(() =>
+    this.fieldState(this.milkPctOfWater(), FIELD_RANGES["milk"]),
+  );
+
+  private fieldState(
+    value: number,
+    range: (typeof FIELD_RANGES)[string],
+  ): "ok" | "warn" | "error" {
+    if (value < range.error.min || value > range.error.max) return "error";
+    if (value < range.warn.min || value > range.warn.max) return "warn";
+    return "ok";
+  }
 
   ngOnInit(): void {
     const saved = this.storage.load();
@@ -221,5 +254,79 @@ export class App implements OnInit {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Recipe methods ──────────────────────────────────
+
+  private applyInputs(inputs: Recipe["inputs"]): void {
+    this.breadCount.set(inputs.breadCount);
+    this.targetBallWeight.set(inputs.targetBallWeight);
+    this.yeastType.set(inputs.yeastType);
+    this.hydrationPct.set(inputs.hydrationPct);
+    this.saltPct.set(inputs.saltPct);
+    this.sugarPct.set(inputs.sugarPct);
+    this.oilPct.set(inputs.oilPct);
+    this.milkPctOfWater.set(inputs.milkPctOfWater);
+    this.starterWeight.set(inputs.starterWeight);
+    this.starterHydrationPct.set(inputs.starterHydrationPct);
+    this.totalHours.set(inputs.totalHours);
+    this.roomTemp.set(inputs.roomTemp);
+  }
+
+  loadRecipe(recipe: Recipe): void {
+    this.applyInputs(recipe.inputs);
+    this.recipes.setActive(recipe.id);
+    this.saveInputs();
+    this.runCalculation();
+  }
+
+  onRecipeSelect(id: string): void {
+    if (!id) {
+      this.recipes.clearActive();
+      return;
+    }
+    const recipe = this.recipes.allRecipes().find((r) => r.id === id);
+    if (recipe) this.loadRecipe(recipe);
+  }
+
+  openSaveDialog(): void {
+    this.saveRecipeName.set("");
+    this.showSaveDialog.set(true);
+  }
+
+  closeSaveDialog(): void {
+    this.showSaveDialog.set(false);
+  }
+
+  confirmSaveRecipe(): void {
+    const name = this.saveRecipeName().trim();
+    if (!name) return;
+    const inputs = this.getInputs();
+    this.recipes.saveRecipe(name, inputs);
+    this.showSaveDialog.set(false);
+  }
+
+  updateActiveRecipe(): void {
+    const active = this.recipes.activeRecipe();
+    if (!active || active.builtIn) return;
+    this.recipes.updateRecipe(active.id, this.getInputs());
+  }
+
+  deleteActiveRecipe(): void {
+    const active = this.recipes.activeRecipe();
+    if (!active || active.builtIn) return;
+    if (!confirm(this.i18n.t().confirmDeleteRecipe)) return;
+    this.recipes.deleteRecipe(active.id);
+  }
+
+  recipeName(recipe: Recipe): string {
+    if (recipe.nameKey) {
+      const t = this.i18n.t();
+      return (
+        ((t as unknown as Record<string, unknown>)[recipe.nameKey] as string) ??
+        recipe.name
+      );
+    }
+    return recipe.name;
   }
 }

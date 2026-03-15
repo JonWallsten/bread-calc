@@ -16,7 +16,7 @@
   <table class="ingredient-table">
     <tbody>
       @for (row of ingredients(); track row[0]) {
-      <tr>
+      <tr [class.flour-sub]="row[0].startsWith('↳')">
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
       </tr>

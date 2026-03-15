@@ -38,3 +38,41 @@ export const BULK_CLAMP = { min: 135, max: 240 };
 
 // Divide & pre-shape clamp bounds (minutes, per-loaf factor)
 export const SHAPE_CLAMP = { min: 22, max: 48, perLoafFactor: 1.2 };
+
+// Recommended ranges and validation thresholds for percentage fields.
+// 'rec' = typical/recommended baker's range (shown in hints).
+// 'warn' = outside the recommended range but still plausible (amber).
+// 'error' = extreme values, almost certainly a mistake (red).
+export interface FieldRange {
+  rec: { min: number; max: number };
+  warn: { min: number; max: number };
+  error: { min: number; max: number };
+}
+
+export const FIELD_RANGES: Record<string, FieldRange> = {
+  hydration: {
+    rec: { min: 60, max: 80 },
+    warn: { min: 50, max: 90 },
+    error: { min: 50, max: 90 },
+  },
+  salt: {
+    rec: { min: 1.8, max: 2.2 },
+    warn: { min: 1.5, max: 3.0 },
+    error: { min: 1.5, max: 3.0 },
+  },
+  sugar: {
+    rec: { min: 0, max: 5 },
+    warn: { min: 0, max: 10 },
+    error: { min: 0, max: 10 },
+  },
+  oil: {
+    rec: { min: 0, max: 5 },
+    warn: { min: 0, max: 10 },
+    error: { min: 0, max: 10 },
+  },
+  milk: {
+    rec: { min: 0, max: 50 },
+    warn: { min: 0, max: 75 },
+    error: { min: 0, max: 75 },
+  },
+};
