@@ -3,7 +3,9 @@
     <h2 class="section-title">{{ i18n.t().instructions }}</h2>
   </div>
 
-  @for (step of steps(); track step.title; let i = $index) {
+  @if (showFlourBlendNote()) {
+  <p class="flour-blend-note">{{ i18n.t().flourBlendAbsorptionNote }}</p>
+  } @for (step of steps(); track step.title; let i = $index) {
   <div class="instruction-card" [class.completed]="completedSteps()[i]">
     <div class="instruction-header">
       <div class="instruction-title-group">

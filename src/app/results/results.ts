@@ -15,13 +15,19 @@ export class ResultsComponent {
   protected readonly stats = computed(() => {
     const d = this.data();
     const t = this.i18n.t();
+    const hasBlend =
+      d.flourBlendAdjustment !== 0 || d.customHydrationAdjustment !== 0;
+    const hydrationDisplay = hasBlend
+      ? `${this.calc.round1(d.effectiveHydrationPct)}%`
+      : `${this.calc.round1(d.hydrationPct)}%`;
+    const hydrationLabel = hasBlend ? t.effectiveHydration : t.hydration;
     return [
       {
         value: `${Math.round(d.finalDoughWeight)} g`,
         label: t.totalDoughWeight,
       },
       { value: `${Math.round(d.actualPerBall)} g`, label: t.actualPerBall },
-      { value: `${this.calc.round1(d.hydrationPct)}%`, label: t.hydration },
+      { value: hydrationDisplay, label: hydrationLabel },
       { value: `${this.calc.round1(d.yeastToAdd)} g`, label: d.yeastTypeLabel },
       {
         value: `${this.calc.round1(d.prefermentedFlourPct)}%`,

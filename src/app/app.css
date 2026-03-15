@@ -176,6 +176,12 @@
     transform: rotate(180deg);
 }
 
+.advanced-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0 12px;
+}
+
 /* ── Calculate button ──────────────────────────────────── */
 .calculate-btn {
     display: block;

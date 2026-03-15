@@ -129,6 +129,39 @@ interface Translations {
   milk: string;
   and: string;
 
+  // Flour blend
+  flourBlend: string;
+  infoFlourBlend: string;
+  preset: string;
+  loadPreset: string;
+  savePreset: string;
+  updatePreset: string;
+  deletePreset: string;
+  newPreset: string;
+  addFlour: string;
+  removeFlour: string;
+  flourType: string;
+  share: string;
+  totalPct: string;
+  blendMustBe100: string;
+  duplicateFlour: string;
+  presetName: string;
+  presetNotes: string;
+  customAdjustment: string;
+  builtIn: string;
+  myPreset: string;
+  baseHydration: string;
+  flourAdjustment: string;
+  presetAdjustment: string;
+  effectiveHydration: string;
+  hydrationWarning: string;
+  flourBlendAbsorptionNote: string;
+  enterPresetName: string;
+  confirmDeletePreset: string;
+  noPresets: string;
+  cancel: string;
+  save: string;
+
   // Aria-labels
   switchLanguage: string;
   scrollToTop: string;
@@ -257,6 +290,39 @@ const en: Translations = {
   splashGetStarted: "Get started",
   milk: "milk",
   and: "and",
+  flourBlend: "Flour blend",
+  infoFlourBlend:
+    "Build a custom flour blend to automatically adjust hydration. The blend should total 100%. Save blends as presets for quick access.",
+  preset: "Preset",
+  loadPreset: "Load",
+  savePreset: "Save as new",
+  updatePreset: "Update",
+  deletePreset: "Delete",
+  newPreset: "New",
+  addFlour: "Add flour",
+  removeFlour: "Remove",
+  flourType: "Flour type",
+  share: "Share",
+  totalPct: "Total",
+  blendMustBe100: "Flour blend must total 100%.",
+  duplicateFlour: "Duplicate flour type.",
+  presetName: "Preset name",
+  presetNotes: "Notes",
+  customAdjustment: "Custom adjustment",
+  builtIn: "Built-in",
+  myPreset: "My preset",
+  baseHydration: "Base hydration",
+  flourAdjustment: "Flour adjustment",
+  presetAdjustment: "Preset adjustment",
+  effectiveHydration: "Effective hydration",
+  hydrationWarning: "Effective hydration is outside the typical range.",
+  flourBlendAbsorptionNote:
+    "This flour blend tends to absorb more water than a neutral mix. Dough may feel slightly firm early and relax after resting.",
+  enterPresetName: "Enter a preset name.",
+  confirmDeletePreset: "Delete this preset?",
+  noPresets: "No presets yet.",
+  cancel: "Cancel",
+  save: "Save",
   switchLanguage: "Switch language",
   scrollToTop: "Scroll to top",
   decrease: "Decrease",
@@ -373,6 +439,39 @@ const sv: Translations = {
   splashGetStarted: "Kom igång",
   milk: "mjölk",
   and: "och",
+  flourBlend: "Mjölblandning",
+  infoFlourBlend:
+    "Skapa en egen mjölblandning för att automatiskt justera hydreringen. Blandningen ska bli 100%. Spara blandningar som förinställningar.",
+  preset: "Förinställning",
+  loadPreset: "Ladda",
+  savePreset: "Spara som ny",
+  updatePreset: "Uppdatera",
+  deletePreset: "Ta bort",
+  newPreset: "Ny",
+  addFlour: "Lägg till mjöl",
+  removeFlour: "Ta bort",
+  flourType: "Mjöltyp",
+  share: "Andel",
+  totalPct: "Totalt",
+  blendMustBe100: "Mjölblandningen måste bli 100%.",
+  duplicateFlour: "Dubblett av mjöltyp.",
+  presetName: "Namn",
+  presetNotes: "Anteckningar",
+  customAdjustment: "Egen justering",
+  builtIn: "Inbyggd",
+  myPreset: "Min förinställning",
+  baseHydration: "Bashydrering",
+  flourAdjustment: "Mjöljustering",
+  presetAdjustment: "Förinställningsjustering",
+  effectiveHydration: "Effektiv hydrering",
+  hydrationWarning: "Effektiv hydrering är utanför normalt intervall.",
+  flourBlendAbsorptionNote:
+    "Denna mjölblandning tenderar att absorbera mer vatten än en neutral blandning. Degen kan kännas lite fast tidigt och slappna av efter vila.",
+  enterPresetName: "Ange ett förinställningsnamn.",
+  confirmDeletePreset: "Ta bort denna förinställning?",
+  noPresets: "Inga förinställningar ännu.",
+  cancel: "Avbryt",
+  save: "Spara",
   switchLanguage: "Byt språk",
   scrollToTop: "Scrolla upp",
   decrease: "Minska",

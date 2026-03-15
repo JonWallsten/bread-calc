@@ -24,6 +24,8 @@ import { ResultsComponent } from "./results/results";
 import { InstructionsComponent } from "./instructions/instructions";
 import { TooltipDirective } from "./tooltip.directive";
 import { SplashComponent } from "./splash/splash";
+import { FlourBlendComponent } from "./flour-blend/flour-blend";
+import { FlourBlendService } from "./flour-blend.service";
 
 const INFO_MESSAGES: Record<string, string> = {};
 
@@ -36,6 +38,7 @@ const INFO_MESSAGES: Record<string, string> = {};
     InstructionsComponent,
     TooltipDirective,
     SplashComponent,
+    FlourBlendComponent,
   ],
   templateUrl: "./app.html",
   styleUrl: "./app.css",
@@ -43,6 +46,7 @@ const INFO_MESSAGES: Record<string, string> = {};
 export class App implements OnInit {
   private readonly calc = inject(CalcService);
   private readonly storage = inject(StorageService);
+  private readonly blend = inject(FlourBlendService);
   private readonly instructionsRef = viewChild(InstructionsComponent);
   private readonly titleService = inject(Title);
   readonly i18n = inject(I18nService);
@@ -133,6 +137,12 @@ export class App implements OnInit {
       starterHydrationPct: this.starterHydrationPct(),
       totalHours: this.totalHours(),
       roomTemp: this.roomTemp(),
+      flourBlendAdjustment: this.blend.blendValid()
+        ? this.blend.flourBlendAdjustment()
+        : 0,
+      customHydrationAdjustment: this.blend.blendValid()
+        ? this.blend.customHydrationAdjustment()
+        : 0,
     };
   }
 
@@ -193,6 +203,7 @@ export class App implements OnInit {
     this.validationError.set(null);
     this.resultsVisible.set(false);
     this.result.set(null);
+    this.blend.clearBlend();
     this.storage.clear();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }

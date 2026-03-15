@@ -26,6 +26,10 @@ export class InstructionsComponent implements OnDestroy {
   readonly i18n = inject(I18nService);
   readonly data = input.required<CalcResult>();
 
+  protected readonly showFlourBlendNote = computed(() => {
+    return this.data().flourBlendAdjustment > 1.5;
+  });
+
   // Timer state
   protected activeTimerIndex = signal<number | null>(null);
   protected activeTimerPaused = signal(false);

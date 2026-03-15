@@ -21,6 +21,8 @@ export interface CalcInputs {
   starterHydrationPct: number;
   totalHours: number;
   roomTemp: number;
+  flourBlendAdjustment?: number;
+  customHydrationAdjustment?: number;
 }
 
 export interface CalcResult {
@@ -30,6 +32,9 @@ export interface CalcResult {
   yeastType: string;
   yeastTypeLabel: string;
   hydrationPct: number;
+  effectiveHydrationPct: number;
+  flourBlendAdjustment: number;
+  customHydrationAdjustment: number;
   saltPct: number;
   sugarPct: number;
   oilPct: number;
@@ -109,7 +114,11 @@ export class CalcService {
       starterHydrationPct,
       totalHours,
       roomTemp,
+      flourBlendAdjustment: flourAdj = 0,
+      customHydrationAdjustment: customAdj = 0,
     } = inputs;
+
+    const effectiveHydrationPct = hydrationPct + flourAdj + customAdj;
 
     if (
       breadCount < 1 ||
@@ -125,7 +134,7 @@ export class CalcService {
     }
 
     const targetDoughWeight = breadCount * targetBallWeight;
-    const hydration = hydrationPct / 100;
+    const hydration = effectiveHydrationPct / 100;
     const salt = saltPct / 100;
     const sugar = sugarPct / 100;
     const oil = oilPct / 100;
@@ -241,6 +250,9 @@ export class CalcService {
       yeastType,
       yeastTypeLabel,
       hydrationPct,
+      effectiveHydrationPct,
+      flourBlendAdjustment: flourAdj,
+      customHydrationAdjustment: customAdj,
       saltPct,
       sugarPct,
       oilPct,

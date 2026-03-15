@@ -38,6 +38,7 @@ Built with **Angular 19+** · Standalone components · Signals · Zero backend
 | 📱   | **Mobile-first design**           | Clean, responsive UI built for phones, works everywhere                                                      |
 | ℹ️   | **Info tooltips**                 | Hover or tap the ⓘ buttons for context on every section                                                      |
 | 🔔   | **Alarm & notifications**         | Web Audio API beeps + browser notification on timer completion                                               |
+| 🌾   | **Flour blend & presets**         | Build custom flour blends from 9 flour types, auto-adjust hydration, save/load personal presets              |
 
 ---
 
@@ -127,19 +128,47 @@ Suggested based on room temperature to target a final dough temperature around 2
 |  ≥ 18°C   |  18–20°C   |
 |  < 18°C   |  20–22°C   |
 
+### Flour blend & hydration adjustment
+
+The flour blend feature lets you define a custom mix of flour types. Each flour has a **hydration bias** — a percentage offset reflecting how much more (or less) water it absorbs compared to a neutral baseline:
+
+| Flour               | Hydration bias |
+| ------------------- | :------------: |
+| Caputo Nuvola Super |     +2.5%      |
+| Manitoba Cream      |     +1.5%      |
+| Rustique            |     +2.0%      |
+| Strong bread flour  |     +0.5%      |
+| Tipo 00             |       0%       |
+| Sifted spelt        |     −1.0%      |
+| Whole spelt         |     +1.5%      |
+| Sifted rye          |     +2.0%      |
+| Rye flour           |     +3.0%      |
+
+The flour blend adjustment is a **weighted sum**:
+
+$$\text{flour adjustment} = \frac{\sum (\text{share\%} \times \text{hydration bias})}{100}$$
+
+An optional **custom adjustment** lets you fine-tune on top:
+
+$$\text{effective hydration} = \text{base hydration} + \text{flour adjustment} + \text{custom adjustment}$$
+
+The effective hydration is used for all water/milk calculations. When the flour adjustment exceeds +1.5%, a note appears in the instructions warning that the dough may feel firm early and relax after resting.
+
+Blends can be saved as **personal presets** (stored in localStorage) for quick reuse. Two built-in presets are included: _Fluffy rolls_ and _Rustic everyday_.
+
 ---
 
 ## 🛠️ Tech stack
 
-|                 |                                                               |
-| --------------- | ------------------------------------------------------------- |
-| **Framework**   | Angular 21 (standalone components, signals, computed, effect) |
-| **Styling**     | Plain CSS with custom properties, mobile-first                |
-| **State**       | Angular signals — no RxJS, no NgRx                            |
-| **Persistence** | localStorage for inputs and language preference               |
-| **Audio**       | Web Audio API (square wave alarm, 880 Hz, 5 beeps)            |
-| **i18n**        | Custom signal-based service, no `@angular/localize`           |
-| **Build**       | Angular CLI, output ~53 kB gzipped                            |
+|                 |                                                                 |
+| --------------- | --------------------------------------------------------------- |
+| **Framework**   | Angular 21 (standalone components, signals, computed, effect)   |
+| **Styling**     | Plain CSS with custom properties, mobile-first                  |
+| **State**       | Angular signals — no RxJS, no NgRx                              |
+| **Persistence** | localStorage for inputs, language preference, and flour presets |
+| **Audio**       | Web Audio API (square wave alarm, 880 Hz, 5 beeps)              |
+| **i18n**        | Custom signal-based service, no `@angular/localize`             |
+| **Build**       | Angular CLI, output ~53 kB gzipped                              |
 
 ---
 
