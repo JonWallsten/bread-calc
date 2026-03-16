@@ -25,6 +25,7 @@ export class InstructionsComponent implements OnDestroy {
   private readonly calc = inject(CalcService);
   readonly i18n = inject(I18nService);
   readonly data = input.required<CalcResult>();
+  protected readonly instructionsCopied = signal(false);
 
   private yeastLabel(yeastType: string): string {
     const t = this.i18n.t();
@@ -372,5 +373,14 @@ export class InstructionsComponent implements OnDestroy {
     this.activeTimerPaused.set(false);
     this.activeTimerRemaining.set(0);
     this.activeTimerTitle = "";
+  }
+
+  async copyInstructions(): Promise<void> {
+    const lines = this.steps().map(
+      (step) => `${step.title} (${step.time})\n${step.body}`,
+    );
+    await navigator.clipboard.writeText(lines.join("\n\n"));
+    this.instructionsCopied.set(true);
+    setTimeout(() => this.instructionsCopied.set(false), 2000);
   }
 }

@@ -16,6 +16,9 @@ interface Translations {
   proofing: string;
   results: string;
   instructions: string;
+  copyRecipe: string;
+  copyInstructions: string;
+  copied: string;
 
   // Dough fields
   numberOfBreads: string;
@@ -303,8 +306,11 @@ const en: Translations = {
   percentages: "Percentages",
   starter: "Starter",
   proofing: "Proofing",
-  results: "Results",
+  results: "Recipe",
   instructions: "Instructions",
+  copyRecipe: "Copy recipe",
+  copyInstructions: "Copy instructions",
+  copied: "Copied!",
   numberOfBreads: "Number of breads",
   ballWeight: "Ball weight (g)",
   yeastType: "Yeast type",
@@ -557,8 +563,11 @@ const sv: Translations = {
   percentages: "Procent",
   starter: "Surdeg",
   proofing: "Jäsning",
-  results: "Resultat",
+  results: "Recept",
   instructions: "Instruktioner",
+  copyRecipe: "Kopiera recept",
+  copyInstructions: "Kopiera instruktioner",
+  copied: "Kopierat!",
   numberOfBreads: "Antal bröd",
   ballWeight: "Bollvikt (g)",
   yeastType: "Jästtyp",

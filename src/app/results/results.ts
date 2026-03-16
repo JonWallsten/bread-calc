@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 import { CalcResult, CalcService } from "../calc.service";
 import { I18nService } from "../i18n.service";
 import { FlourBlendService } from "../flour-blend.service";
@@ -14,11 +14,13 @@ export class ResultsComponent {
   readonly i18n = inject(I18nService);
   private readonly blend = inject(FlourBlendService);
   readonly data = input.required<CalcResult>();
+  protected readonly recipeCopied = signal(false);
 
   private yeastLabel(yeastType: string): string {
     const t = this.i18n.t();
     const labels: Record<string, string> = {
       fresh: t.freshYeast,
+      swedishDry: t.swedishDryYeast,
       activeDry: t.activeDryYeast,
       instant: t.instantYeast,
     };
@@ -112,4 +114,19 @@ export class ResultsComponent {
         : `${this.calc.round1(d.roomTemp)}`;
     return `${t.supportStarterCalc(Math.round(d.starterHydrationPct), Math.round(d.starterFlour), Math.round(d.starterWater))} ${t.supportYeastEstimated(this.yeastLabel(d.yeastType), hoursStr, tempStr)} ${t.supportHeuristic}`;
   });
+
+  async copyRecipe(): Promise<void> {
+    const t = this.i18n.t();
+    const lines = [
+      `${t.results}`,
+      "",
+      ...this.stats().map((s) => `${s.label}: ${s.value}`),
+      "",
+      `${t.ingredients}`,
+      ...this.ingredients().map((r) => `${r[0]}: ${r[1]}`),
+    ];
+    await navigator.clipboard.writeText(lines.join("\n"));
+    this.recipeCopied.set(true);
+    setTimeout(() => this.recipeCopied.set(false), 2000);
+  }
 }

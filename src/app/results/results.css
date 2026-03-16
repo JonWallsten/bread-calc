@@ -18,6 +18,29 @@
     flex: 1;
 }
 
+.copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.15s ease;
+}
+
+.copy-btn:hover {
+    color: var(--text);
+}
+
+.copy-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #16a34a;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -1,6 +1,31 @@
 <section class="section">
   <div class="section-header">
     <h2 class="section-title">{{ i18n.t().results }}</h2>
+    <button
+      class="copy-btn"
+      type="button"
+      (click)="copyRecipe()"
+      [attr.aria-label]="i18n.t().copyRecipe"
+      [title]="i18n.t().copyRecipe"
+    >
+      @if (recipeCopied()) {
+      <span class="copy-label">{{ i18n.t().copied }}</span>
+      } @else {
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
+      }
+    </button>
   </div>
 
   <div class="stats-grid">
