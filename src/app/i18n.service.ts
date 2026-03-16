@@ -276,13 +276,19 @@ interface Translations {
   viewSession: string;
 
   // Compare
-  compareRecipes: string;
-  selectRecipeA: string;
-  selectRecipeB: string;
+  compareSessions: string;
+  selectSessionA: string;
+  selectSessionB: string;
   difference: string;
   noChange: string;
   higher: string;
   lower: string;
+  yeastIngredient: string;
+  milkIngredient: string;
+  sugarAmount: string;
+  oilAmount: string;
+  deleteSession: string;
+  noSessions: string;
 }
 
 const en: Translations = {
@@ -517,13 +523,19 @@ const en: Translations = {
   viewSession: "View session",
 
   // Compare
-  compareRecipes: "Compare recipes",
-  selectRecipeA: "Recipe A",
-  selectRecipeB: "Recipe B",
+  compareSessions: "Compare bakes",
+  selectSessionA: "Bake A",
+  selectSessionB: "Bake B",
   difference: "Difference",
   noChange: "No change",
   higher: "higher",
   lower: "lower",
+  yeastIngredient: "Yeast",
+  milkIngredient: "Milk",
+  sugarAmount: "Sugar",
+  oilAmount: "Oil",
+  deleteSession: "Delete session",
+  noSessions: "No baking sessions yet.",
 };
 
 const sv: Translations = {
@@ -758,13 +770,19 @@ const sv: Translations = {
   viewSession: "Visa session",
 
   // Compare
-  compareRecipes: "Jämför recept",
-  selectRecipeA: "Recept A",
-  selectRecipeB: "Recept B",
+  compareSessions: "Jämför bakningar",
+  selectSessionA: "Bakning A",
+  selectSessionB: "Bakning B",
   difference: "Skillnad",
   noChange: "Ingen skillnad",
   higher: "högre",
   lower: "lägre",
+  yeastIngredient: "Jäst",
+  milkIngredient: "Mjölk",
+  sugarAmount: "Socker",
+  oilAmount: "Olja",
+  deleteSession: "Ta bort session",
+  noSessions: "Inga baksessioner ännu.",
 };
 
 const translations: Record<Lang, Translations> = { en, sv };

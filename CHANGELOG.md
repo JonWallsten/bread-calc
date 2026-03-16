@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Save baking session: fixed API response handling (`createSession` now correctly handles `{ id }` response from server)
+- Delete session button text now uses correct i18n key (`deleteSession` instead of `deleteRecipe`)
+
+### Changed
+
+- Compare feature: switched from recipe-based to session-based comparison — select from saved baking sessions instead of recipes
+- Compare table now includes yeast, milk, sugar, and oil amounts alongside existing fields
+- Button styling: save-bake, upload, and delete buttons now use solid borders and consistent hover states
+- Added extra top margin above baking session section for better visual spacing
+- Updated i18n keys: `compareSessions`, `selectSessionA`/`selectSessionB`, `deleteSession`, `noSessions`, `yeastIngredient`, `milkIngredient`, `sugarAmount`, `oilAmount` in EN and SV
+
 ### Added
 
 - Dual mixing method: choose between "By hand" (manual) and "Stand mixer" (machine) modes

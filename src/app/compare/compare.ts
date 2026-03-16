@@ -7,14 +7,12 @@ import {
 } from "@angular/core";
 import { I18nService } from "../i18n.service";
 import { AuthService } from "../auth.service";
-import { ApiService } from "../api.service";
-import { RecipeService } from "../recipe.service";
 import {
-  CalcService,
-  CalcInputs,
-  CalcResult,
-  CalcOutput,
-} from "../calc.service";
+  BakingSessionService,
+  BakingSessionSummary,
+  BakingSessionDetail,
+} from "../baking-session.service";
+import { CalcResult } from "../calc.service";
 
 interface CompareRow {
   label: string;
@@ -33,16 +31,14 @@ interface CompareRow {
 export class CompareComponent {
   readonly i18n = inject(I18nService);
   readonly auth = inject(AuthService);
-  readonly recipes = inject(RecipeService);
-  private readonly calc = inject(CalcService);
-  private readonly api = inject(ApiService);
+  private readonly sessionService = inject(BakingSessionService);
 
-  readonly recipeIdA = signal<string>("");
-  readonly recipeIdB = signal<string>("");
+  readonly sessionIdA = signal<string>("");
+  readonly sessionIdB = signal<string>("");
   readonly resultA = signal<CalcResult | null>(null);
   readonly resultB = signal<CalcResult | null>(null);
 
-  readonly allRecipes = this.recipes.allRecipes;
+  readonly allSessions = this.sessionService.sessions;
 
   readonly rows = computed<CompareRow[]>(() => {
     const a = this.resultA();
@@ -65,6 +61,10 @@ export class CompareComponent {
       { label: t.flourToAdd, key: "flourToAdd", unit: " g" },
       { label: t.waterToAdd, key: "waterToAdd", unit: " g" },
       { label: t.saltIngredient, key: "saltToAdd", unit: " g" },
+      { label: t.yeastIngredient, key: "yeastToAdd", unit: " g", decimals: 1 },
+      { label: t.milkIngredient, key: "milkToAdd", unit: " g" },
+      { label: t.sugarAmount, key: "sugarToAdd", unit: " g" },
+      { label: t.oilAmount, key: "oilToAdd", unit: " g" },
     ];
 
     return fields.map((f) => {
@@ -89,47 +89,30 @@ export class CompareComponent {
     });
   });
 
-  onSelectA(id: string): void {
-    this.recipeIdA.set(id);
-    this.recalculate();
+  async onSelectA(id: string): Promise<void> {
+    this.sessionIdA.set(id);
+    await this.loadResult(id, this.resultA);
   }
 
-  onSelectB(id: string): void {
-    this.recipeIdB.set(id);
-    this.recalculate();
+  async onSelectB(id: string): Promise<void> {
+    this.sessionIdB.set(id);
+    await this.loadResult(id, this.resultB);
   }
 
-  private recalculate(): void {
-    const a = this.findRecipe(this.recipeIdA());
-    const b = this.findRecipe(this.recipeIdB());
-
-    if (a) {
-      const out = this.calc.calculate(a.inputs);
-      this.resultA.set("error" in out ? null : out);
-    } else {
-      this.resultA.set(null);
+  private async loadResult(
+    id: string,
+    target: ReturnType<typeof signal<CalcResult | null>>,
+  ): Promise<void> {
+    if (!id) {
+      target.set(null);
+      return;
     }
-
-    if (b) {
-      const out = this.calc.calculate(b.inputs);
-      this.resultB.set("error" in out ? null : out);
-    } else {
-      this.resultB.set(null);
-    }
+    const detail = await this.sessionService.getSession(Number(id));
+    target.set(detail?.results_snapshot ?? null);
   }
 
-  private findRecipe(id: string) {
-    return this.allRecipes().find((r) => r.id === id) ?? null;
-  }
-
-  recipeName(recipe: { nameKey?: string; name: string }): string {
-    if (recipe.nameKey) {
-      const t = this.i18n.t();
-      return (
-        ((t as unknown as Record<string, unknown>)[recipe.nameKey] as string) ??
-        recipe.name
-      );
-    }
-    return recipe.name;
+  sessionLabel(s: BakingSessionSummary): string {
+    const date = new Date(s.baked_at).toLocaleDateString();
+    return s.recipe_name ? `${date} — ${s.recipe_name}` : date;
   }
 }

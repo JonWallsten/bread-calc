@@ -77,11 +77,11 @@ export class BakingSessionService {
       if (options?.recipeId) body["recipe_id"] = options.recipeId;
       if (options?.notes) body["notes"] = options.notes;
       if (options?.rating) body["rating"] = options.rating;
-      const res = await this.api.post<{ session: BakingSessionDetail }>(
-        "/sessions",
-        body,
-      );
-      return res.session;
+      const res = await this.api.post<{ id: number }>("/sessions", body);
+      if (res.id) {
+        return this.getSession(res.id);
+      }
+      return null;
     } catch {
       return null;
     }

@@ -1,20 +1,23 @@
 <section class="section">
   <div class="section-header">
     <span class="section-icon" aria-hidden="true">&#128200;</span>
-    <h2 class="section-title">{{ i18n.t().compareRecipes }}</h2>
+    <h2 class="section-title">{{ i18n.t().compareSessions }}</h2>
   </div>
 
+  @if (allSessions().length < 2) {
+  <p class="compare-empty">{{ i18n.t().noSessions }}</p>
+  } @else {
   <div class="compare-selectors">
     <div class="compare-select">
-      <label class="field-label">{{ i18n.t().selectRecipeA }}</label>
+      <label class="field-label">{{ i18n.t().selectSessionA }}</label>
       <div class="select-wrap">
         <select
-          [value]="recipeIdA()"
+          [value]="sessionIdA()"
           (change)="onSelectA($any($event.target).value)"
         >
           <option value="" disabled hidden>—</option>
-          @for (r of allRecipes(); track r.id) {
-          <option [value]="r.id">{{ recipeName(r) }}</option>
+          @for (s of allSessions(); track s.id) {
+          <option [value]="s.id">{{ sessionLabel(s) }}</option>
           }
         </select>
         <span class="select-chevron" aria-hidden="true">&#9662;</span>
@@ -22,15 +25,15 @@
     </div>
 
     <div class="compare-select">
-      <label class="field-label">{{ i18n.t().selectRecipeB }}</label>
+      <label class="field-label">{{ i18n.t().selectSessionB }}</label>
       <div class="select-wrap">
         <select
-          [value]="recipeIdB()"
+          [value]="sessionIdB()"
           (change)="onSelectB($any($event.target).value)"
         >
           <option value="" disabled hidden>—</option>
-          @for (r of allRecipes(); track r.id) {
-          <option [value]="r.id">{{ recipeName(r) }}</option>
+          @for (s of allSessions(); track s.id) {
+          <option [value]="s.id">{{ sessionLabel(s) }}</option>
           }
         </select>
         <span class="select-chevron" aria-hidden="true">&#9662;</span>
@@ -61,5 +64,5 @@
       </tbody>
     </table>
   </div>
-  }
+  } }
 </section>

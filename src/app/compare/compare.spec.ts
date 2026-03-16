@@ -26,10 +26,11 @@ describe("CompareComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should start with no recipe selected", () => {
+  it("should start with no session selected", () => {
     const fixture = TestBed.createComponent(CompareComponent);
     const component = fixture.componentInstance;
-    expect(component.recipeIdA()).toBe("");
+    expect(component.sessionIdA()).toBe("");
+    expect(component.sessionIdB()).toBe("");
   });
 
   it("should inject i18n service", () => {
@@ -38,9 +39,15 @@ describe("CompareComponent", () => {
     expect(component.i18n).toBeTruthy();
   });
 
-  it("should have access to all recipes", () => {
+  it("should have empty sessions list initially", () => {
     const fixture = TestBed.createComponent(CompareComponent);
     const component = fixture.componentInstance;
-    expect(component.recipes.allRecipes().length).toBeGreaterThan(0);
+    expect(component.allSessions().length).toBe(0);
+  });
+
+  it("should produce no rows when no sessions selected", () => {
+    const fixture = TestBed.createComponent(CompareComponent);
+    const component = fixture.componentInstance;
+    expect(component.rows()).toEqual([]);
   });
 });
