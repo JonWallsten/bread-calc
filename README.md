@@ -183,12 +183,17 @@ Blends can be saved as **personal presets** (stored in localStorage) for quick r
 # Install dependencies
 npm install
 
-# Start dev server (http://localhost:4200)
+# Start Angular dev server (http://localhost:4200)
 npm start
+
+# Start PHP API dev server (http://localhost:8080, proxied via Angular)
+npm run start:api
 
 # Production build (outputs to dist/bread-calc/)
 npm run build
 ```
+
+Both servers are needed for the full stack locally. The Angular dev server proxies `/api/*` → `localhost:8080` via `proxy.conf.json`.
 
 ### Defaults
 
@@ -204,6 +209,101 @@ npm run build
 | Starter hydration | 100%    |
 | Time until oven   | 8 h     |
 | Room temperature  | 22°C    |
+
+---
+
+## 🔧 Backend setup
+
+### 1. Credential files
+
+Three separate credential files keep secrets organised:
+
+| File                     | Contents                                                          | Committed? | Deployed to server? |
+| ------------------------ | ----------------------------------------------------------------- | :--------: | :-----------------: |
+| `.credentials.env`       | DB host/name/user/pass, Google OAuth client ID/secret, JWT secret |     No     |         Yes         |
+| `.credentials.local.env` | Local overrides (e.g. different DB host for dev)                  |     No     |         No          |
+| `.ftp.env`               | FTP host/user/pass/path for Oderland deployment                   |     No     |         No          |
+
+Copy the examples and fill in your values:
+
+```bash
+cp .credentials.env.example .credentials.env
+cp .credentials.local.env.example .credentials.local.env  # optional local overrides
+cp .ftp.env.example .ftp.env
+```
+
+Node.js scripts load `.credentials.env` then **overlay** `.credentials.local.env` on top if it exists. PHP `api/config.php` does the same.
+
+### 2. Database migrations
+
+```bash
+# Apply all pending migrations to local DB (uses .credentials.local.env overlay)
+npm run db:migrate
+
+# Show applied / pending status
+npm run db:status
+
+# Apply against remote DB only (skips local overlay)
+npm run db:migrate -- --remote
+```
+
+### 3. Google OAuth
+
+1. Create a project at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Add an OAuth 2.0 client ID (Web application)
+3. Add **Authorized JavaScript origins**: `http://localhost:4200`, `https://yourdomain.com`
+4. Copy the client ID and secret into `.credentials.env`
+
+---
+
+## 📦 Deployment
+
+All deployment targets use [basic-ftp](https://www.npmjs.com/package/basic-ftp) over FTPS. Credentials are read from `.ftp.env`.
+
+```bash
+# Full deploy: build Angular + upload frontend + upload API
+npm run deploy
+
+# Frontend only (skips build of API files)
+npm run deploy:frontend
+
+# API only (no Angular build)
+npm run deploy:api
+
+# Upload .credentials.env to server (one-time or when secrets change)
+npm run deploy:credentials
+```
+
+`deploy:credentials` is intentionally separate — it uploads the app secrets once, and the regular `deploy` never touches them on the server.
+
+### Deploy flags
+
+```bash
+node scripts/deploy.mjs --dry-run        # list files without transferring
+node scripts/deploy.mjs --api-only       # API files only
+node scripts/deploy.mjs --frontend-only  # built frontend only
+node scripts/deploy.mjs --credentials-only  # .credentials.env only
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Angular unit tests (Vitest via @angular/build)
+npm test
+
+# Node.js script unit tests (credential parsing, deploy flags, migration file discovery)
+npm run test:scripts
+
+# API integration tests (requires npm run start:api to be running)
+npm run test:api
+
+# Run against the live server instead of localhost
+API_BASE_URL=https://yourdomain.com/bread-calc/api npm run test:api
+```
+
+The API tests create a temporary test user in the DB, exercise all CRUD endpoints, and clean up after themselves.
 
 ---
 

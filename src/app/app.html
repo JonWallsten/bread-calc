@@ -8,6 +8,7 @@
     class="topbar-lang"
     type="button"
     [attr.aria-label]="i18n.t().switchLanguage"
+    [title]="i18n.t().switchLanguage"
     (click)="i18n.toggleLang()"
   >
     {{ i18n.currentLang() === 'en' ? '🇸🇪' : '🇬🇧' }}
@@ -37,14 +38,6 @@
     } } } @else {
     <div id="google-signin-btn" class="google-btn-wrap"></div>
     }
-    <button
-      class="topbar-reset"
-      type="button"
-      [attr.aria-label]="i18n.t().reset"
-      (click)="reset()"
-    >
-      &#8635;
-    </button>
   </div>
 </header>
 
@@ -62,7 +55,7 @@
           [value]="recipes.activeId() ?? ''"
           (change)="onRecipeSelect($any($event.target).value)"
         >
-          <option value="">—</option>
+          <option value="" disabled hidden>{{ i18n.t().selectRecipe }}</option>
           @for (r of recipes.allRecipes(); track r.id) {
           <option [value]="r.id" [selected]="r.id === recipes.activeId()">
             {{ recipeName(r) }}{{ r.builtIn ? ' ★' : '' }}
@@ -76,6 +69,7 @@
         type="button"
         (click)="openSaveDialog()"
         [attr.aria-label]="i18n.t().saveRecipe"
+        [title]="i18n.t().saveRecipe"
       >
         &#128190;
       </button>
@@ -85,6 +79,7 @@
         type="button"
         (click)="updateActiveRecipe()"
         [attr.aria-label]="i18n.t().updateRecipe"
+        [title]="i18n.t().updateRecipe"
       >
         &#8635;
       </button>
@@ -93,6 +88,7 @@
         type="button"
         (click)="deleteActiveRecipe()"
         [attr.aria-label]="i18n.t().deleteRecipe"
+        [title]="i18n.t().deleteRecipe"
       >
         &#128465;
       </button>
@@ -398,6 +394,7 @@
   class="scroll-top-btn"
   type="button"
   [attr.aria-label]="i18n.t().scrollToTop"
+  [title]="i18n.t().scrollToTop"
   (click)="scrollToTop()"
 >
   &#8593;

@@ -181,7 +181,23 @@ export class App implements OnInit {
 
   // ── Google Sign-In ──────────────────────────────────
 
-  private initGoogleSignIn(): void {
+  private async initGoogleSignIn(): Promise<void> {
+    // Fetch client ID from API
+    const base =
+      typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "/api"
+        : "/bread-calc/api";
+    let clientId: string;
+    try {
+      const res = await fetch(`${base}/auth/config`);
+      if (!res.ok) return;
+      const data = await res.json();
+      clientId = data.google_client_id;
+      if (!clientId) return;
+    } catch {
+      return;
+    }
+
     const tryInit = () => {
       const google = (window as unknown as Record<string, unknown>)[
         "google"
@@ -197,7 +213,7 @@ export class App implements OnInit {
         return;
       }
       google.accounts.id.initialize({
-        client_id: this.getGoogleClientId(),
+        client_id: clientId,
         callback: (response: { credential: string }) => {
           this.handleGoogleResponse(response.credential);
         },
@@ -205,17 +221,13 @@ export class App implements OnInit {
       const btnEl = document.getElementById("google-signin-btn");
       if (btnEl) {
         google.accounts.id.renderButton(btnEl, {
-          theme: "outline",
+          type: "icon",
           size: "medium",
-          shape: "pill",
+          shape: "circle",
         });
       }
     };
     tryInit();
-  }
-
-  private getGoogleClientId(): string {
-    return "389010640560-4b3ha79fg8om1qq0d4pdfsmf6hjclf6o.apps.googleusercontent.com";
   }
 
   private async handleGoogleResponse(credential: string): Promise<void> {

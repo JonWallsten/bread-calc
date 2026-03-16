@@ -14,7 +14,12 @@ import {
 // ── Flag parsing ──────────────────────────────────────────
 
 export function parseDeployFlags(argv) {
-  const flags = { dryRun: false, apiOnly: false, frontendOnly: false };
+  const flags = {
+    dryRun: false,
+    apiOnly: false,
+    frontendOnly: false,
+    credentialsOnly: false,
+  };
   for (const arg of argv) {
     switch (arg) {
       case "--dry-run":
@@ -25,6 +30,9 @@ export function parseDeployFlags(argv) {
         break;
       case "--frontend-only":
         flags.frontendOnly = true;
+        break;
+      case "--credentials-only":
+        flags.credentialsOnly = true;
         break;
       default:
         throw new Error(`Unknown flag: ${arg}`);
@@ -137,6 +145,15 @@ function listLocalFiles(dir, excludes = [], prefix = "") {
 
 // ── Main ──────────────────────────────────────────────────
 
+async function deployCredentials(client, ftpPath) {
+  console.log("🔑  Uploading .credentials.env...");
+  const localPath = join(PROJECT_ROOT, ".credentials.env");
+  const remotePath = `${ftpPath}/.credentials.env`;
+  const rel = relative(PROJECT_ROOT, localPath);
+  console.log(`  ↑ ${rel}`);
+  await client.uploadFrom(localPath, remotePath);
+}
+
 async function main() {
   const flags = parseDeployFlags(process.argv.slice(2));
   const creds = loadFtpCredentials();
@@ -146,8 +163,8 @@ async function main() {
     console.log("🔍  Dry run — no files will be transferred");
   }
 
-  // Build frontend (unless --api-only)
-  if (!flags.apiOnly) {
+  // Build frontend (unless --api-only or --credentials-only)
+  if (!flags.apiOnly && !flags.credentialsOnly) {
     console.log("🔨  Building Angular app...");
     execSync("npm run build", { cwd: PROJECT_ROOT, stdio: "inherit" });
   }
@@ -169,7 +186,9 @@ async function main() {
       });
     }
 
-    if (flags.frontendOnly) {
+    if (flags.credentialsOnly) {
+      await deployCredentials(client, creds.FTP_PATH);
+    } else if (flags.frontendOnly) {
       await deployFrontend(client, creds.FTP_PATH, flags.dryRun);
     } else if (flags.apiOnly) {
       await deployApi(client, creds.FTP_PATH, flags.dryRun);

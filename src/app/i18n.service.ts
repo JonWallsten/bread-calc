@@ -191,6 +191,7 @@ interface Translations {
 
   // Recipes
   recipes: string;
+  selectRecipe: string;
   saveRecipe: string;
   loadRecipe: string;
   deleteRecipe: string;
@@ -386,6 +387,7 @@ const en: Translations = {
   recipeError:
     "These inputs do not produce a valid recipe. Try increasing target weight or reducing starter.",
   recipes: "Recipes",
+  selectRecipe: "Select a recipe…",
   saveRecipe: "Save recipe",
   loadRecipe: "Load",
   deleteRecipe: "Delete",
@@ -581,6 +583,7 @@ const sv: Translations = {
   recipeError:
     "Dessa värden ger inget giltigt recept. Prova att öka målvikten eller minska surdegen.",
   recipes: "Recept",
+  selectRecipe: "Välj ett recept…",
   saveRecipe: "Spara recept",
   loadRecipe: "Ladda",
   deleteRecipe: "Ta bort",

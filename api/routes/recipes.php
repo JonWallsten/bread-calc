@@ -74,7 +74,7 @@ function createRecipe(int $userId): void
     ]);
 
     $id = (int)$db->lastInsertId();
-    sendJson(['id' => $id, 'name' => $name, 'inputs' => $inputs], 201);
+    sendJson(['recipe' => ['id' => $id, 'name' => $name, 'inputs' => $inputs]], 201);
 }
 
 function updateRecipe(int $userId, int $id): void

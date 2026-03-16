@@ -3,6 +3,7 @@
     class="stepper-btn stepper-minus"
     type="button"
     [attr.aria-label]="i18n.t().decrease"
+    [title]="i18n.t().decrease"
     (click)="decrement()"
   >
     −
@@ -24,6 +25,7 @@
     class="stepper-btn stepper-plus"
     type="button"
     [attr.aria-label]="i18n.t().increase"
+    [title]="i18n.t().increase"
     (click)="increment()"
   >
     +

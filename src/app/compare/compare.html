@@ -12,7 +12,7 @@
           [value]="recipeIdA()"
           (change)="onSelectA($any($event.target).value)"
         >
-          <option value="">—</option>
+          <option value="" disabled hidden>—</option>
           @for (r of allRecipes(); track r.id) {
           <option [value]="r.id">{{ recipeName(r) }}</option>
           }
@@ -28,7 +28,7 @@
           [value]="recipeIdB()"
           (change)="onSelectB($any($event.target).value)"
         >
-          <option value="">—</option>
+          <option value="" disabled hidden>—</option>
           @for (r of allRecipes(); track r.id) {
           <option [value]="r.id">{{ recipeName(r) }}</option>
           }

@@ -32,19 +32,6 @@
     font-weight: 700;
 }
 
-.topbar-reset {
-    font-size: 22px;
-    background: none;
-    border: none;
-    color: var(--text);
-    cursor: pointer;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* ── Topbar right (auth + reset) ───────────────────────── */
 .topbar-right {
     position: absolute;

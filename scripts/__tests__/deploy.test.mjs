@@ -7,6 +7,7 @@ describe("parseDeployFlags", () => {
       dryRun: false,
       apiOnly: false,
       frontendOnly: false,
+      credentialsOnly: false,
     });
   });
 
@@ -15,6 +16,7 @@ describe("parseDeployFlags", () => {
     expect(flags.dryRun).toBe(true);
     expect(flags.apiOnly).toBe(false);
     expect(flags.frontendOnly).toBe(false);
+    expect(flags.credentialsOnly).toBe(false);
   });
 
   it("parses --api-only", () => {
@@ -27,6 +29,13 @@ describe("parseDeployFlags", () => {
     const flags = parseDeployFlags(["--frontend-only"]);
     expect(flags.frontendOnly).toBe(true);
     expect(flags.apiOnly).toBe(false);
+  });
+
+  it("parses --credentials-only", () => {
+    const flags = parseDeployFlags(["--credentials-only"]);
+    expect(flags.credentialsOnly).toBe(true);
+    expect(flags.apiOnly).toBe(false);
+    expect(flags.frontendOnly).toBe(false);
   });
 
   it("parses multiple flags together", () => {
