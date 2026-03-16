@@ -15,6 +15,16 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      if (/Win/.test(navigator.platform)) {
+        document.documentElement.classList.add("os-windows");
+        var l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href =
+          "https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap";
+        document.head.appendChild(l);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

@@ -50,6 +50,18 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+/* ── Windows emoji override ─────────────────────────────── */
+.os-windows .section-icon,
+.os-windows .feature-icon,
+.os-windows .splash-icon,
+.os-windows .info-btn,
+.os-windows .recipe-action-btn,
+.os-windows .star-btn,
+.os-windows .scroll-top-btn,
+.os-windows .delete-session-btn {
+    font-family: 'Noto Color Emoji', sans-serif;
+}
+
 /* ── Tooltip ────────────────────────────────────────────── */
 .app-tooltip {
     position: fixed;
