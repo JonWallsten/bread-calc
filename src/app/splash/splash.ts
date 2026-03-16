@@ -6,7 +6,7 @@ const STORAGE_KEY = "breadCalcSplashSeen";
 @Component({
   selector: "app-splash",
   templateUrl: "./splash.html",
-  styleUrl: "./splash.css",
+  styleUrl: "./splash.scss",
 })
 export class SplashComponent {
   readonly i18n = inject(I18nService);

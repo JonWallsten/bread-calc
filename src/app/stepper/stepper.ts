@@ -11,7 +11,7 @@ import { I18nService } from "../i18n.service";
 @Component({
   selector: "app-stepper",
   templateUrl: "./stepper.html",
-  styleUrl: "./stepper.css",
+  styleUrl: "./stepper.scss",
 })
 export class StepperComponent {
   readonly i18n = inject(I18nService);

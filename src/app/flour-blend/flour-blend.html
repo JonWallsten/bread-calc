@@ -26,7 +26,9 @@
         i18n.t().builtIn }})
       </option>
       } @for (p of blend.userPresets(); track p.id) {
-      <option [value]="p.id">{{ p.name }}</option>
+      <option [value]="p.id">
+        {{ p.name }}{{ p.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
+      </option>
       }
     </select>
     <span class="select-chevron" aria-hidden="true">&#9662;</span>

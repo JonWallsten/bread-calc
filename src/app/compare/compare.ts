@@ -25,7 +25,7 @@ interface CompareRow {
 @Component({
   selector: "app-compare",
   templateUrl: "./compare.html",
-  styleUrl: "./compare.css",
+  styleUrl: "./compare.scss",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareComponent {

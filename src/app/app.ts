@@ -36,6 +36,7 @@ import { Recipe } from "./recipe-presets";
 import { AuthService } from "./auth.service";
 import { BakingSessionComponent } from "./baking-session/baking-session";
 import { CompareComponent } from "./compare/compare";
+import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog";
 
 const INFO_MESSAGES: Record<string, string> = {};
 
@@ -51,9 +52,10 @@ const INFO_MESSAGES: Record<string, string> = {};
     FlourBlendComponent,
     BakingSessionComponent,
     CompareComponent,
+    ConfirmDialogComponent,
   ],
   templateUrl: "./app.html",
-  styleUrl: "./app.css",
+  styleUrl: "./app.scss",
 })
 export class App implements OnInit {
   private readonly calc = inject(CalcService);
@@ -76,10 +78,38 @@ export class App implements OnInit {
     return labels[yeastType] ?? yeastType;
   }
 
+  private gsiApi: { initialize: Function; renderButton: Function } | null =
+    null;
+  private gsiClientId: string | null = null;
+
   constructor() {
     effect(() => {
       this.titleService.setTitle(this.i18n.t().appTitle);
     });
+    effect(() => {
+      if (!this.auth.isLoggedIn()) {
+        this.renderGsiButton();
+      }
+    });
+    // Sync on login / page reload when already logged in
+    effect(() => {
+      if (this.auth.isLoggedIn()) {
+        this.triggerSync();
+      }
+    });
+  }
+
+  private async triggerSync(): Promise<void> {
+    // Check for uploadable local recipes → show prompt instead of auto-uploading
+    if (this.recipes.hasUploadableRecipes()) {
+      // Sync without uploading local recipes, then show prompt
+      await this.recipes.syncToCloud(false);
+      await this.blend.syncToCloud(false);
+      this.showUploadPrompt.set(true);
+    } else {
+      await this.recipes.syncToCloud();
+      await this.blend.syncToCloud();
+    }
   }
 
   readonly INFO = INFO_MESSAGES;
@@ -120,6 +150,8 @@ export class App implements OnInit {
   // Recipe UI state
   readonly showSaveDialog = signal(false);
   readonly saveRecipeName = signal("");
+  readonly showUploadPrompt = signal(false);
+  readonly showDeleteRecipeConfirm = signal(false);
 
   // Active recipe cloud id for baking session
   readonly activeRecipeCloudId = computed(() => {
@@ -242,6 +274,8 @@ export class App implements OnInit {
       return;
     }
 
+    this.gsiClientId = clientId;
+
     const tryInit = () => {
       const google = (window as unknown as Record<string, unknown>)[
         "google"
@@ -256,33 +290,43 @@ export class App implements OnInit {
         setTimeout(tryInit, 200);
         return;
       }
-      google.accounts.id.initialize({
+      this.gsiApi = google.accounts.id;
+      this.gsiApi.initialize({
         client_id: clientId,
         callback: (response: { credential: string }) => {
           this.handleGoogleResponse(response.credential);
         },
       });
+      this.renderGsiButton();
+    };
+    tryInit();
+  }
+
+  private renderGsiButton(): void {
+    if (!this.gsiApi) return;
+    // Delay to let Angular render the @else branch first
+    setTimeout(() => {
       const btnEl = document.getElementById("google-signin-btn");
       if (btnEl) {
-        google.accounts.id.renderButton(btnEl, {
+        this.gsiApi!.renderButton(btnEl, {
           type: "icon",
           size: "medium",
           shape: "circle",
         });
       }
-    };
-    tryInit();
+    });
   }
 
   private async handleGoogleResponse(credential: string): Promise<void> {
-    const ok = await this.auth.loginWithGoogle(credential);
-    if (ok) {
-      await this.recipes.syncToCloud();
-      await this.blend.syncToCloud();
-    }
+    await this.auth.loginWithGoogle(credential);
+    // Sync is triggered automatically by the isLoggedIn() effect
   }
 
   doLogout(): void {
+    this.recipes.clearCloudRecipes();
+    this.recipes.clearPendingDeletes();
+    this.blend.clearCloudPresets();
+    this.blend.clearPendingDeletes();
     this.auth.logout();
     this.showProfileMenu.set(false);
   }
@@ -473,8 +517,18 @@ export class App implements OnInit {
   deleteActiveRecipe(): void {
     const active = this.recipes.activeRecipe();
     if (!active || active.builtIn) return;
-    if (!confirm(this.i18n.t().confirmDeleteRecipe)) return;
+    this.showDeleteRecipeConfirm.set(true);
+  }
+
+  onDeleteRecipeConfirmed(): void {
+    this.showDeleteRecipeConfirm.set(false);
+    const active = this.recipes.activeRecipe();
+    if (!active || active.builtIn) return;
     this.recipes.deleteRecipe(active.id);
+  }
+
+  onDeleteRecipeCancelled(): void {
+    this.showDeleteRecipeConfirm.set(false);
   }
 
   recipeName(recipe: Recipe): string {
@@ -486,5 +540,25 @@ export class App implements OnInit {
       );
     }
     return recipe.name;
+  }
+
+  // Upload prompt handlers
+  async confirmUploadLocal(): Promise<void> {
+    this.showUploadPrompt.set(false);
+    await this.recipes.syncToCloud(true);
+    await this.blend.syncToCloud(true);
+  }
+
+  declineUploadLocal(): void {
+    this.showUploadPrompt.set(false);
+    this.recipes.skipUploadForLocalRecipes();
+    this.blend.skipUploadForLocalPresets();
+  }
+
+  // Manual cloud upload for a single recipe
+  async uploadActiveRecipe(): Promise<void> {
+    const active = this.recipes.activeRecipe();
+    if (!active || active.builtIn || active.id.startsWith("cloud-")) return;
+    await this.recipes.uploadRecipe(active.id);
   }
 }

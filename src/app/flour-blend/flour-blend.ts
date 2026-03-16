@@ -13,7 +13,7 @@ import {
   selector: "app-flour-blend",
   imports: [FormsModule, TooltipDirective],
   templateUrl: "./flour-blend.html",
-  styleUrl: "./flour-blend.css",
+  styleUrl: "./flour-blend.scss",
 })
 export class FlourBlendComponent {
   readonly blend = inject(FlourBlendService);

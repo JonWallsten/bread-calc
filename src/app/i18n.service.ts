@@ -275,6 +275,10 @@ interface Translations {
   deletePhoto: string;
   maxPhotos: string;
   viewSession: string;
+  addPhotos: string;
+  pendingPhotos: string;
+  noPhotos: string;
+  photoOf: (current: number, total: number) => string;
 
   // Compare
   compareSessions: string;
@@ -290,6 +294,13 @@ interface Translations {
   oilAmount: string;
   deleteSession: string;
   noSessions: string;
+
+  // Sync
+  uploadLocalRecipesTitle: string;
+  uploadLocalRecipesBody: (count: number) => string;
+  uploadButton: string;
+  keepLocalButton: string;
+  uploadToCloud: string;
 }
 
 const en: Translations = {
@@ -539,6 +550,10 @@ const en: Translations = {
   deletePhoto: "Delete photo",
   maxPhotos: "Maximum 3 photos per session.",
   viewSession: "View session",
+  addPhotos: "Add photos",
+  pendingPhotos: "photos selected",
+  noPhotos: "No photos yet",
+  photoOf: (current, total) => `${current} of ${total}`,
 
   // Compare
   compareSessions: "Compare bakes",
@@ -554,6 +569,14 @@ const en: Translations = {
   oilAmount: "Oil",
   deleteSession: "Delete session",
   noSessions: "No baking sessions yet.",
+
+  // Sync
+  uploadLocalRecipesTitle: "Upload local recipes?",
+  uploadLocalRecipesBody: (count: number) =>
+    `You have ${count} recipe(s) saved on this device. Would you like to upload them to your account?`,
+  uploadButton: "Upload",
+  keepLocalButton: "Keep local",
+  uploadToCloud: "Upload to cloud",
 };
 
 const sv: Translations = {
@@ -802,6 +825,10 @@ const sv: Translations = {
   deletePhoto: "Ta bort bild",
   maxPhotos: "Maximalt 3 bilder per session.",
   viewSession: "Visa session",
+  addPhotos: "Lägg till bilder",
+  pendingPhotos: "bilder valda",
+  noPhotos: "Inga bilder ännu",
+  photoOf: (current, total) => `${current} av ${total}`,
 
   // Compare
   compareSessions: "Jämför bakningar",
@@ -817,6 +844,14 @@ const sv: Translations = {
   oilAmount: "Olja",
   deleteSession: "Ta bort session",
   noSessions: "Inga baksessioner ännu.",
+
+  // Sync
+  uploadLocalRecipesTitle: "Ladda upp lokala recept?",
+  uploadLocalRecipesBody: (count: number) =>
+    `Du har ${count} recept sparade på den här enheten. Vill du ladda upp dem till ditt konto?`,
+  uploadButton: "Ladda upp",
+  keepLocalButton: "Behåll lokalt",
+  uploadToCloud: "Ladda upp till molnet",
 };
 
 const translations: Record<Lang, Translations> = { en, sv };

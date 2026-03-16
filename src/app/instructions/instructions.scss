@@ -1,0 +1,134 @@
+@use "mixins" as *;
+
+.section {
+  @include section-card;
+}
+
+.section-header {
+  @include section-header;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.copy-btn {
+  @include btn-copy;
+}
+
+.copy-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.flour-blend-note {
+  font-size: 13px;
+  color: #856404;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+.instruction-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+
+  &.completed {
+    opacity: 0.55;
+
+    .instruction-title {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.instruction-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.instruction-title-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.check-btn {
+  @include btn-icon(28px, $round: true);
+  border: 2px solid var(--border);
+  background: transparent;
+  color: transparent;
+  transition: all 0.2s ease;
+
+  &.checked {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: #fff;
+  }
+
+  &:hover {
+    border-color: #4caf50;
+  }
+}
+
+.instruction-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.instruction-time {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.instruction-body {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timer-btn {
+  @include btn-secondary;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.timer-btn-time {
+  font-weight: 400;
+  opacity: 0.65;
+  margin-left: 2px;
+}
+
+.timer-display {
+  font-size: 14px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  color: var(--text-muted);
+}
+
+@media (min-width: 600px) {
+  .section {
+    padding: 24px 20px;
+  }
+}

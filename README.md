@@ -40,6 +40,7 @@ Built with **Angular 21+** · Standalone components · Signals · PHP API · MyS
 | 🔔   | **Alarm & notifications**         | Web Audio API beeps + browser notification on timer completion                                               |
 | 🌾   | **Flour blend & presets**         | Build custom flour blends from 9 flour types, auto-adjust hydration, save/load personal presets              |
 | 🔐   | **Google login & cloud sync**     | Sign in with Google to sync recipes and flour blends across devices — works fully offline without login      |
+| ☁️   | **Upload prompt & cloud button**  | First login prompts to upload local recipes; per-recipe ☁ button for manual cloud upload                     |
 | 📸   | **Baking sessions**               | Save bakes as snapshots with notes, 1–5 star rating, and up to 3 photos — trace back every bake              |
 | 🔍   | **Recipe comparison**             | Side-by-side table of two recipes with all calculated differences highlighted                                |
 
@@ -158,6 +159,23 @@ $$\text{effective hydration} = \text{base hydration} + \text{flour adjustment} +
 The effective hydration is used for all water/milk calculations. When the flour adjustment exceeds +1.5%, a note appears in the instructions warning that the dough may feel firm early and relax after resting.
 
 Blends can be saved as **personal presets** (stored in localStorage) for quick reuse. Two built-in presets are included: _Fluffy rolls_ and _Rustic everyday_.
+
+### Cloud sync strategy
+
+Both recipes and flour blends use the same sync flow, triggered automatically when you log in or reload while authenticated:
+
+1. **Replay pending deletes** — items deleted offline are sent to the server first
+2. **Fetch cloud list** — GET all recipes / flour blends from the API
+3. **Last-write-wins merge** — for items that exist both locally and on the server, the `updatedAt` timestamp decides which version wins. The loser is overwritten (local update or PUT to server)
+4. **Cloud-only items** → added locally with a `cloud-{id}` ID
+5. **Local-only items** → uploaded via POST (if the user approves), then converted to `cloud-{id}`
+6. **Server-deleted items** → removed locally
+
+On **first login with existing local recipes**, an upload prompt asks whether to push them to the cloud or keep them local-only. A per-recipe ☁ button also lets you manually upload individual recipes at any time.
+
+On **logout**, all cloud-prefixed items are removed from localStorage, pending deletes are cleared, and only local recipes/presets remain.
+
+Offline edits are fully supported — deletes queue in localStorage as `breadCalcPendingDeletes` and replay on next sync.
 
 ---
 

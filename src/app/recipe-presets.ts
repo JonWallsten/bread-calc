@@ -6,6 +6,8 @@ export interface Recipe {
   nameKey?: string; // i18n key for built-in presets
   inputs: CalcInputs;
   builtIn: boolean;
+  updatedAt?: string;
+  skipUpload?: boolean;
 }
 
 export const BUILT_IN_RECIPES: Recipe[] = [

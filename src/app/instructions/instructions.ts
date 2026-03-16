@@ -19,7 +19,7 @@ interface InstructionStep {
 @Component({
   selector: "app-instructions",
   templateUrl: "./instructions.html",
-  styleUrl: "./instructions.css",
+  styleUrl: "./instructions.scss",
 })
 export class InstructionsComponent implements OnDestroy {
   private readonly calc = inject(CalcService);

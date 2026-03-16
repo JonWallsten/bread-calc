@@ -7,7 +7,7 @@ import { getFlourDefinitionById } from "../flour.config";
 @Component({
   selector: "app-results",
   templateUrl: "./results.html",
-  styleUrl: "./results.css",
+  styleUrl: "./results.scss",
 })
 export class ResultsComponent {
   private readonly calc = inject(CalcService);

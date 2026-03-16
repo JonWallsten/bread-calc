@@ -1,0 +1,514 @@
+@use "mixins" as *;
+
+/* ── Host spacing ────────────────────────────────── */
+:host {
+  display: block;
+  margin-top: var(--gap);
+}
+
+/* ── Save bake button ──────────────────────────────── */
+.save-bake-btn {
+  @include btn-primary;
+  width: 100%;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+/* ── Save form ─────────────────────────────────────── */
+.save-form {
+  margin-top: 12px;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+.notes-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: var(--font);
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.rating-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--border);
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+
+  &.active {
+    color: #f59e0b;
+  }
+}
+
+/* ── Pending photos during save ──────────────────── */
+.pending-photos {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.pending-photo-wrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+}
+
+.add-photo-btn {
+  @include btn-base;
+  gap: 6px;
+  width: 100%;
+  height: 40px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 14px;
+  color: var(--text-muted);
+
+  &:hover {
+    background: var(--border-light);
+  }
+}
+
+.save-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+
+  .reset-btn {
+    @include btn-secondary;
+    flex: 1;
+  }
+
+  .calculate-btn {
+    @include btn-primary;
+    flex: 1;
+  }
+}
+
+/* ── Session grid ──────────────────────────────────── */
+.session-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+.grid-card {
+  @include btn-base;
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-align: left;
+  padding: 0;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.grid-card-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--bg);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.grid-card-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 32px;
+  opacity: 0.25;
+}
+
+.grid-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px 10px;
+}
+
+.grid-card-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.grid-card-recipe {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grid-card-rating {
+  font-size: 12px;
+  color: var(--border);
+  margin-top: 2px;
+
+  .active {
+    color: #f59e0b;
+  }
+}
+
+.loading-text,
+.empty-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 16px 0;
+}
+
+/* ── Pagination ────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.page-btn {
+  @include btn-icon(32px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+
+  &.active {
+    background: var(--accent);
+    font-weight: 700;
+  }
+}
+
+/* ── Detail bottom sheet (mobile) / overlay (desktop) ─ */
+.detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+
+  @media (min-width: 600px) {
+    align-items: center;
+    padding: 24px;
+  }
+}
+
+.detail-sheet {
+  position: relative;
+  background: var(--surface);
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 16px 16px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  animation: sheetUp 0.3s ease;
+
+  @media (min-width: 600px) {
+    max-width: 500px;
+    max-height: 85vh;
+    border-radius: 16px;
+    padding-bottom: 16px;
+    animation: slideUp 0.3s ease;
+  }
+}
+
+.detail-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.detail-close {
+  @include btn-icon(36px);
+  font-size: 18px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-radius: 50%;
+}
+
+/* ── Detail photo gallery ──────────────────────────── */
+.detail-gallery {
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.gallery-photo {
+  position: relative;
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--bg);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+.detail-no-photos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.5;
+
+  span:first-child {
+    font-size: 32px;
+  }
+}
+
+/* ── Detail info ───────────────────────────────────── */
+.detail-info {
+  padding: 0 16px 12px;
+}
+
+.detail-date {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detail-recipe {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.detail-rating {
+  font-size: 16px;
+  color: var(--border);
+  margin-top: 6px;
+
+  .active {
+    color: #f59e0b;
+  }
+}
+
+.detail-notes {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+}
+
+/* ── Detail action buttons ─────────────────────────── */
+.upload-btn {
+  @include btn-primary(sm);
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  gap: 6px;
+}
+
+.max-photos-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0 16px 12px;
+}
+
+.delete-session-btn {
+  @include btn-secondary;
+  width: calc(100% - 32px);
+  margin: 4px 16px 8px;
+  border-radius: var(--radius);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fca5a5;
+  }
+}
+
+/* ── Photo shared ──────────────────────────────────── */
+.photo-delete-btn {
+  @include btn-icon(24px, $round: true);
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+}
+
+/* ── Photo lightbox ────────────────────────────────── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+}
+
+.lightbox-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.lightbox-counter {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.lightbox-close {
+  @include btn-icon(36px);
+  font-size: 20px;
+  color: white;
+}
+
+.lightbox-img {
+  max-width: 90%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.lightbox-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.lightbox-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: background 0.2s ease;
+
+  &.active {
+    background: white;
+  }
+}
+
+/* ── Visually hidden ───────────────────────────────── */
+.visually-hidden {
+  @include visually-hidden;
+}
+
+/* ── Animations ────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -1,5 +1,21 @@
 @if (showSplash()) {
 <app-splash (dismissed)="showSplash.set(false)" />
+} @if (showUploadPrompt()) {
+<app-confirm-dialog
+  [title]="i18n.t().uploadLocalRecipesTitle"
+  [message]="i18n.t().uploadLocalRecipesBody(recipes.uploadableRecipeCount())"
+  [confirmLabel]="i18n.t().uploadButton"
+  [cancelLabel]="i18n.t().keepLocalButton"
+  (confirmed)="confirmUploadLocal()"
+  (cancelled)="declineUploadLocal()"
+/>
+} @if (showDeleteRecipeConfirm()) {
+<app-confirm-dialog
+  [title]="i18n.t().deleteRecipe"
+  [message]="i18n.t().confirmDeleteRecipe"
+  (confirmed)="onDeleteRecipeConfirmed()"
+  (cancelled)="onDeleteRecipeCancelled()"
+/>
 }
 
 <!-- Top bar -->
@@ -58,7 +74,8 @@
           <option value="" disabled hidden>{{ i18n.t().selectRecipe }}</option>
           @for (r of recipes.allRecipes(); track r.id) {
           <option [value]="r.id" [selected]="r.id === recipes.activeId()">
-            {{ recipeName(r) }}{{ r.builtIn ? ' ★' : '' }}
+            {{ recipeName(r) }}{{ r.builtIn ? ' ★' : r.id.startsWith('cloud-') ?
+            ' ☁' : ' 💾' }}
           </option>
           }
         </select>
@@ -92,7 +109,17 @@
       >
         &#128465;
       </button>
-      } }
+      @if (auth.isLoggedIn() && !active.id.startsWith('cloud-')) {
+      <button
+        class="recipe-action-btn recipe-action-btn--cloud"
+        type="button"
+        (click)="uploadActiveRecipe()"
+        [attr.aria-label]="i18n.t().uploadToCloud"
+        [title]="i18n.t().uploadToCloud"
+      >
+        ☁
+      </button>
+      } } }
     </div>
   </section>
 
@@ -432,15 +459,14 @@
   } @if (resultsVisible() && result()) {
   <app-results [data]="result()!" />
   <app-instructions [data]="result()!" />
-
+  } @if (auth.isLoggedIn()) {
   <app-baking-session
     [currentInputs]="getInputs()"
     [currentResults]="result()"
     [activeRecipeCloudId]="activeRecipeCloudId()"
   />
-  }
-
   <app-compare />
+  }
 </main>
 
 <!-- Scroll to top button -->

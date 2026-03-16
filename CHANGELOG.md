@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Last-write-wins sync**: Recipes and flour blends now compare `updatedAt` timestamps during sync — the newest version wins, whether it's local or on the server
+- **Offline delete queue**: Deleting a cloud recipe or flour blend while offline queues a `PendingDelete` in localStorage, replayed automatically on next sync
+- **Sync-on-login effect**: Sync triggers automatically via `effect()` when `isLoggedIn()` becomes true (login or page reload with valid JWT)
+- **Upload prompt dialog**: First login with existing local recipes shows a confirm dialog asking whether to upload them to the cloud or keep them local-only
+- **Per-recipe cloud upload button**: ☁ button next to each local recipe lets you manually push it to the server
+- **Flour blend CRUD parity**: `saveAsNewPreset` calls POST, `updatePreset` calls PUT, `deletePreset` calls DELETE when logged in — full API parity with recipes
+- **ConfirmDialogComponent**: Reusable confirm dialog with title, message, confirm/cancel buttons, and backdrop-click-to-dismiss
+- **Sync re-entry guard**: Prevents concurrent sync calls from causing duplicate uploads or race conditions
+- **Clean logout**: Removes all `cloud-*` recipes and presets, clears pending deletes, resets to local-only state
+- `skipUpload` flag on `Recipe` to let users decline uploading specific local recipes
+- `selectedPresetId` persisted to `breadCalcSelectedPreset` localStorage key
+- `uploadToCloud`, `uploadLocalRecipesTitle`, `uploadLocalRecipesBody`, `uploadButton`, `keepLocalButton` i18n keys (EN + SV)
+- 43 new tests: comprehensive recipe sync, flour blend CRUD/sync, confirm dialog component (250 total)
+
+### Changed
+
+- **Session browser redesign**: Replaced flat session list with a 2-column photo grid (3-col on desktop) for scalable browsing
+- **Bottom sheet detail**: Session detail now slides up from the bottom on mobile (centered overlay on desktop) with photo gallery, full notes, and actions
+- **Photo lightbox**: Tap any photo in a session to open a full-screen lightbox with swipe navigation and dot indicators
+- **Photo upload during creation**: Add up to 3 photos while saving a new baking session via a 📷 button with live previews
+- **Baking sessions always visible**: Session list now shows as soon as you're logged in, not only after calculating results
+- **Delete from session list via confirm dialog**: Replaced `window.confirm` with ConfirmDialogComponent everywhere
+- **Photo upload/delete in detail overlay**: Upload button now shows 📷 icon; photo delete no longer requires confirmation prompt
+- `addPhotos`, `pendingPhotos` i18n keys (EN + SV)
+- 6 new baking-session component tests (256 total)
+
 ## [1.1.0] — 2026-03-16
 
 ### Changed
