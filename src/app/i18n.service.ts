@@ -24,9 +24,14 @@ interface Translations {
   // Yeast fields
   yeastType: string;
   freshYeast: string;
+  swedishDryYeast: string;
   activeDryYeast: string;
   instantYeast: string;
   yeastRecommendationPending: string;
+  yeastHelpFresh: string;
+  yeastHelpSwedishDry: string;
+  yeastHelpActiveDry: string;
+  yeastHelpInstant: string;
 
   // Advanced
   advancedSettings: string;
@@ -149,7 +154,7 @@ interface Translations {
     milkPart: string,
     yeastPart: string,
   ) => string;
-  bodyAddFlour: (flourG: number) => string;
+  bodyAddFlour: (flourG: number, yeastFlourPart: string) => string;
   bodyAutolyse: (duration: string) => string;
   bodyAddSaltEtc: (saltG: number, sugarPart: string, oilPart: string) => string;
   bodyDevelopByHand: (duration: string) => string;
@@ -304,9 +309,16 @@ const en: Translations = {
   ballWeight: "Ball weight (g)",
   yeastType: "Yeast type",
   freshYeast: "Fresh yeast",
+  swedishDryYeast: "Swedish dry yeast (KronJäst)",
   activeDryYeast: "Active dry yeast",
   instantYeast: "Instant yeast",
   yeastRecommendationPending: "Estimated yeast will appear after calculate.",
+  yeastHelpFresh: "Crumble into the liquid and mix until dispersed.",
+  yeastHelpSwedishDry:
+    "Mix into the flour first, let stand about 10 minutes, then add finger-warm liquid.",
+  yeastHelpActiveDry:
+    "Dissolve in warm liquid first, then continue with the flour.",
+  yeastHelpInstant: "Mix directly into the flour before adding liquid.",
   advancedSettings: "Advanced settings",
   hydration: "Hydration",
   hintHydration: "Typical: 60–80%",
@@ -409,8 +421,8 @@ const en: Translations = {
   // Manual instruction body templates
   bodyMixLiquids: (starterG, waterG, milkPart, yeastPart) =>
     `Combine ${starterG} g starter, ${waterG} g water${milkPart}${yeastPart} in a bowl. Stir until dissolved.`,
-  bodyAddFlour: (flourG) =>
-    `Add ${flourG} g flour and mix by hand until no dry flour remains. Do not knead yet.`,
+  bodyAddFlour: (flourG, yeastFlourPart) =>
+    `Add ${flourG} g flour${yeastFlourPart} and mix by hand until no dry flour remains. Do not knead yet.`,
   bodyAutolyse: (duration) =>
     `Cover and rest for ${duration}. The flour absorbs the water and gluten begins to form on its own.`,
   bodyAddSaltEtc: (saltG, sugarPart, oilPart) =>
@@ -551,9 +563,15 @@ const sv: Translations = {
   ballWeight: "Bollvikt (g)",
   yeastType: "Jästtyp",
   freshYeast: "Färsk jäst",
+  swedishDryYeast: "Torrjäst (KronJäst)",
   activeDryYeast: "Aktiv torrjäst",
   instantYeast: "Snabbjäst",
   yeastRecommendationPending: "Beräknad jäst visas efter beräkning.",
+  yeastHelpFresh: "Smula ner i vätskan och rör tills den lösts upp.",
+  yeastHelpSwedishDry:
+    "Blanda i mjölet först, låt stå ca 10 minuter, tillsätt sedan fingervarmt vatten.",
+  yeastHelpActiveDry: "Lös upp i varmt vatten först, blanda sedan med mjölet.",
+  yeastHelpInstant: "Blanda direkt i mjölet innan du tillsätter vätska.",
   advancedSettings: "Avancerade inställningar",
   hydration: "Hydrering",
   hintHydration: "Typiskt: 60–80%",
@@ -656,8 +674,8 @@ const sv: Translations = {
   // Manual instruction body templates
   bodyMixLiquids: (starterG, waterG, milkPart, yeastPart) =>
     `Blanda ${starterG} g surdeg, ${waterG} g vatten${milkPart}${yeastPart} i en skål. Rör tills allt är upplöst.`,
-  bodyAddFlour: (flourG) =>
-    `Tillsätt ${flourG} g mjöl och blanda för hand tills inget torrt mjöl finns kvar. Knåda inte ännu.`,
+  bodyAddFlour: (flourG, yeastFlourPart) =>
+    `Tillsätt ${flourG} g mjöl${yeastFlourPart} och blanda för hand tills inget torrt mjöl finns kvar. Knåda inte ännu.`,
   bodyAutolyse: (duration) =>
     `Täck över och vila i ${duration}. Mjölet absorberar vattnet och glutenet börjar bildas av sig självt.`,
   bodyAddSaltEtc: (saltG, sugarPart, oilPart) =>

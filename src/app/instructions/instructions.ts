@@ -30,6 +30,7 @@ export class InstructionsComponent implements OnDestroy {
     const t = this.i18n.t();
     const labels: Record<string, string> = {
       fresh: t.freshYeast,
+      swedishDry: t.swedishDryYeast,
       activeDry: t.activeDryYeast,
       instant: t.instantYeast,
     };
@@ -66,10 +67,16 @@ export class InstructionsComponent implements OnDestroy {
 
     const milkPart =
       d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g ${t.milk}` : "";
-    const yeastPart =
+
+    // Yeast goes into liquid (fresh, activeDry) or flour (instant, swedishDry)
+    const yeastStr =
       d.yeastToAdd > 0
         ? `, ${t.and} ${round1(d.yeastToAdd)} g ${this.yeastLabel(d.yeastType).toLowerCase()}`
         : "";
+    const yeastInLiquid =
+      d.yeastType === "fresh" || d.yeastType === "activeDry";
+    const yeastLiquidPart = yeastInLiquid ? yeastStr : "";
+    const yeastFlourPart = yeastInLiquid ? "" : yeastStr;
     const sugarPart =
       d.sugarToAdd > 0
         ? `, ${round1(d.sugarToAdd)} g ${t.sugarIngredient.toLowerCase()}`
@@ -141,7 +148,7 @@ export class InstructionsComponent implements OnDestroy {
             roundG(d.starterWeight),
             roundG(d.waterToAdd),
             milkPart,
-            yeastPart,
+            yeastStr,
             roundG(d.flourToAdd),
             d.mixerSpeedLow,
           ),
@@ -183,14 +190,14 @@ export class InstructionsComponent implements OnDestroy {
             roundG(d.starterWeight),
             roundG(d.waterToAdd),
             milkPart,
-            yeastPart,
+            yeastLiquidPart,
           ),
           minutes: d.initialMixMinutes,
         },
         {
           title: t.stepAddFlour,
           time: fmt(d.initialMixMinutes),
-          body: t.bodyAddFlour(roundG(d.flourToAdd)),
+          body: t.bodyAddFlour(roundG(d.flourToAdd), yeastFlourPart),
           minutes: d.initialMixMinutes,
         },
         {

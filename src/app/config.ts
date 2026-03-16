@@ -30,6 +30,7 @@ export const DEFAULT_INPUTS: CalcInputs = {
 // Yeast type display labels
 export const YEAST_LABELS: Record<string, string> = {
   fresh: "Fresh yeast",
+  swedishDry: "Swedish dry yeast",
   activeDry: "Active dry yeast",
   instant: "Instant yeast",
 };

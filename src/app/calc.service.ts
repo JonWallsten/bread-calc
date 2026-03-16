@@ -13,7 +13,7 @@ export { DEFAULT_INPUTS } from "./config";
 export interface CalcInputs {
   breadCount: number;
   targetBallWeight: number;
-  yeastType: "fresh" | "activeDry" | "instant";
+  yeastType: "fresh" | "activeDry" | "instant" | "swedishDry";
   hydrationPct: number;
   saltPct: number;
   sugarPct: number;
@@ -182,7 +182,7 @@ export class CalcService {
     let chosenYeastPct: number;
     if (yeastType === "activeDry") {
       chosenYeastPct = freshPctFinal / 2.5;
-    } else if (yeastType === "instant") {
+    } else if (yeastType === "instant" || yeastType === "swedishDry") {
       chosenYeastPct = freshPctFinal / 3.0;
     } else {
       chosenYeastPct = freshPctFinal;

@@ -102,6 +102,10 @@ describe("Yeast type conversions", () => {
     expect(calc({ yeastType: "instant" }).yeastTypeLabel).toBe(
       "Instant yeast",
     ));
+  it("swedishDry label", () =>
+    expect(calc({ yeastType: "swedishDry" }).yeastTypeLabel).toBe(
+      "Swedish dry yeast",
+    ));
 
   it("fresh% > activeDry%", () => {
     expect(calc({ yeastType: "fresh" }).chosenYeastPct).toBeGreaterThan(
@@ -110,6 +114,11 @@ describe("Yeast type conversions", () => {
   });
   it("activeDry% > instant%", () => {
     expect(calc({ yeastType: "activeDry" }).chosenYeastPct).toBeGreaterThan(
+      calc({ yeastType: "instant" }).chosenYeastPct,
+    );
+  });
+  it("swedishDry% = instant%", () => {
+    expect(calc({ yeastType: "swedishDry" }).chosenYeastPct).toBe(
       calc({ yeastType: "instant" }).chosenYeastPct,
     );
   });
@@ -123,6 +132,12 @@ describe("Yeast type conversions", () => {
     const ratio =
       calc({ yeastType: "fresh" }).chosenYeastPct /
       calc({ yeastType: "instant" }).chosenYeastPct;
+    expect(approx(ratio, 3.0, 0.01)).toBe(true);
+  });
+  it("fresh/swedishDry ≈ 3.0", () => {
+    const ratio =
+      calc({ yeastType: "fresh" }).chosenYeastPct /
+      calc({ yeastType: "swedishDry" }).chosenYeastPct;
     expect(approx(ratio, 3.0, 0.01)).toBe(true);
   });
 });

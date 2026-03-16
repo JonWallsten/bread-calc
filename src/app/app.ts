@@ -69,6 +69,7 @@ export class App implements OnInit {
     const t = this.i18n.t();
     const labels: Record<string, string> = {
       fresh: t.freshYeast,
+      swedishDry: t.swedishDryYeast,
       activeDry: t.activeDryYeast,
       instant: t.instantYeast,
     };
@@ -141,9 +142,21 @@ export class App implements OnInit {
     const t = this.i18n.t();
     return [
       { value: "fresh", label: t.freshYeast },
+      { value: "swedishDry", label: t.swedishDryYeast },
       { value: "activeDry", label: t.activeDryYeast },
       { value: "instant", label: t.instantYeast },
     ];
+  });
+
+  readonly yeastHelpText = computed(() => {
+    const t = this.i18n.t();
+    const help: Record<string, string> = {
+      fresh: t.yeastHelpFresh,
+      swedishDry: t.yeastHelpSwedishDry,
+      activeDry: t.yeastHelpActiveDry,
+      instant: t.yeastHelpInstant,
+    };
+    return help[this.yeastType()] ?? "";
   });
 
   // Field validation states: 'ok' | 'warn' | 'error'
