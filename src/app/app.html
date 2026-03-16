@@ -362,6 +362,57 @@
     />
   </section>
 
+  <!-- Mixing method section -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-icon" aria-hidden="true">&#129476;</span>
+      <h2 class="section-title">{{ i18n.t().mixingMethod }}</h2>
+    </div>
+
+    <div class="select-wrap">
+      <select
+        [value]="mixingMethod()"
+        (change)="onMixingMethodChange($any($event.target).value)"
+      >
+        <option value="manual">{{ i18n.t().manual }}</option>
+        <option value="machine">{{ i18n.t().machine }}</option>
+      </select>
+      <span class="select-chevron" aria-hidden="true">&#9662;</span>
+    </div>
+
+    @if (mixingMethod() === 'machine') {
+    <label class="field-label mixer-speed-label"
+      >{{ i18n.t().mixerSpeedLow }}</label
+    >
+    <input
+      class="mixer-speed-input"
+      type="text"
+      [value]="mixerSpeedLow()"
+      (input)="mixerSpeedLow.set($any($event.target).value); onMixerSpeedChange()"
+    />
+
+    <label class="field-label mixer-speed-label"
+      >{{ i18n.t().mixerSpeedLowMedium }}</label
+    >
+    <input
+      class="mixer-speed-input"
+      type="text"
+      [value]="mixerSpeedLowMedium()"
+      (input)="mixerSpeedLowMedium.set($any($event.target).value); onMixerSpeedChange()"
+    />
+
+    <label class="field-label mixer-speed-label"
+      >{{ i18n.t().mixerSpeedMedium }}</label
+    >
+    <input
+      class="mixer-speed-input"
+      type="text"
+      [value]="mixerSpeedMedium()"
+      (input)="mixerSpeedMedium.set($any($event.target).value); onMixerSpeedChange()"
+    />
+    }
+  </section>
+
   <!-- Action buttons -->
   <div class="action-row">
     <button class="reset-btn" type="button" (click)="reset()">

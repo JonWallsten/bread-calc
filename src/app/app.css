@@ -190,6 +190,23 @@
     font-weight: 600;
 }
 
+/* ── Mixer speed inputs ────────────────────────────────── */
+.mixer-speed-label {
+    margin-top: 12px;
+}
+
+.mixer-speed-input {
+    width: 80px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text);
+    min-height: 44px;
+}
+
 /* ── Select dropdown ───────────────────────────────────── */
 .select-wrap {
     position: relative;

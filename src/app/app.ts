@@ -16,7 +16,12 @@ import {
   CalcResult,
   CalcOutput,
 } from "./calc.service";
-import { DEFAULT_INPUTS, YEAST_LABELS, FIELD_RANGES } from "./config";
+import {
+  DEFAULT_INPUTS,
+  YEAST_LABELS,
+  FIELD_RANGES,
+  DEFAULT_MIXER_SPEEDS,
+} from "./config";
 import { I18nService } from "./i18n.service";
 import { StorageService } from "./storage.service";
 import { StepperComponent } from "./stepper/stepper";
@@ -96,6 +101,12 @@ export class App implements OnInit {
   readonly starterHydrationPct = signal(DEFAULT_INPUTS.starterHydrationPct);
   readonly totalHours = signal(DEFAULT_INPUTS.totalHours);
   readonly roomTemp = signal(DEFAULT_INPUTS.roomTemp);
+  readonly mixingMethod = signal<CalcInputs["mixingMethod"]>(
+    DEFAULT_INPUTS.mixingMethod,
+  );
+  readonly mixerSpeedLow = signal(DEFAULT_INPUTS.mixerSpeedLow);
+  readonly mixerSpeedLowMedium = signal(DEFAULT_INPUTS.mixerSpeedLowMedium);
+  readonly mixerSpeedMedium = signal(DEFAULT_INPUTS.mixerSpeedMedium);
 
   // UI state
   readonly advancedOpen = signal(false);
@@ -175,6 +186,12 @@ export class App implements OnInit {
     this.starterHydrationPct.set(saved.starterHydrationPct);
     this.totalHours.set(saved.totalHours);
     this.roomTemp.set(saved.roomTemp);
+    this.mixingMethod.set(saved.mixingMethod);
+    if (saved.mixerSpeedLow) this.mixerSpeedLow.set(saved.mixerSpeedLow);
+    if (saved.mixerSpeedLowMedium)
+      this.mixerSpeedLowMedium.set(saved.mixerSpeedLowMedium);
+    if (saved.mixerSpeedMedium)
+      this.mixerSpeedMedium.set(saved.mixerSpeedMedium);
     this.runCalculation();
     this.initGoogleSignIn();
   }
@@ -266,6 +283,10 @@ export class App implements OnInit {
       starterHydrationPct: this.starterHydrationPct(),
       totalHours: this.totalHours(),
       roomTemp: this.roomTemp(),
+      mixingMethod: this.mixingMethod(),
+      mixerSpeedLow: this.mixerSpeedLow(),
+      mixerSpeedLowMedium: this.mixerSpeedLowMedium(),
+      mixerSpeedMedium: this.mixerSpeedMedium(),
       flourBlendAdjustment: this.blend.blendValid()
         ? this.blend.flourBlendAdjustment()
         : 0,
@@ -304,6 +325,21 @@ export class App implements OnInit {
     }
   }
 
+  onMixingMethodChange(value: string): void {
+    this.mixingMethod.set(value as CalcInputs["mixingMethod"]);
+    this.saveInputs();
+    if (this.resultsVisible()) {
+      this.runCalculation();
+    }
+  }
+
+  onMixerSpeedChange(): void {
+    this.saveInputs();
+    if (this.resultsVisible()) {
+      this.runCalculation();
+    }
+  }
+
   onStepperChange(): void {
     this.saveInputs();
   }
@@ -328,6 +364,10 @@ export class App implements OnInit {
     this.starterHydrationPct.set(DEFAULT_INPUTS.starterHydrationPct);
     this.totalHours.set(DEFAULT_INPUTS.totalHours);
     this.roomTemp.set(DEFAULT_INPUTS.roomTemp);
+    this.mixingMethod.set(DEFAULT_INPUTS.mixingMethod);
+    this.mixerSpeedLow.set(DEFAULT_INPUTS.mixerSpeedLow);
+    this.mixerSpeedLowMedium.set(DEFAULT_INPUTS.mixerSpeedLowMedium);
+    this.mixerSpeedMedium.set(DEFAULT_INPUTS.mixerSpeedMedium);
 
     this.validationError.set(null);
     this.resultsVisible.set(false);
@@ -356,6 +396,12 @@ export class App implements OnInit {
     this.starterHydrationPct.set(inputs.starterHydrationPct);
     this.totalHours.set(inputs.totalHours);
     this.roomTemp.set(inputs.roomTemp);
+    if (inputs.mixingMethod) this.mixingMethod.set(inputs.mixingMethod);
+    if (inputs.mixerSpeedLow) this.mixerSpeedLow.set(inputs.mixerSpeedLow);
+    if (inputs.mixerSpeedLowMedium)
+      this.mixerSpeedLowMedium.set(inputs.mixerSpeedLowMedium);
+    if (inputs.mixerSpeedMedium)
+      this.mixerSpeedMedium.set(inputs.mixerSpeedMedium);
   }
 
   loadRecipe(recipe: Recipe): void {

@@ -1,5 +1,12 @@
 import { CalcInputs } from "./calc.service";
 
+// Default mixer speed labels (display only, do not affect timing)
+export const DEFAULT_MIXER_SPEEDS = {
+  low: "1",
+  lowMedium: "2–3",
+  medium: "3–4",
+};
+
 // Default form values
 export const DEFAULT_INPUTS: CalcInputs = {
   breadCount: 6,
@@ -14,6 +21,10 @@ export const DEFAULT_INPUTS: CalcInputs = {
   starterHydrationPct: 100,
   totalHours: 8,
   roomTemp: 22,
+  mixingMethod: "manual",
+  mixerSpeedLow: DEFAULT_MIXER_SPEEDS.low,
+  mixerSpeedLowMedium: DEFAULT_MIXER_SPEEDS.lowMedium,
+  mixerSpeedMedium: DEFAULT_MIXER_SPEEDS.medium,
 };
 
 // Yeast type display labels
@@ -31,6 +42,21 @@ export const TIMER_CONSTANTS = {
   preheatMinutes: 45,
   bakeMinutes: 15,
   finalProofMinMinutes: 50,
+};
+
+// Manual mixing step durations (minutes)
+export const MANUAL_MIX_CONSTANTS = {
+  initialMixMinutes: 5,
+  autolyseMinutes: 20,
+  developmentMinutes: 10,
+};
+
+// Machine (stand mixer) mixing step durations (minutes)
+export const MACHINE_MIX_CONSTANTS = {
+  initialMixMinutes: 4,
+  autolyseMinutes: 20,
+  incorporationMinutes: 2,
+  developmentMixMinutes: 6,
 };
 
 // Bulk fermentation clamp bounds (minutes)

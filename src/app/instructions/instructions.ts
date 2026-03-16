@@ -79,22 +79,8 @@ export class InstructionsComponent implements OnDestroy {
         ? `, ${t.and} ${round1(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`
         : "";
 
-    return [
-      {
-        title: t.stepMix,
-        time: fmt(d.mixMinutes),
-        body: t.bodyMix(
-          roundG(d.starterWeight),
-          roundG(d.waterToAdd),
-          milkPart,
-          yeastPart,
-          roundG(d.flourToAdd),
-          round1(d.saltToAdd),
-          sugarPart,
-          oilPart,
-        ),
-        minutes: d.mixMinutes,
-      },
+    // Shared steps after mixing
+    const sharedSteps: InstructionStep[] = [
       {
         title: t.stepBulk,
         time: fmt(d.bulkMinutes),
@@ -143,6 +129,97 @@ export class InstructionsComponent implements OnDestroy {
         minutes: d.bakeMinutes,
       },
     ];
+
+    let mixingSteps: InstructionStep[];
+
+    if (d.mixingMethod === "machine") {
+      mixingSteps = [
+        {
+          title: t.stepInitialMix,
+          time: fmt(d.initialMixMinutes),
+          body: t.bodyInitialMix(
+            roundG(d.starterWeight),
+            roundG(d.waterToAdd),
+            milkPart,
+            yeastPart,
+            roundG(d.flourToAdd),
+            d.mixerSpeedLow,
+          ),
+          minutes: d.initialMixMinutes,
+        },
+        {
+          title: t.stepMachineAutolyse,
+          time: fmt(d.autolyseMinutes),
+          body: t.bodyMachineAutolyse(fmt(d.autolyseMinutes)),
+          minutes: d.autolyseMinutes,
+        },
+        {
+          title: t.stepIncorporate,
+          time: fmt(d.incorporationMinutes),
+          body: t.bodyIncorporate(
+            round1(d.saltToAdd),
+            sugarPart,
+            oilPart,
+            d.mixerSpeedLowMedium,
+          ),
+          minutes: d.incorporationMinutes,
+        },
+        {
+          title: t.stepDevelopMachine,
+          time: fmt(d.developmentMinutes),
+          body: t.bodyDevelopMachine(
+            fmt(d.developmentMinutes),
+            d.mixerSpeedMedium,
+          ),
+          minutes: d.developmentMinutes,
+        },
+      ];
+    } else {
+      mixingSteps = [
+        {
+          title: t.stepMixLiquids,
+          time: fmt(d.initialMixMinutes),
+          body: t.bodyMixLiquids(
+            roundG(d.starterWeight),
+            roundG(d.waterToAdd),
+            milkPart,
+            yeastPart,
+          ),
+          minutes: d.initialMixMinutes,
+        },
+        {
+          title: t.stepAddFlour,
+          time: fmt(d.initialMixMinutes),
+          body: t.bodyAddFlour(roundG(d.flourToAdd)),
+          minutes: d.initialMixMinutes,
+        },
+        {
+          title: t.stepAutolyse,
+          time: fmt(d.autolyseMinutes),
+          body: t.bodyAutolyse(fmt(d.autolyseMinutes)),
+          minutes: d.autolyseMinutes,
+        },
+        {
+          title: t.stepAddSaltEtc,
+          time: "2 min",
+          body: t.bodyAddSaltEtc(round1(d.saltToAdd), sugarPart, oilPart),
+          minutes: 2,
+        },
+        {
+          title: t.stepDevelopByHand,
+          time: fmt(d.developmentMinutes),
+          body: t.bodyDevelopByHand(fmt(d.developmentMinutes)),
+          minutes: d.developmentMinutes,
+        },
+      ];
+    }
+
+    // Number the steps
+    const allSteps = [...mixingSteps, ...sharedSteps];
+    return allSteps.map((step, i) => ({
+      ...step,
+      title: `${i + 1}. ${step.title}`,
+    }));
   });
 
   ngOnDestroy(): void {

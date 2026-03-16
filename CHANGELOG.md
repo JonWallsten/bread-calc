@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Dual mixing method: choose between "By hand" (manual) and "Stand mixer" (machine) modes
+- Manual mode breaks mixing into 5 granular steps: mix liquids, add flour, autolyse (20 min), add salt & extras, develop by hand (10 min)
+- Machine mode breaks mixing into 4 granular steps: initial mix on low, autolyse (20 min), incorporate salt on low, develop on medium (6 min)
+- Configurable mixer speed labels (low, low-medium, medium) for stand mixer mode — displayed in instruction text
+- New timing constants: `MANUAL_MIX_CONSTANTS`, `MACHINE_MIX_CONSTANTS`, `DEFAULT_MIXER_SPEEDS` in config
+- `mixingMethod`, `mixerSpeedLow`, `mixerSpeedLowMedium`, `mixerSpeedMedium` fields added to `CalcInputs` and persisted to localStorage
+- `initialMixMinutes`, `autolyseMinutes`, `incorporationMinutes`, `developmentMinutes` added to `CalcResult`
+- Full i18n support for all new instruction steps and UI labels in both EN and SV
+- Instruction steps are now auto-numbered dynamically (manual: 12 steps, machine: 11 steps)
+- 15 new Vitest tests for mixing method calculation logic
 - Split credentials into three files: `.credentials.env` (app), `.credentials.local.env` (local overrides), `.ftp.env` (FTP only)
 - Local credential overlay: `.credentials.local.env` values override `.credentials.env` for local dev (both Node.js scripts and PHP)
 - `--remote` flag on `db-migrate` to skip local overlay and use production credentials

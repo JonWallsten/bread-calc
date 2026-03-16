@@ -359,3 +359,94 @@ describe("Flour blend adjustment", () => {
     expect(approx(sum, r.finalDoughWeight, 0.01)).toBe(true);
   });
 });
+
+describe("Mixing method", () => {
+  it("default is manual", () => {
+    expect(calc().mixingMethod).toBe("manual");
+  });
+
+  it("manual: initialMixMinutes = 5", () => {
+    expect(calc().initialMixMinutes).toBe(5);
+  });
+
+  it("manual: autolyseMinutes = 20", () => {
+    expect(calc().autolyseMinutes).toBe(20);
+  });
+
+  it("manual: incorporationMinutes = 0", () => {
+    expect(calc().incorporationMinutes).toBe(0);
+  });
+
+  it("manual: developmentMinutes = 10", () => {
+    expect(calc().developmentMinutes).toBe(10);
+  });
+
+  it("manual: mixMinutes = 35 (5 + 20 + 0 + 10)", () => {
+    expect(calc().mixMinutes).toBe(35);
+  });
+
+  it("machine: initialMixMinutes = 4", () => {
+    expect(calc({ mixingMethod: "machine" }).initialMixMinutes).toBe(4);
+  });
+
+  it("machine: autolyseMinutes = 20", () => {
+    expect(calc({ mixingMethod: "machine" }).autolyseMinutes).toBe(20);
+  });
+
+  it("machine: incorporationMinutes = 2", () => {
+    expect(calc({ mixingMethod: "machine" }).incorporationMinutes).toBe(2);
+  });
+
+  it("machine: developmentMinutes = 6", () => {
+    expect(calc({ mixingMethod: "machine" }).developmentMinutes).toBe(6);
+  });
+
+  it("machine: mixMinutes = 32 (4 + 20 + 2 + 6)", () => {
+    expect(calc({ mixingMethod: "machine" }).mixMinutes).toBe(32);
+  });
+
+  it("mixer speed labels passed through", () => {
+    const r = calc({
+      mixingMethod: "machine",
+      mixerSpeedLow: "S1",
+      mixerSpeedLowMedium: "S2",
+      mixerSpeedMedium: "S3",
+    });
+    expect(r.mixerSpeedLow).toBe("S1");
+    expect(r.mixerSpeedLowMedium).toBe("S2");
+    expect(r.mixerSpeedMedium).toBe("S3");
+  });
+
+  it("mixer speed defaults when not specified", () => {
+    const r = calc({ mixingMethod: "machine" });
+    expect(r.mixerSpeedLow).toBe("1");
+    expect(r.mixerSpeedLowMedium).toBe("2–3");
+    expect(r.mixerSpeedMedium).toBe("3–4");
+  });
+
+  it("manual total steps >= input time", () => {
+    const r = calc({ mixingMethod: "manual" });
+    const total =
+      r.mixMinutes +
+      r.bulkMinutes +
+      r.divideAndShapeMinutes +
+      r.benchRestMinutes +
+      r.finalProofMinutes +
+      r.preheatMinutes +
+      r.bakeMinutes;
+    expect(total).toBeGreaterThanOrEqual(r.totalHours * 60);
+  });
+
+  it("machine total steps >= input time", () => {
+    const r = calc({ mixingMethod: "machine" });
+    const total =
+      r.mixMinutes +
+      r.bulkMinutes +
+      r.divideAndShapeMinutes +
+      r.benchRestMinutes +
+      r.finalProofMinutes +
+      r.preheatMinutes +
+      r.bakeMinutes;
+    expect(total).toBeGreaterThanOrEqual(r.totalHours * 60);
+  });
+});

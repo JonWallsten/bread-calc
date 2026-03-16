@@ -27,6 +27,7 @@ export const BUILT_IN_RECIPES: Recipe[] = [
       starterHydrationPct: 100,
       totalHours: 24,
       roomTemp: 22,
+      mixingMethod: "manual",
     },
   },
   {
@@ -47,6 +48,7 @@ export const BUILT_IN_RECIPES: Recipe[] = [
       starterHydrationPct: 100,
       totalHours: 8,
       roomTemp: 22,
+      mixingMethod: "manual",
     },
   },
 ];

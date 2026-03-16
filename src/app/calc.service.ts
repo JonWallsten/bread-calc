@@ -4,6 +4,8 @@ import {
   TIMER_CONSTANTS,
   BULK_CLAMP,
   SHAPE_CLAMP,
+  MANUAL_MIX_CONSTANTS,
+  MACHINE_MIX_CONSTANTS,
 } from "./config";
 export { YEAST_LABELS } from "./config";
 export { DEFAULT_INPUTS } from "./config";
@@ -23,6 +25,10 @@ export interface CalcInputs {
   roomTemp: number;
   flourBlendAdjustment?: number;
   customHydrationAdjustment?: number;
+  mixingMethod: "manual" | "machine";
+  mixerSpeedLow?: string;
+  mixerSpeedLowMedium?: string;
+  mixerSpeedMedium?: string;
 }
 
 export interface CalcResult {
@@ -68,6 +74,14 @@ export interface CalcResult {
   fold1: number;
   fold2: number;
   freshPctFinal: number;
+  mixingMethod: "manual" | "machine";
+  initialMixMinutes: number;
+  autolyseMinutes: number;
+  incorporationMinutes: number;
+  developmentMinutes: number;
+  mixerSpeedLow: string;
+  mixerSpeedLowMedium: string;
+  mixerSpeedMedium: string;
 }
 
 export type CalcOutput = CalcResult | { error: string };
@@ -116,6 +130,10 @@ export class CalcService {
       roomTemp,
       flourBlendAdjustment: flourAdj = 0,
       customHydrationAdjustment: customAdj = 0,
+      mixingMethod = "manual",
+      mixerSpeedLow = "1",
+      mixerSpeedLowMedium = "2–3",
+      mixerSpeedMedium = "3–4",
     } = inputs;
 
     const effectiveHydrationPct = hydrationPct + flourAdj + customAdj;
@@ -210,12 +228,36 @@ export class CalcService {
     const round5 = (v: number) => Math.round(v / 5) * 5;
     const totalMinutes = totalHours * 60;
     const {
-      mixMinutes,
       benchRestMinutes,
       preheatMinutes,
       bakeMinutes,
       finalProofMinMinutes,
     } = TIMER_CONSTANTS;
+
+    // Compute mixing step breakdown based on method
+    let initialMixMinutes: number;
+    let autolyseMinutes: number;
+    let incorporationMinutes: number;
+    let developmentMinutes: number;
+
+    if (mixingMethod === "machine") {
+      initialMixMinutes = MACHINE_MIX_CONSTANTS.initialMixMinutes;
+      autolyseMinutes = MACHINE_MIX_CONSTANTS.autolyseMinutes;
+      incorporationMinutes = MACHINE_MIX_CONSTANTS.incorporationMinutes;
+      developmentMinutes = MACHINE_MIX_CONSTANTS.developmentMixMinutes;
+    } else {
+      initialMixMinutes = MANUAL_MIX_CONSTANTS.initialMixMinutes;
+      autolyseMinutes = MANUAL_MIX_CONSTANTS.autolyseMinutes;
+      incorporationMinutes = 0;
+      developmentMinutes = MANUAL_MIX_CONSTANTS.developmentMinutes;
+    }
+
+    const mixMinutes =
+      initialMixMinutes +
+      autolyseMinutes +
+      incorporationMinutes +
+      developmentMinutes;
+
     const bulkMinutes = round5(
       this.clamp(totalMinutes * 0.42, BULK_CLAMP.min, BULK_CLAMP.max),
     );
@@ -286,6 +328,14 @@ export class CalcService {
       fold1,
       fold2,
       freshPctFinal,
+      mixingMethod,
+      initialMixMinutes,
+      autolyseMinutes,
+      incorporationMinutes,
+      developmentMinutes,
+      mixerSpeedLow,
+      mixerSpeedLowMedium,
+      mixerSpeedMedium,
     };
   }
 }
