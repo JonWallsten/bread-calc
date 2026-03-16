@@ -204,10 +204,10 @@ describe("Time allocation", () => {
   it("bench rest = 15 min", () => expect(calc().benchRestMinutes).toBe(15));
   it("preheat = 45 min", () => expect(calc().preheatMinutes).toBe(45));
   it("bake = 15 min", () => expect(calc().bakeMinutes).toBe(15));
-  it("bulk in [135, 240]", () => {
+  it("bulk in [135, 360]", () => {
     const r = calc();
     expect(r.bulkMinutes).toBeGreaterThanOrEqual(135);
-    expect(r.bulkMinutes).toBeLessThanOrEqual(240);
+    expect(r.bulkMinutes).toBeLessThanOrEqual(360);
   });
   it("divide > 0 and reasonable", () => {
     const r = calc();
@@ -270,11 +270,15 @@ describe("Edge cases", () => {
     expect(calc({ totalHours: 2 }).finalProofMinutes).toBe(50));
   it("24h: no error", () =>
     expect(calc({ totalHours: 24 }).error).toBeUndefined());
-  it("24h: bulk clamped to 240", () =>
-    expect(calc({ totalHours: 24 }).bulkMinutes).toBe(240));
+  it("24h: bulk clamped to 360", () =>
+    expect(calc({ totalHours: 24 }).bulkMinutes).toBe(360));
   it("24h: proof >= 50", () =>
     expect(calc({ totalHours: 24 }).finalProofMinutes).toBeGreaterThanOrEqual(
       50,
+    ));
+  it("24h: proof <= 180", () =>
+    expect(calc({ totalHours: 24 }).finalProofMinutes).toBeLessThanOrEqual(
+      180,
     ));
   it("50 breads: no error", () =>
     expect(calc({ breadCount: 50 }).error).toBeUndefined());
@@ -463,5 +467,26 @@ describe("Mixing method", () => {
       r.preheatMinutes +
       r.bakeMinutes;
     expect(total).toBeGreaterThanOrEqual(r.totalHours * 60);
+  });
+});
+
+describe("formatWeight", () => {
+  it("rounds general ingredient to whole grams", () => {
+    expect(service.formatWeight(16.1)).toBe("16");
+  });
+  it("rounds general ingredient 0.4 down", () => {
+    expect(service.formatWeight(99.4)).toBe("99");
+  });
+  it("yeast < 10 gets 1 decimal", () => {
+    expect(service.formatWeight(1.3, true)).toBe("1.3");
+  });
+  it("yeast >= 10 rounds to whole", () => {
+    expect(service.formatWeight(12.7, true)).toBe("13");
+  });
+  it("yeast exactly 10 rounds to whole", () => {
+    expect(service.formatWeight(10, true)).toBe("10");
+  });
+  it("yeast 9.99 gets 1 decimal", () => {
+    expect(service.formatWeight(9.99, true)).toBe("10");
   });
 });

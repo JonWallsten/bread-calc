@@ -3,6 +3,8 @@ import {
   YEAST_LABELS,
   TIMER_CONSTANTS,
   BULK_CLAMP,
+  BULK_RATIO,
+  FINAL_PROOF_MAX,
   SHAPE_CLAMP,
   MANUAL_MIX_CONSTANTS,
   MACHINE_MIX_CONSTANTS,
@@ -92,6 +94,12 @@ export class CalcService {
     Math.max(min, Math.min(max, val));
 
   readonly round1 = (v: number): number => Math.round(v * 10) / 10;
+
+  /** Format ingredient weight consistently: whole grams, except yeast < 10 g gets 1 decimal */
+  formatWeight(value: number, isYeast = false): string {
+    if (isYeast && value < 10) return `${this.round1(value)}`;
+    return `${Math.round(value)}`;
+  }
 
   yeastBaseline(hours: number): number {
     if (hours <= 3) return 2.8;
@@ -258,9 +266,6 @@ export class CalcService {
       incorporationMinutes +
       developmentMinutes;
 
-    const bulkMinutes = round5(
-      this.clamp(totalMinutes * 0.42, BULK_CLAMP.min, BULK_CLAMP.max),
-    );
     const divideAndShapeMinutes = round5(
       this.clamp(
         breadCount * SHAPE_CLAMP.perLoafFactor,
@@ -268,17 +273,23 @@ export class CalcService {
         SHAPE_CLAMP.max,
       ),
     );
-    const finalProofMinutes = Math.max(
+
+    // Time available for fermentation = total minus non-ferment steps
+    const nonFermentMinutes =
+      mixMinutes +
+      divideAndShapeMinutes +
+      benchRestMinutes +
+      preheatMinutes +
+      bakeMinutes;
+    const availableMinutes = Math.max(0, totalMinutes - nonFermentMinutes);
+
+    const bulkMinutes = round5(
+      this.clamp(availableMinutes * BULK_RATIO, BULK_CLAMP.min, BULK_CLAMP.max),
+    );
+    const finalProofMinutes = this.clamp(
+      availableMinutes - bulkMinutes,
       finalProofMinMinutes,
-      round5(
-        totalMinutes -
-          mixMinutes -
-          bulkMinutes -
-          divideAndShapeMinutes -
-          benchRestMinutes -
-          preheatMinutes -
-          bakeMinutes,
-      ),
+      FINAL_PROOF_MAX,
     );
 
     const fold1 = round5(bulkMinutes * 0.33);

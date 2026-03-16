@@ -61,7 +61,13 @@ export const MACHINE_MIX_CONSTANTS = {
 };
 
 // Bulk fermentation clamp bounds (minutes)
-export const BULK_CLAMP = { min: 135, max: 240 };
+export const BULK_CLAMP = { min: 135, max: 360 };
+
+// Proportion of available time allocated to bulk fermentation
+export const BULK_RATIO = 0.65;
+
+// Maximum final proof duration (minutes) — prevents absurd values for long schedules
+export const FINAL_PROOF_MAX = 180;
 
 // Divide & pre-shape clamp bounds (minutes, per-loaf factor)
 export const SHAPE_CLAMP = { min: 22, max: 48, perLoafFactor: 1.2 };

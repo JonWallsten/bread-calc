@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+## [1.1.0] — 2026-03-16
+
+### Changed
+
+- **Time allocation fix**: Final proof no longer absorbs all remaining time for long schedules. Bulk and final proof are now split proportionally (65/35) with bulk capped at 6h and final proof capped at 3h, preventing absurd values like 17h 50m final proof for 24h doughs
+- **Consistent weight formatting**: All ingredients use whole grams; yeast under 10 g gets 1 decimal. Shared `formatWeight()` helper used everywhere (summary, ingredients, instructions, copy text)
+- **Conditional ingredient rendering**: Zero-value ingredients (starter, milk, sugar, oil) are hidden from the ingredients list, instruction body text, and copied output instead of showing "0 g"
+- **Prefermented flour stat**: Hidden when starter weight is 0 instead of showing "0%"
+- **Starter support text**: Hidden when starter is 0
+- **Autolyse → Rest**: Step renamed from "Autolyse" to "Rest" / "Vila" since yeast is always added before the rest step
+- **Instruction body templates**: Refactored from positional parameters to pre-built ingredient list strings, enabling conditional ingredient inclusion
+- **Swedish improvements**: More natural phrasing in manual instructions — "arbeta degen med sträck-och-vik" instead of "använd sträck-och-vik", shorter rest step text
+- **Machine step 1 restructure**: Initial mix now separates liquids from flour ("Add liquids to bowl. Add flour and mix on…") instead of a flat ingredient list
+- **Machine speed phrases**: All machine steps show the generic speed label with the user's mixer value in parentheses, e.g. "low speed (your mixer: 1)" / "låg hastighet (din maskin: 1)", fixing label-value mismatches
+- **Machine development cues**: Describes machine-specific indicators ("pulling away from the bowl sides") instead of reusing hand-kneading phrases
+- **Swedish mixer speed fix**: "Låg-medelhastighet" → "Låg till medelhastighet" for more natural phrasing
+- **Swedish bake step**: Clearer phrasing — "Börja på hög temperatur och sänk vid behov" instead of "Starta varmt, sänk sedan om det behövs"
+- **Swedish divide step**: Shorter — "Dela i X bitar om ca Y g" instead of "Faktisk degvikt per bit är ca Y g"
+- **Swedish develop machine**: "i ungefär X min" instead of "i ca X min" for consistent tone
+- **English text polish**: "becoming smooth" instead of "looking smooth", added article "The dough should feel", shorter divide ("X pieces, about Y g each"), "Start at high heat" instead of "Start hot", "Bake for about X" for natural rhythm
+- **English manual polish**: "evenly dispersed" instead of "dissolved" for yeast, "develop on its own" instead of "form on its own" for gluten, "stretch-and-folds" (plural) for natural English
+
+### Added
+
+- **Ball weight guide**: Hint below dough weight input with recommended weights — Rolls 80–100 g, Baguette 350–400 g, Sandwich loaf 500–900 g, Sourdough boule 700–1000 g, Pizza 200–280 g
+- **Starter hints**: "Typical: 50–200 g (10–30% of flour)" below starter weight, "Typical: 80–125%" below starter hydration
+- `formatWeight(value, isYeast)` helper on `CalcService`
+- `water` and `flour` i18n keys for instruction body text building
+- `BULK_RATIO`, `FINAL_PROOF_MAX` constants in config
+- `yourMixer` i18n key ("your mixer" / "din maskin") for speed phrase construction
+- 7 new tests (formatWeight, 24h proof cap) — 204 total
+
 ## [1.0.0] — 2026-03-16
 
 ### Added

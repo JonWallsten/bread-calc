@@ -44,13 +44,17 @@ export class ResultsComponent {
       { value: `${Math.round(d.actualPerBall)} g`, label: t.actualPerBall },
       { value: hydrationDisplay, label: hydrationLabel },
       {
-        value: `${this.calc.round1(d.yeastToAdd)} g`,
+        value: `${this.calc.formatWeight(d.yeastToAdd, true)} g`,
         label: this.yeastLabel(d.yeastType),
       },
-      {
-        value: `${this.calc.round1(d.prefermentedFlourPct)}%`,
-        label: t.starterFlourShare,
-      },
+      ...(d.starterWeight > 0
+        ? [
+            {
+              value: `${this.calc.round1(d.prefermentedFlourPct)}%`,
+              label: t.starterFlourShare,
+            },
+          ]
+        : []),
       {
         value: this.calc.waterTempRange(d.roomTemp),
         label: t.waterTemperature,
@@ -61,13 +65,15 @@ export class ResultsComponent {
   protected readonly ingredients = computed(() => {
     const d = this.data();
     const t = this.i18n.t();
+    const fmtW = (v: number) => this.calc.formatWeight(v);
+    const fmtY = (v: number) => this.calc.formatWeight(v, true);
     const rows: [string, string][] = [];
 
     // Flour — expand into per-type rows when blend is active and valid
     const blendRows = this.blend.blendRows();
     if (blendRows.length > 0 && this.blend.blendValid()) {
       const lang = this.i18n.currentLang();
-      rows.push([t.flourToAdd, `${Math.round(d.flourToAdd)} g`]);
+      rows.push([t.flourToAdd, `${fmtW(d.flourToAdd)} g`]);
       for (const br of blendRows) {
         const def = getFlourDefinitionById(br.flourId);
         const name = def
@@ -79,25 +85,24 @@ export class ResultsComponent {
         rows.push([`↳ ${name}`, `${amount} g`]);
       }
     } else {
-      rows.push([t.flourToAdd, `${Math.round(d.flourToAdd)} g`]);
+      rows.push([t.flourToAdd, `${fmtW(d.flourToAdd)} g`]);
     }
 
-    rows.push([t.starter, `${Math.round(d.starterWeight)} g`]);
-    rows.push([t.waterToAdd, `${Math.round(d.waterToAdd)} g`]);
-    if (d.milkToAdd > 0) {
-      rows.push([t.milkToAdd, `${Math.round(d.milkToAdd)} g`]);
+    if (d.starterWeight > 0) {
+      rows.push([t.starter, `${fmtW(d.starterWeight)} g`]);
     }
-    rows.push([t.saltIngredient, `${Math.round(d.saltToAdd)} g`]);
+    rows.push([t.waterToAdd, `${fmtW(d.waterToAdd)} g`]);
+    if (d.milkToAdd > 0) {
+      rows.push([t.milkToAdd, `${fmtW(d.milkToAdd)} g`]);
+    }
+    rows.push([t.saltIngredient, `${fmtW(d.saltToAdd)} g`]);
     if (d.sugarToAdd > 0) {
-      rows.push([t.sugarIngredient, `${Math.round(d.sugarToAdd)} g`]);
+      rows.push([t.sugarIngredient, `${fmtW(d.sugarToAdd)} g`]);
     }
     if (d.oilToAdd > 0) {
-      rows.push([t.oilIngredient, `${Math.round(d.oilToAdd)} g`]);
+      rows.push([t.oilIngredient, `${fmtW(d.oilToAdd)} g`]);
     }
-    rows.push([
-      this.yeastLabel(d.yeastType),
-      `${this.calc.round1(d.yeastToAdd)} g`,
-    ]);
+    rows.push([this.yeastLabel(d.yeastType), `${fmtY(d.yeastToAdd)} g`]);
     return rows;
   });
 
@@ -112,7 +117,11 @@ export class ResultsComponent {
       d.roomTemp % 1 === 0
         ? `${d.roomTemp}`
         : `${this.calc.round1(d.roomTemp)}`;
-    return `${t.supportStarterCalc(Math.round(d.starterHydrationPct), Math.round(d.starterFlour), Math.round(d.starterWater))} ${t.supportYeastEstimated(this.yeastLabel(d.yeastType), hoursStr, tempStr)} ${t.supportHeuristic}`;
+    const starterPart =
+      d.starterWeight > 0
+        ? `${t.supportStarterCalc(Math.round(d.starterHydrationPct), Math.round(d.starterFlour), Math.round(d.starterWater))} `
+        : "";
+    return `${starterPart}${t.supportYeastEstimated(this.yeastLabel(d.yeastType), hoursStr, tempStr)} ${t.supportHeuristic}`;
   });
 
   async copyRecipe(): Promise<void> {

@@ -138,6 +138,20 @@ export class App implements OnInit {
     return `${label}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
   });
 
+  // Dynamic starter hint based on estimated flour
+  readonly starterHint = computed(() => {
+    const t = this.i18n.t();
+    const doughWeight = this.breadCount() * this.targetBallWeight();
+    const h = this.hydrationPct() / 100;
+    const s = this.saltPct() / 100;
+    const su = this.sugarPct() / 100;
+    const o = this.oilPct() / 100;
+    const flourEstimate = doughWeight / (1 + h + s + su + o);
+    const minG = Math.round(flourEstimate * 0.1);
+    const maxG = Math.round(flourEstimate * 0.3);
+    return t.hintStarter(minG, maxG);
+  });
+
   readonly yeastOptions = computed(() => {
     const t = this.i18n.t();
     return [

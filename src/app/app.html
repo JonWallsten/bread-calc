@@ -121,7 +121,7 @@
   <!-- Dough section -->
   <section class="section">
     <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#127829;</span>
+      <span class="section-icon" aria-hidden="true">&#129366;</span>
       <h2 class="section-title">{{ i18n.t().dough }}</h2>
       <button
         class="info-btn"
@@ -150,12 +150,13 @@
       suffix="g"
       (valueChange)="onStepperChange()"
     />
+    <p class="field-hint">{{ i18n.t().hintBallWeight }}</p>
   </section>
 
   <!-- Yeast section -->
   <section class="section">
     <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#9881;&#65039;</span>
+      <span class="section-icon" aria-hidden="true">&#129440;</span>
       <h2 class="section-title">{{ i18n.t().yeast }}</h2>
       <button
         class="info-btn"
@@ -298,7 +299,7 @@
   <!-- Starter section -->
   <section class="section">
     <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#127793;</span>
+      <span class="section-icon" aria-hidden="true">&#129753;</span>
       <h2 class="section-title">{{ i18n.t().starter }}</h2>
       <button
         class="info-btn"
@@ -318,6 +319,7 @@
       suffix="g"
       (valueChange)="onStepperChange()"
     />
+    <p class="field-hint">{{ starterHint() }}</p>
 
     <label class="field-label">{{ i18n.t().starterHydration }}</label>
     <app-stepper
@@ -327,6 +329,7 @@
       suffix="%"
       (valueChange)="onStepperChange()"
     />
+    <p class="field-hint">{{ i18n.t().hintStarterHydration }}</p>
   </section>
 
   <!-- Proofing section -->
@@ -366,7 +369,7 @@
   <!-- Mixing method section -->
   <section class="section">
     <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#129476;</span>
+      <span class="section-icon" aria-hidden="true">&#129379;</span>
       <h2 class="section-title">{{ i18n.t().mixingMethod }}</h2>
     </div>
 

@@ -59,33 +59,73 @@ export class InstructionsComponent implements OnDestroy {
     return m === 0 ? `${h}h` : `${h}h ${m}m`;
   }
 
+  /** Join parts with commas and a final "and" word: ['a', 'b', 'c'] → 'a, b and c' */
+  private joinWithAnd(parts: string[], andWord: string): string {
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0];
+    return (
+      parts.slice(0, -1).join(", ") + ` ${andWord} ` + parts[parts.length - 1]
+    );
+  }
+
   protected readonly steps = computed<InstructionStep[]>(() => {
     const d = this.data();
-    const roundG = (v: number) => Math.round(v);
-    const round1 = this.calc.round1;
+    const fmtW = (v: number) => this.calc.formatWeight(v);
+    const fmtY = (v: number) => this.calc.formatWeight(v, true);
     const fmt = (m: number) => this.formatDuration(m);
     const t = this.i18n.t();
-
-    const milkPart =
-      d.milkToAdd > 0 ? `, ${roundG(d.milkToAdd)} g ${t.milk}` : "";
-
-    // Yeast goes into liquid (fresh, activeDry) or flour (instant, swedishDry)
-    const yeastStr =
-      d.yeastToAdd > 0
-        ? `, ${t.and} ${round1(d.yeastToAdd)} g ${this.yeastLabel(d.yeastType).toLowerCase()}`
-        : "";
     const yeastInLiquid =
       d.yeastType === "fresh" || d.yeastType === "activeDry";
-    const yeastLiquidPart = yeastInLiquid ? yeastStr : "";
-    const yeastFlourPart = yeastInLiquid ? "" : yeastStr;
-    const sugarPart =
-      d.sugarToAdd > 0
-        ? `, ${round1(d.sugarToAdd)} g ${t.sugarIngredient.toLowerCase()}`
-        : "";
-    const oilPart =
-      d.oilToAdd > 0
-        ? `, ${t.and} ${round1(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`
-        : "";
+    const yeastName = this.yeastLabel(d.yeastType).toLowerCase();
+
+    // Build liquid ingredient list (for manual mix-liquids step)
+    const liquidParts: string[] = [];
+    if (d.starterWeight > 0)
+      liquidParts.push(`${fmtW(d.starterWeight)} g ${t.starter.toLowerCase()}`);
+    liquidParts.push(`${fmtW(d.waterToAdd)} g ${t.water}`);
+    if (d.milkToAdd > 0) liquidParts.push(`${fmtW(d.milkToAdd)} g ${t.milk}`);
+    if (yeastInLiquid && d.yeastToAdd > 0)
+      liquidParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
+    const liquidsList = this.joinWithAnd(liquidParts, t.and);
+
+    // Build flour ingredient list (for manual add-flour step)
+    const flourParts: string[] = [];
+    flourParts.push(`${fmtW(d.flourToAdd)} g ${t.flour}`);
+    if (!yeastInLiquid && d.yeastToAdd > 0)
+      flourParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
+    const flourIngredients = this.joinWithAnd(flourParts, t.and);
+
+    // Build machine liquid ingredient list (without flour)
+    const machineLiquidParts: string[] = [];
+    if (d.starterWeight > 0)
+      machineLiquidParts.push(
+        `${fmtW(d.starterWeight)} g ${t.starter.toLowerCase()}`,
+      );
+    machineLiquidParts.push(`${fmtW(d.waterToAdd)} g ${t.water}`);
+    if (d.milkToAdd > 0)
+      machineLiquidParts.push(`${fmtW(d.milkToAdd)} g ${t.milk}`);
+    if (d.yeastToAdd > 0)
+      machineLiquidParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
+    const machineLiquids = this.joinWithAnd(machineLiquidParts, t.and);
+
+    // Machine flour list
+    const machineFlourList = `${fmtW(d.flourToAdd)} g ${t.flour}`;
+
+    // Build speed phrases: "speed label (your mixer: value)"
+    const speedPhraseLow = `${t.mixerSpeedLow.toLowerCase()} (${t.yourMixer}: ${d.mixerSpeedLow})`;
+    const speedPhraseLowMedium = `${t.mixerSpeedLowMedium.toLowerCase()} (${t.yourMixer}: ${d.mixerSpeedLowMedium})`;
+    const speedPhraseMedium = `${t.mixerSpeedMedium.toLowerCase()} (${t.yourMixer}: ${d.mixerSpeedMedium})`;
+
+    // Build salt & extras list
+    const saltParts: string[] = [];
+    saltParts.push(`${fmtW(d.saltToAdd)} g ${t.saltIngredient.toLowerCase()}`);
+    if (d.sugarToAdd > 0)
+      saltParts.push(
+        `${fmtW(d.sugarToAdd)} g ${t.sugarIngredient.toLowerCase()}`,
+      );
+    if (d.oilToAdd > 0)
+      saltParts.push(`${fmtW(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`);
+    const saltExtras = this.joinWithAnd(saltParts, t.and);
 
     // Shared steps after mixing
     const sharedSteps: InstructionStep[] = [
@@ -103,7 +143,7 @@ export class InstructionsComponent implements OnDestroy {
       {
         title: t.stepDivide,
         time: fmt(d.divideAndShapeMinutes),
-        body: t.bodyDivide(d.breadCount, roundG(d.actualPerBall)),
+        body: t.bodyDivide(d.breadCount, Math.round(d.actualPerBall)),
         minutes: d.divideAndShapeMinutes,
       },
       {
@@ -146,30 +186,22 @@ export class InstructionsComponent implements OnDestroy {
           title: t.stepInitialMix,
           time: fmt(d.initialMixMinutes),
           body: t.bodyInitialMix(
-            roundG(d.starterWeight),
-            roundG(d.waterToAdd),
-            milkPart,
-            yeastStr,
-            roundG(d.flourToAdd),
-            d.mixerSpeedLow,
+            machineLiquids,
+            machineFlourList,
+            speedPhraseLow,
           ),
           minutes: d.initialMixMinutes,
         },
         {
-          title: t.stepMachineAutolyse,
+          title: t.stepMachineRest,
           time: fmt(d.autolyseMinutes),
-          body: t.bodyMachineAutolyse(fmt(d.autolyseMinutes)),
+          body: t.bodyMachineRest(fmt(d.autolyseMinutes)),
           minutes: d.autolyseMinutes,
         },
         {
           title: t.stepIncorporate,
           time: fmt(d.incorporationMinutes),
-          body: t.bodyIncorporate(
-            round1(d.saltToAdd),
-            sugarPart,
-            oilPart,
-            d.mixerSpeedLowMedium,
-          ),
+          body: t.bodyIncorporate(saltExtras, speedPhraseLowMedium),
           minutes: d.incorporationMinutes,
         },
         {
@@ -177,7 +209,7 @@ export class InstructionsComponent implements OnDestroy {
           time: fmt(d.developmentMinutes),
           body: t.bodyDevelopMachine(
             fmt(d.developmentMinutes),
-            d.mixerSpeedMedium,
+            speedPhraseMedium,
           ),
           minutes: d.developmentMinutes,
         },
@@ -187,30 +219,25 @@ export class InstructionsComponent implements OnDestroy {
         {
           title: t.stepMixLiquids,
           time: fmt(d.initialMixMinutes),
-          body: t.bodyMixLiquids(
-            roundG(d.starterWeight),
-            roundG(d.waterToAdd),
-            milkPart,
-            yeastLiquidPart,
-          ),
+          body: t.bodyMixLiquids(liquidsList),
           minutes: d.initialMixMinutes,
         },
         {
           title: t.stepAddFlour,
           time: fmt(d.initialMixMinutes),
-          body: t.bodyAddFlour(roundG(d.flourToAdd), yeastFlourPart),
+          body: t.bodyAddFlour(flourIngredients),
           minutes: d.initialMixMinutes,
         },
         {
-          title: t.stepAutolyse,
+          title: t.stepRest,
           time: fmt(d.autolyseMinutes),
-          body: t.bodyAutolyse(fmt(d.autolyseMinutes)),
+          body: t.bodyRest(fmt(d.autolyseMinutes)),
           minutes: d.autolyseMinutes,
         },
         {
           title: t.stepAddSaltEtc,
           time: "2 min",
-          body: t.bodyAddSaltEtc(round1(d.saltToAdd), sugarPart, oilPart),
+          body: t.bodyAddSaltEtc(saltExtras),
           minutes: 2,
         },
         {

@@ -23,6 +23,7 @@ interface Translations {
   // Dough fields
   numberOfBreads: string;
   ballWeight: string;
+  hintBallWeight: string;
 
   // Yeast fields
   yeastType: string;
@@ -53,7 +54,9 @@ interface Translations {
 
   // Starter fields
   starterTotalWeight: string;
+  hintStarter: (minG: number, maxG: number) => string;
   starterHydration: string;
+  hintStarterHydration: string;
 
   // Proofing fields
   timeUntilOven: string;
@@ -108,13 +111,13 @@ interface Translations {
   // Manual mixing steps
   stepMixLiquids: string;
   stepAddFlour: string;
-  stepAutolyse: string;
+  stepRest: string;
   stepAddSaltEtc: string;
   stepDevelopByHand: string;
 
   // Machine mixing steps
   stepInitialMix: string;
-  stepMachineAutolyse: string;
+  stepMachineRest: string;
   stepIncorporate: string;
   stepDevelopMachine: string;
 
@@ -125,6 +128,7 @@ interface Translations {
   mixerSpeedLow: string;
   mixerSpeedLowMedium: string;
   mixerSpeedMedium: string;
+  yourMixer: string;
 
   // Instruction body templates
   bodyMix: (
@@ -151,34 +155,21 @@ interface Translations {
   bodyBake: (duration: string) => string;
 
   // Manual instruction body templates
-  bodyMixLiquids: (
-    starterG: number,
-    waterG: number,
-    milkPart: string,
-    yeastPart: string,
-  ) => string;
-  bodyAddFlour: (flourG: number, yeastFlourPart: string) => string;
-  bodyAutolyse: (duration: string) => string;
-  bodyAddSaltEtc: (saltG: number, sugarPart: string, oilPart: string) => string;
+  bodyMixLiquids: (ingredientList: string) => string;
+  bodyAddFlour: (ingredientList: string) => string;
+  bodyRest: (duration: string) => string;
+  bodyAddSaltEtc: (extras: string) => string;
   bodyDevelopByHand: (duration: string) => string;
 
   // Machine instruction body templates
   bodyInitialMix: (
-    starterG: number,
-    waterG: number,
-    milkPart: string,
-    yeastPart: string,
-    flourG: number,
-    speedLabel: string,
+    liquidsList: string,
+    flourList: string,
+    speedPhrase: string,
   ) => string;
-  bodyMachineAutolyse: (duration: string) => string;
-  bodyIncorporate: (
-    saltG: number,
-    sugarPart: string,
-    oilPart: string,
-    speedLabel: string,
-  ) => string;
-  bodyDevelopMachine: (duration: string, speedLabel: string) => string;
+  bodyMachineRest: (duration: string) => string;
+  bodyIncorporate: (extras: string, speedPhrase: string) => string;
+  bodyDevelopMachine: (duration: string, speedPhrase: string) => string;
   // Timer
   startTimer: string;
   pause: string;
@@ -190,6 +181,8 @@ interface Translations {
   stopped: string;
 
   // Short words / connectors
+  water: string;
+  flour: string;
   milk: string;
   and: string;
 
@@ -313,6 +306,8 @@ const en: Translations = {
   copied: "Copied!",
   numberOfBreads: "Number of breads",
   ballWeight: "Ball weight (g)",
+  hintBallWeight:
+    "Rolls: 80–100 g · Baguette: 350–400 g · Sandwich loaf: 500–900 g · Sourdough boule: 700–1000 g · Pizza: 200–280 g",
   yeastType: "Yeast type",
   freshYeast: "Fresh yeast",
   swedishDryYeast: "Swedish dry yeast (KronJäst)",
@@ -337,7 +332,9 @@ const en: Translations = {
   milkAsPctOfWater: "Milk as % of added water",
   hintMilk: "Optional, 0–50%",
   starterTotalWeight: "Starter total weight (g)",
+  hintStarter: (minG, maxG) => `Typical: ${minG}–${maxG} g (10–30% of flour)`,
   starterHydration: "Starter hydration (%)",
+  hintStarterHydration: "Typical: 80–125%",
   timeUntilOven: "Time until oven (hours)",
   roomTemperature: "Room temperature (\u00b0C)",
   calculate: "Calculate",
@@ -380,13 +377,13 @@ const en: Translations = {
   // Manual mixing steps
   stepMixLiquids: "Mix liquids",
   stepAddFlour: "Add flour",
-  stepAutolyse: "Autolyse",
+  stepRest: "Rest",
   stepAddSaltEtc: "Add salt & extras",
   stepDevelopByHand: "Develop by hand",
 
   // Machine mixing steps
   stepInitialMix: "Initial mix",
-  stepMachineAutolyse: "Autolyse",
+  stepMachineRest: "Rest",
   stepIncorporate: "Incorporate salt & extras",
   stepDevelopMachine: "Develop in mixer",
 
@@ -397,6 +394,7 @@ const en: Translations = {
   mixerSpeedLow: "Low speed",
   mixerSpeedLowMedium: "Low-medium speed",
   mixerSpeedMedium: "Medium speed",
+  yourMixer: "your mixer",
 
   bodyMix: (
     starterG,
@@ -410,9 +408,9 @@ const en: Translations = {
   ) =>
     `Mix ${starterG} g starter, ${waterG} g water${milkPart}${yeastPart}. Add ${flourG} g flour and mix until no dry flour remains. Rest about 20 minutes, then add ${saltG} g salt${sugarPart}${oilPart}. Mix until smooth, elastic, and slightly tacky.`,
   bodyBulk: (temp, duration, fold1, fold2) =>
-    `Ferment around ${temp}\u00b0C for about ${duration}. Give one fold at about ${fold1} and another at about ${fold2}. Dough should feel lighter and puffier by the end.`,
+    `Ferment around ${temp}\u00b0C for about ${duration}. Give one fold at about ${fold1} and another at about ${fold2}. The dough should feel lighter and puffier by the end.`,
   bodyDivide: (count, weight) =>
-    `Divide into ${count} pieces. Actual dough weight per piece is about ${weight} g. Pre-shape gently.`,
+    `Divide into ${count} pieces, about ${weight} g each. Pre-shape gently.`,
   bodyBenchRest: (duration) =>
     `Rest covered for ${duration} so the dough relaxes before final shaping.`,
   bodyFinalShape:
@@ -422,29 +420,29 @@ const en: Translations = {
   bodyPreheat: (duration) =>
     `Preheat during the last ${duration} of final proof. For rolls, 230\u2013240\u00b0C is a strong starting point.`,
   bodyBake: (duration) =>
-    `Bake with steam if possible. Start hot, then reduce slightly if needed. Bake about ${duration} until golden and set.`,
+    `Bake with steam if possible. Start at high heat, then reduce slightly if needed. Bake for about ${duration}, until golden and set.`,
 
   // Manual instruction body templates
-  bodyMixLiquids: (starterG, waterG, milkPart, yeastPart) =>
-    `Combine ${starterG} g starter, ${waterG} g water${milkPart}${yeastPart} in a bowl. Stir until dissolved.`,
-  bodyAddFlour: (flourG, yeastFlourPart) =>
-    `Add ${flourG} g flour${yeastFlourPart} and mix by hand until no dry flour remains. Do not knead yet.`,
-  bodyAutolyse: (duration) =>
-    `Cover and rest for ${duration}. The flour absorbs the water and gluten begins to form on its own.`,
-  bodyAddSaltEtc: (saltG, sugarPart, oilPart) =>
-    `Sprinkle ${saltG} g salt${sugarPart}${oilPart} over the dough. Pinch and fold until fully incorporated.`,
+  bodyMixLiquids: (ingredientList) =>
+    `Combine ${ingredientList} in a bowl. Stir until evenly dispersed.`,
+  bodyAddFlour: (ingredientList) =>
+    `Add ${ingredientList} and mix by hand until no dry flour remains. Do not knead yet.`,
+  bodyRest: (duration) =>
+    `Cover and rest for ${duration}. The flour absorbs the water and gluten begins to develop on its own.`,
+  bodyAddSaltEtc: (extras) =>
+    `Add ${extras} to the dough. Pinch and fold until fully incorporated.`,
   bodyDevelopByHand: (duration) =>
-    `Knead or use stretch-and-fold for about ${duration} until the dough is smooth, elastic, and slightly tacky.`,
+    `Knead or use stretch-and-folds for about ${duration} until the dough is smooth, elastic, and slightly tacky.`,
 
   // Machine instruction body templates
-  bodyInitialMix: (starterG, waterG, milkPart, yeastPart, flourG, speedLabel) =>
-    `Add ${starterG} g starter, ${waterG} g water${milkPart}${yeastPart}, and ${flourG} g flour to the mixer bowl. Mix on low (your mixer: ${speedLabel}) until no dry flour remains.`,
-  bodyMachineAutolyse: (duration) =>
+  bodyInitialMix: (liquidsList, flourList, speedPhrase) =>
+    `Add ${liquidsList} to the mixer bowl. Add ${flourList} and mix on ${speedPhrase} until no dry flour remains.`,
+  bodyMachineRest: (duration) =>
     `Stop the mixer, cover, and rest for ${duration}. The flour hydrates and gluten begins to develop passively.`,
-  bodyIncorporate: (saltG, sugarPart, oilPart, speedLabel) =>
-    `Add ${saltG} g salt${sugarPart}${oilPart}. Mix on low (your mixer: ${speedLabel}) until fully incorporated.`,
-  bodyDevelopMachine: (duration, speedLabel) =>
-    `Increase to medium speed (your mixer: ${speedLabel}) and mix for about ${duration}. The dough should pull away from the sides, feel smooth, elastic, and slightly tacky.`,
+  bodyIncorporate: (extras, speedPhrase) =>
+    `Add ${extras}. Mix on ${speedPhrase} until fully incorporated.`,
+  bodyDevelopMachine: (duration, speedPhrase) =>
+    `Increase to ${speedPhrase} and mix for about ${duration}. The dough should start pulling away from the bowl sides, becoming smooth, elastic, and slightly tacky but not loose.`,
 
   startTimer: "Start timer",
   pause: "Pause",
@@ -462,6 +460,8 @@ const en: Translations = {
   splashFeature4: "Adjustable hydration, salt, sugar, oil & milk",
   splashFeature5: "Works in English and Swedish",
   splashGetStarted: "Get started",
+  water: "water",
+  flour: "flour",
   milk: "milk",
   and: "and",
   flourBlend: "Flour blend",
@@ -570,6 +570,8 @@ const sv: Translations = {
   copied: "Kopierat!",
   numberOfBreads: "Antal bröd",
   ballWeight: "Bollvikt (g)",
+  hintBallWeight:
+    "Frallor: 80–100 g · Baguette: 350–400 g · Formfranska: 500–900 g · Surdegsbröd: 700–1000 g · Pizza: 200–280 g",
   yeastType: "Jästtyp",
   freshYeast: "Färsk jäst",
   swedishDryYeast: "Torrjäst (KronJäst)",
@@ -593,7 +595,9 @@ const sv: Translations = {
   milkAsPctOfWater: "Mjölk som % av tillsatt vatten",
   hintMilk: "Valfritt, 0–50%",
   starterTotalWeight: "Surdeg totalvikt (g)",
+  hintStarter: (minG, maxG) => `Typiskt: ${minG}–${maxG} g (10–30% av mjölet)`,
   starterHydration: "Surdeg hydrering (%)",
+  hintStarterHydration: "Typiskt: 80–125%",
   timeUntilOven: "Tid till ugnen (timmar)",
   roomTemperature: "Rumstemperatur (\u00b0C)",
   calculate: "Beräkna",
@@ -636,13 +640,13 @@ const sv: Translations = {
   // Manual mixing steps
   stepMixLiquids: "Blanda vätskor",
   stepAddFlour: "Tillsätt mjöl",
-  stepAutolyse: "Autolyse",
+  stepRest: "Vila",
   stepAddSaltEtc: "Tillsätt salt & tillbehör",
   stepDevelopByHand: "Bearbeta för hand",
 
   // Machine mixing steps
   stepInitialMix: "Grundblandning",
-  stepMachineAutolyse: "Autolyse",
+  stepMachineRest: "Vila",
   stepIncorporate: "Tillsätt salt & tillbehör",
   stepDevelopMachine: "Bearbeta i maskin",
 
@@ -651,8 +655,9 @@ const sv: Translations = {
   manual: "För hand",
   machine: "Köksmaskin",
   mixerSpeedLow: "Låg hastighet",
-  mixerSpeedLowMedium: "Låg-medel hastighet",
+  mixerSpeedLowMedium: "Låg till medelhastighet",
   mixerSpeedMedium: "Medelhastighet",
+  yourMixer: "din maskin",
 
   bodyMix: (
     starterG,
@@ -668,7 +673,7 @@ const sv: Translations = {
   bodyBulk: (temp, duration, fold1, fold2) =>
     `Jäs vid ca ${temp}\u00b0C i ungefär ${duration}. Gör en vikning vid ungefär ${fold1} och en till vid ungefär ${fold2}. Degen ska kännas lättare och puffigare i slutet.`,
   bodyDivide: (count, weight) =>
-    `Dela i ${count} bitar. Faktisk degvikt per bit är ca ${weight} g. Förforma försiktigt.`,
+    `Dela i ${count} bitar om ca ${weight} g. Förforma försiktigt.`,
   bodyBenchRest: (duration) =>
     `Vila övertäckt i ${duration} så degen slappnar av före slutformning.`,
   bodyFinalShape:
@@ -678,29 +683,29 @@ const sv: Translations = {
   bodyPreheat: (duration) =>
     `Förvärm under de sista ${duration} av slutjäsningen. För rundstycken, 230\u2013240\u00b0C är en bra startpunkt.`,
   bodyBake: (duration) =>
-    `Grädda med ånga om möjligt. Starta varmt, sänk sedan om det behövs. Grädda ca ${duration} tills gyllenbruna och fasta.`,
+    `Grädda med ånga om möjligt. Börja på hög temperatur och sänk vid behov. Grädda ca ${duration} tills gyllenbruna och fasta.`,
 
   // Manual instruction body templates
-  bodyMixLiquids: (starterG, waterG, milkPart, yeastPart) =>
-    `Blanda ${starterG} g surdeg, ${waterG} g vatten${milkPart}${yeastPart} i en skål. Rör tills allt är upplöst.`,
-  bodyAddFlour: (flourG, yeastFlourPart) =>
-    `Tillsätt ${flourG} g mjöl${yeastFlourPart} och blanda för hand tills inget torrt mjöl finns kvar. Knåda inte ännu.`,
-  bodyAutolyse: (duration) =>
-    `Täck över och vila i ${duration}. Mjölet absorberar vattnet och glutenet börjar bildas av sig självt.`,
-  bodyAddSaltEtc: (saltG, sugarPart, oilPart) =>
-    `Strö ${saltG} g salt${sugarPart}${oilPart} över degen. Nyp och vik tills allt är inarbetat.`,
+  bodyMixLiquids: (ingredientList) =>
+    `Blanda ${ingredientList} i en skål. Rör tills allt är upplöst.`,
+  bodyAddFlour: (ingredientList) =>
+    `Tillsätt ${ingredientList} och blanda för hand tills inget torrt mjöl finns kvar. Knåda inte ännu.`,
+  bodyRest: (duration) =>
+    `Täck och vila i ${duration}. Mjölet absorberar vattnet och glutenet börjar bildas.`,
+  bodyAddSaltEtc: (extras) =>
+    `Tillsätt ${extras} i degen. Nyp och vik tills allt är inarbetat.`,
   bodyDevelopByHand: (duration) =>
-    `Knåda eller använd sträck-och-vik i ca ${duration} tills degen är slät, elastisk och lite kladdig.`,
+    `Knåda eller arbeta degen med sträck-och-vik i ca ${duration} tills den är slät, elastisk och lite kladdig.`,
 
   // Machine instruction body templates
-  bodyInitialMix: (starterG, waterG, milkPart, yeastPart, flourG, speedLabel) =>
-    `Lägg ${starterG} g surdeg, ${waterG} g vatten${milkPart}${yeastPart} och ${flourG} g mjöl i maskinens skål. Kör på låg hastighet (din maskin: ${speedLabel}) tills inget torrt mjöl finns kvar.`,
-  bodyMachineAutolyse: (duration) =>
-    `Stoppa maskinen, täck och vila i ${duration}. Mjölet hydreras och glutenet börjar utvecklas passivt.`,
-  bodyIncorporate: (saltG, sugarPart, oilPart, speedLabel) =>
-    `Tillsätt ${saltG} g salt${sugarPart}${oilPart}. Kör på låg hastighet (din maskin: ${speedLabel}) tills allt är inarbetat.`,
-  bodyDevelopMachine: (duration, speedLabel) =>
-    `Öka till medelhastighet (din maskin: ${speedLabel}) och kör i ca ${duration}. Degen ska dra sig från kanterna, kännas slät, elastisk och lite kladdig.`,
+  bodyInitialMix: (liquidsList, flourList, speedPhrase) =>
+    `Lägg ${liquidsList} i maskinens skål. Tillsätt ${flourList} och kör på ${speedPhrase} tills inget torrt mjöl finns kvar.`,
+  bodyMachineRest: (duration) =>
+    `Stoppa maskinen, täck och vila i ${duration}. Mjölet hydreras och glutenet börjar utvecklas.`,
+  bodyIncorporate: (extras, speedPhrase) =>
+    `Tillsätt ${extras}. Kör på ${speedPhrase} tills allt är inarbetat.`,
+  bodyDevelopMachine: (duration, speedPhrase) =>
+    `Öka till ${speedPhrase} och kör i ungefär ${duration}. Degen ska börja släppa från skålens kanter, kännas slät, elastisk och lätt klibbig men inte lös.`,
 
   startTimer: "Starta timer",
   pause: "Pausa",
@@ -718,6 +723,8 @@ const sv: Translations = {
   splashFeature4: "Justerbar hydrering, salt, socker, olja & mjölk",
   splashFeature5: "Fungerar på engelska och svenska",
   splashGetStarted: "Kom igång",
+  water: "vatten",
+  flour: "mjöl",
   milk: "mjölk",
   and: "och",
   flourBlend: "Mjölblandning",
