@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Angular Router with lazy loading**: Two-page navigation using `withHashLocation()` — `/#/` for calculator, `/#/sessions` for baking sessions. Routes are lazy-loaded for smaller initial bundle
+- **Bottom tab bar (mobile)**: Fixed bottom navigation with Calculator and Sessions tabs, visible below 600px
+- **Topbar tabs (desktop)**: Inline navigation tabs in the topbar header, visible at 600px and above
+- **EditorConfig**: Consistent editor settings — 4 spaces, LF line endings, UTF-8, trim trailing whitespace
+- **Prettier**: Code formatter with single quotes, 4-space indent, 100-char print width, Angular HTML parser
+- **ESLint**: Flat config with `typescript-eslint` strict + stylistic rules and `angular-eslint` recommended + accessibility rules
+- **SaveBakeComponent**: Dedicated save-bake form (notes, rating, photos) shown in the calculator after results — with "View sessions →" link after saving
+- **Auth guard**: Functional `canActivate` guard on the sessions route — redirects to calculator when not logged in
+- **Starter-aware instructions**: When starter weight > 0, both manual and machine instructions now explicitly tell the user to disperse/dissolve the starter into the liquid, with yeast-type-specific handling (fresh yeast dissolves with starter; active dry is hydrated separately; instant and Swedish dry are mixed into flour)
+
+### Changed
+
+- **Calculator extracted to own component**: All calculator logic, template, and styles moved from the root `AppComponent` into a dedicated `CalculatorComponent` at `src/app/calculator/`
+- **Sessions extracted to own component**: Baking sessions and recipe comparison moved into a dedicated `SessionsComponent` at `src/app/sessions/`
+- **BakingSessionComponent split**: Save form extracted to `SaveBakeComponent` (used on calculator page); `BakingSessionComponent` is now a session browser only (grid, detail, lightbox) used on the sessions page
+- **App shell refactored**: Root component is now a lean navigation shell with `<router-outlet>`, topbar, bottom nav, auth, and scroll-to-top — no calculator logic
 - **Last-write-wins sync**: Recipes and flour blends now compare `updatedAt` timestamps during sync — the newest version wins, whether it's local or on the server
 - **Offline delete queue**: Deleting a cloud recipe or flour blend while offline queues a `PendingDelete` in localStorage, replayed automatically on next sync
 - **Sync-on-login effect**: Sync triggers automatically via `effect()` when `isLoggedIn()` becomes true (login or page reload with valid JWT)
@@ -24,6 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Navigation hidden when logged out**: Bottom tab bar and desktop sessions tab are only shown when logged in — minimalistic single-page experience for non-authenticated users
+- **Terminology: sessions → bakes/bakningar**: All user-facing UI text replaced — "Sessions" → "Bakes"/"Bakningar", "Baking sessions" → "My bakes"/"Mina bakningar", "Delete session" → "Delete bake"/"Ta bort bakning", etc. Internal identifiers kept for stability
 - **Session browser redesign**: Replaced flat session list with a 2-column photo grid (3-col on desktop) for scalable browsing
 - **Bottom sheet detail**: Session detail now slides up from the bottom on mobile (centered overlay on desktop) with photo gallery, full notes, and actions
 - **Photo lightbox**: Tap any photo in a session to open a full-screen lightbox with swipe navigation and dot indicators

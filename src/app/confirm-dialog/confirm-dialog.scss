@@ -1,64 +1,64 @@
-@use "mixins" as *;
+@use 'mixins' as *;
 
 .dialog-overlay {
-  @include overlay;
+    @include overlay;
 }
 
 .dialog-card {
-  @include overlay-card;
+    @include overlay-card;
 }
 
 .dialog-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 12px;
-  color: var(--text);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--text);
 }
 
 .dialog-message {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  margin: 0 0 24px;
-  line-height: 1.5;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0 0 24px;
+    line-height: 1.5;
 }
 
 .dialog-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 }
 
 .dialog-btn {
-  @include btn-base;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 10px 24px;
-  transition:
-    background 0.2s,
-    transform 0.1s;
+    @include btn-base;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 10px 24px;
+    transition:
+        background 0.2s,
+        transform 0.1s;
 
-  &:active {
-    transform: scale(0.97);
-  }
-
-  &--primary {
-    background: var(--accent);
-    color: #fff;
-
-    &:hover {
-      filter: brightness(1.08);
+    &:active {
+        transform: scale(0.97);
     }
-  }
 
-  &--secondary {
-    background: var(--border);
-    color: var(--text);
+    &--primary {
+        background: var(--accent);
+        color: #fff;
 
-    &:hover {
-      filter: brightness(0.95);
+        &:hover {
+            filter: brightness(1.08);
+        }
     }
-  }
+
+    &--secondary {
+        background: var(--border);
+        color: var(--text);
+
+        &:hover {
+            filter: brightness(0.95);
+        }
+    }
 }
 
 @include overlay-keyframes;

@@ -1,0 +1,158 @@
+@use 'mixins' as *;
+
+/* ── Host spacing ────────────────────────────────── */
+:host {
+    display: block;
+    margin-top: var(--gap);
+}
+
+/* ── Save bake button ──────────────────────────────── */
+.save-bake-btn {
+    @include btn-primary;
+    width: 100%;
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+/* ── Saved confirmation ────────────────────────────── */
+.saved-confirmation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: #065f46;
+}
+
+.saved-check {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.view-sessions-link {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+/* ── Save form ─────────────────────────────────────── */
+.save-form {
+    margin-top: 12px;
+}
+
+.field-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    margin-bottom: 6px;
+}
+
+.notes-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-family: var(--font);
+    font-size: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.rating-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--border);
+    cursor: pointer;
+    padding: 2px;
+    line-height: 1;
+
+    &.active {
+        color: #f59e0b;
+    }
+}
+
+/* ── Pending photos during save ──────────────────── */
+.pending-photos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.pending-photo-wrapper {
+    position: relative;
+    width: 72px;
+    height: 72px;
+
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+}
+
+.add-photo-btn {
+    @include btn-base;
+    gap: 6px;
+    width: 100%;
+    height: 40px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    font-size: 14px;
+    color: var(--text-muted);
+
+    &:hover {
+        background: var(--border-light);
+    }
+}
+
+.save-form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+
+    .reset-btn {
+        @include btn-secondary;
+        flex: 1;
+    }
+
+    .calculate-btn {
+        @include btn-primary;
+        flex: 1;
+    }
+}
+
+/* ── Photo shared ──────────────────────────────────── */
+.photo-delete-btn {
+    @include btn-icon(24px, $round: true);
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 12px;
+}
+
+/* ── Visually hidden ───────────────────────────────── */
+.visually-hidden {
+    @include visually-hidden;
+}

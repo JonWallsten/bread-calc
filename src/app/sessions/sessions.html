@@ -1,0 +1,8 @@
+@if (auth.isLoggedIn()) {
+    <app-baking-session />
+    <app-compare />
+} @else {
+    <div class="login-prompt">
+        <p>{{ i18n.t().loginToViewSessions }}</p>
+    </div>
+}

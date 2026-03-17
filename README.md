@@ -43,6 +43,7 @@ Built with **Angular 21+** · Standalone components · Signals · PHP API · MyS
 | ☁️   | **Upload prompt & cloud button**  | First login prompts to upload local recipes; per-recipe ☁ button for manual cloud upload                     |
 | 📸   | **Baking sessions**               | Save bakes as snapshots with notes, 1–5 star rating, and up to 3 photos — trace back every bake              |
 | 🔍   | **Recipe comparison**             | Side-by-side table of two recipes with all calculated differences highlighted                                |
+| 🧭   | **Two-page navigation**           | Bottom tab bar (mobile) + topbar tabs (desktop) — calculator and baking sessions as lazy-loaded routes       |
 
 ---
 
@@ -184,14 +185,17 @@ Offline edits are fully supported — deletes queue in localStorage as `breadCal
 |                 |                                                               |
 | --------------- | ------------------------------------------------------------- |
 | **Framework**   | Angular 21 (standalone components, signals, computed, effect) |
-| **Styling**     | Plain CSS with custom properties, mobile-first                |
+| **Styling**     | SCSS with mixins, mobile-first                                |
 | **State**       | Angular signals — no RxJS, no NgRx                            |
 | **Persistence** | localStorage (offline) + MySQL cloud sync (when logged in)    |
 | **Backend**     | PHP 8.5, vanilla router, PDO + prepared statements            |
 | **Auth**        | Google Identity Services (GSI) + JWT (HMAC-SHA256)            |
 | **Audio**       | Web Audio API (square wave alarm, 880 Hz, 5 beeps)            |
 | **i18n**        | Custom signal-based service, no `@angular/localize`           |
-| **Build**       | Angular CLI, output ~53 kB gzipped                            |
+| **Routing**     | Angular Router, hash-based, lazy-loaded routes                |
+| **Linting**     | ESLint (typescript-eslint strict + angular-eslint)            |
+| **Formatting**  | Prettier, EditorConfig                                        |
+| **Build**       | Angular CLI, output ~83 kB gzipped                            |
 
 ---
 

@@ -1,293 +1,217 @@
 @if (auth.isLoggedIn()) {
-<section class="section">
-  <div class="section-header">
-    <span class="section-icon" aria-hidden="true">&#128247;</span>
-    <h2 class="section-title">{{ i18n.t().bakingSessions }}</h2>
-  </div>
-
-  <!-- Save this bake button -->
-  @if (currentResults()) { @if (!showSaveForm()) {
-  <button class="save-bake-btn" type="button" (click)="openSaveForm()">
-    {{ i18n.t().saveThisBake }}
-  </button>
-  } @else {
-  <div class="save-form">
-    <label class="field-label">{{ i18n.t().bakingNotes }}</label>
-    <textarea
-      class="notes-input"
-      rows="3"
-      [value]="saveNotes()"
-      (input)="saveNotes.set($any($event.target).value)"
-    ></textarea>
-
-    <label class="field-label">{{ i18n.t().bakingRating }}</label>
-    <div class="rating-row">
-      @for (s of stars; track s) {
-      <button
-        class="star-btn"
-        type="button"
-        [class.active]="s <= saveRating()"
-        (click)="setRating(s)"
-        [attr.aria-label]="s + ' star'"
-      >
-        &#9733;
-      </button>
-      }
-    </div>
-
-    <!-- Photo upload during creation -->
-    <label class="field-label">{{ i18n.t().addPhotos }}</label>
-    @if (pendingPreviews().length) {
-    <div class="pending-photos">
-      @for (preview of pendingPreviews(); track $index) {
-      <div class="pending-photo-wrapper">
-        <img [src]="preview" alt="" />
-        <button
-          class="photo-delete-btn"
-          type="button"
-          (click)="removePendingPhoto($index)"
-          aria-label="Remove"
-        >
-          &#10005;
-        </button>
-      </div>
-      }
-    </div>
-    } @if (pendingPhotos().length < 3) {
-    <input
-      #saveFileInput
-      type="file"
-      accept="image/jpeg,image/png,image/webp"
-      multiple
-      class="visually-hidden"
-      (change)="onSavePhotoSelected($event)"
-    />
-    <button
-      class="add-photo-btn"
-      type="button"
-      (click)="saveFileInput.click()"
-      [attr.aria-label]="i18n.t().addPhotos"
-    >
-      &#128247;
-      <span>{{ i18n.t().addPhotos }}</span>
-    </button>
-    }
-
-    <div class="save-form-actions">
-      <button class="reset-btn" type="button" (click)="closeSaveForm()">
-        {{ i18n.t().cancel }}
-      </button>
-      <button
-        class="calculate-btn"
-        type="button"
-        [disabled]="saving()"
-        (click)="confirmSave()"
-      >
-        {{ i18n.t().save }}
-      </button>
-    </div>
-  </div>
-  } }
-
-  <!-- Session grid -->
-  @if (loading()) {
-  <p class="loading-text">...</p>
-  } @else if (sessions().length === 0) {
-  <p class="empty-text">{{ i18n.t().noBakingSessions }}</p>
-  } @else {
-  <div class="session-grid">
-    @for (s of sessions(); track s.id) {
-    <button class="grid-card" type="button" (click)="viewSession(s.id)">
-      <div class="grid-card-photo">
-        @if (s.thumbnail) {
-        <img [src]="photoUrl(s.thumbnail)" alt="" loading="lazy" />
-        } @else {
-        <span class="grid-card-placeholder" aria-hidden="true">&#128247;</span>
-        }
-      </div>
-      <div class="grid-card-body">
-        <span class="grid-card-date">
-          {{ formatDate(s.baked_at || s.created_at) }}
-        </span>
-        @if (s.recipe_name) {
-        <span class="grid-card-recipe">{{ s.recipe_name }}</span>
-        } @if (s.rating) {
-        <span class="grid-card-rating">
-          @for (star of stars; track star) {
-          <span [class.active]="star <= s.rating!">&#9733;</span>
-          }
-        </span>
-        }
-      </div>
-    </button>
-    }
-  </div>
-
-  @if (totalPages() > 1) {
-  <div class="pagination">
-    @for (p of [].constructor(totalPages()); track $index) {
-    <button
-      class="page-btn"
-      type="button"
-      [class.active]="$index + 1 === currentPage()"
-      (click)="loadPage($index + 1)"
-    >
-      {{ $index + 1 }}
-    </button>
-    }
-  </div>
-  } }
-
-  <!-- Detail bottom sheet / overlay -->
-  @if (selectedSession(); as detail) {
-  <div class="detail-backdrop" (click)="closeDetail()">
-    <div
-      class="detail-sheet"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="detail-header">
-        <button class="detail-close" type="button" (click)="closeDetail()">
-          &#10005;
-        </button>
-      </div>
-
-      <!-- Photo gallery -->
-      @if (detail.photos.length) {
-      <div class="detail-gallery">
-        @for (photo of detail.photos; track photo.id) {
-        <button
-          class="gallery-photo"
-          type="button"
-          (click)="openLightbox($index)"
-          [attr.aria-label]="i18n.t().viewSession"
-        >
-          <img
-            [src]="photoUrl(photo.filename)"
-            [alt]="photo.original_name"
-            loading="lazy"
-          />
-          <button
-            class="photo-delete-btn"
-            type="button"
-            (click)="removePhoto(photo.id); $event.stopPropagation()"
-            [attr.aria-label]="i18n.t().deletePhoto"
-            [title]="i18n.t().deletePhoto"
-          >
-            &#10005;
-          </button>
-        </button>
-        }
-      </div>
-      } @else {
-      <div class="detail-no-photos">
-        <span aria-hidden="true">&#128247;</span>
-        <span>{{ i18n.t().noPhotos }}</span>
-      </div>
-      }
-
-      <!-- Upload -->
-      @if (detail.photos.length < 3) {
-      <input
-        #fileInput
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        class="visually-hidden"
-        (change)="onPhotoSelected($event)"
-      />
-      <button
-        class="upload-btn"
-        type="button"
-        [disabled]="uploadingPhoto()"
-        (click)="fileInput.click()"
-      >
-        &#128247; {{ i18n.t().uploadPhoto }}
-      </button>
-      } @else {
-      <p class="max-photos-text">{{ i18n.t().maxPhotos }}</p>
-      }
-
-      <!-- Session info -->
-      <div class="detail-info">
-        <h3 class="detail-date">
-          {{ formatDate(detail.baked_at || detail.created_at) }}
-        </h3>
-        @if (detail.recipe_name) {
-        <p class="detail-recipe">{{ detail.recipe_name }}</p>
-        } @if (detail.rating) {
-        <div class="detail-rating">
-          @for (star of stars; track star) {
-          <span [class.active]="star <= detail.rating!">&#9733;</span>
-          }
+    <section class="section">
+        <div class="section-header">
+            <span class="section-icon" aria-hidden="true">&#128247;</span>
+            <h2 class="section-title">{{ i18n.t().myBakes }}</h2>
         </div>
-        } @if (detail.notes) {
-        <p class="detail-notes">{{ detail.notes }}</p>
+
+        <!-- Session grid -->
+        @if (loading()) {
+            <p class="loading-text">...</p>
+        } @else if (sessions().length === 0) {
+            <p class="empty-text">{{ i18n.t().noBakes }}</p>
+        } @else {
+            <div class="session-grid">
+                @for (s of sessions(); track s.id) {
+                    <button class="grid-card" type="button" (click)="viewSession(s.id)">
+                        <div class="grid-card-photo">
+                            @if (s.thumbnail) {
+                                <img [src]="photoUrl(s.thumbnail)" alt="" loading="lazy" />
+                            } @else {
+                                <span class="grid-card-placeholder" aria-hidden="true"
+                                    >&#128247;</span
+                                >
+                            }
+                        </div>
+                        <div class="grid-card-body">
+                            <span class="grid-card-date">
+                                {{ formatDate(s.baked_at || s.created_at) }}
+                            </span>
+                            @if (s.recipe_name) {
+                                <span class="grid-card-recipe">{{ s.recipe_name }}</span>
+                            }
+                            @if (s.rating) {
+                                <span class="grid-card-rating">
+                                    @for (star of stars; track star) {
+                                        <span [class.active]="star <= s.rating!">&#9733;</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </button>
+                }
+            </div>
+
+            @if (totalPages() > 1) {
+                <div class="pagination">
+                    @for (p of [].constructor(totalPages()); track $index) {
+                        <button
+                            class="page-btn"
+                            type="button"
+                            [class.active]="$index + 1 === currentPage()"
+                            (click)="loadPage($index + 1)"
+                        >
+                            {{ $index + 1 }}
+                        </button>
+                    }
+                </div>
+            }
         }
-      </div>
 
-      <button
-        class="delete-session-btn"
-        type="button"
-        (click)="requestDeleteSession(detail.id, $event)"
-      >
-        &#128465; {{ i18n.t().deleteSession }}
-      </button>
-    </div>
-  </div>
-  }
+        <!-- Detail bottom sheet / overlay -->
+        @if (selectedSession(); as detail) {
+            <div class="detail-backdrop" (click)="closeDetail()">
+                <div
+                    class="detail-sheet"
+                    role="dialog"
+                    aria-modal="true"
+                    (click)="$event.stopPropagation()"
+                >
+                    <div class="detail-header">
+                        <button class="detail-close" type="button" (click)="closeDetail()">
+                            &#10005;
+                        </button>
+                    </div>
 
-  <!-- Photo lightbox -->
-  @if (lightboxOpen() && selectedSession(); as lbSession) { @if
-  (lbSession.photos[lightboxIndex()]; as lbPhoto) {
-  <div
-    class="lightbox"
-    role="dialog"
-    aria-modal="true"
-    tabindex="0"
-    (click)="closeLightbox()"
-    (keydown)="onLightboxKeydown($event)"
-    (touchstart)="onLightboxTouchStart($event)"
-    (touchend)="onLightboxTouchEnd($event)"
-  >
-    <div class="lightbox-header">
-      <span class="lightbox-counter">
-        {{ i18n.t().photoOf(lightboxIndex() + 1, lbSession.photos.length) }}
-      </span>
-      <button
-        class="lightbox-close"
-        type="button"
-        (click)="closeLightbox(); $event.stopPropagation()"
-      >
-        &#10005;
-      </button>
-    </div>
-    <img
-      class="lightbox-img"
-      [src]="photoUrl(lbPhoto.filename)"
-      [alt]="lbPhoto.original_name"
-      (click)="$event.stopPropagation()"
-    />
-    @if (lbSession.photos.length > 1) {
-    <div class="lightbox-dots" (click)="$event.stopPropagation()">
-      @for (p of lbSession.photos; track p.id) {
-      <span
-        class="lightbox-dot"
-        [class.active]="$index === lightboxIndex()"
-      ></span>
-      }
-    </div>
+                    <!-- Photo gallery -->
+                    @if (detail.photos.length) {
+                        <div class="detail-gallery">
+                            @for (photo of detail.photos; track photo.id) {
+                                <button
+                                    class="gallery-photo"
+                                    type="button"
+                                    (click)="openLightbox($index)"
+                                    [attr.aria-label]="i18n.t().viewBake"
+                                >
+                                    <img
+                                        [src]="photoUrl(photo.filename)"
+                                        [alt]="photo.original_name"
+                                        loading="lazy"
+                                    />
+                                    <button
+                                        class="photo-delete-btn"
+                                        type="button"
+                                        (click)="removePhoto(photo.id); $event.stopPropagation()"
+                                        [attr.aria-label]="i18n.t().deletePhoto"
+                                        [title]="i18n.t().deletePhoto"
+                                    >
+                                        &#10005;
+                                    </button>
+                                </button>
+                            }
+                        </div>
+                    } @else {
+                        <div class="detail-no-photos">
+                            <span aria-hidden="true">&#128247;</span>
+                            <span>{{ i18n.t().noPhotos }}</span>
+                        </div>
+                    }
+
+                    <!-- Upload -->
+                    @if (detail.photos.length < 3) {
+                        <input
+                            #fileInput
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            class="visually-hidden"
+                            (change)="onPhotoSelected($event)"
+                        />
+                        <button
+                            class="upload-btn"
+                            type="button"
+                            [disabled]="uploadingPhoto()"
+                            (click)="fileInput.click()"
+                        >
+                            &#128247; {{ i18n.t().uploadPhoto }}
+                        </button>
+                    } @else {
+                        <p class="max-photos-text">{{ i18n.t().maxPhotos }}</p>
+                    }
+
+                    <!-- Session info -->
+                    <div class="detail-info">
+                        <h3 class="detail-date">
+                            {{ formatDate(detail.baked_at || detail.created_at) }}
+                        </h3>
+                        @if (detail.recipe_name) {
+                            <p class="detail-recipe">{{ detail.recipe_name }}</p>
+                        }
+                        @if (detail.rating) {
+                            <div class="detail-rating">
+                                @for (star of stars; track star) {
+                                    <span [class.active]="star <= detail.rating!">&#9733;</span>
+                                }
+                            </div>
+                        }
+                        @if (detail.notes) {
+                            <p class="detail-notes">{{ detail.notes }}</p>
+                        }
+                    </div>
+
+                    <button
+                        class="delete-session-btn"
+                        type="button"
+                        (click)="requestDeleteSession(detail.id, $event)"
+                    >
+                        &#128465; {{ i18n.t().deleteBake }}
+                    </button>
+                </div>
+            </div>
+        }
+
+        <!-- Photo lightbox -->
+        @if (lightboxOpen() && selectedSession(); as lbSession) {
+            @if (lbSession.photos[lightboxIndex()]; as lbPhoto) {
+                <div
+                    class="lightbox"
+                    role="dialog"
+                    aria-modal="true"
+                    tabindex="0"
+                    (click)="closeLightbox()"
+                    (keydown)="onLightboxKeydown($event)"
+                    (touchstart)="onLightboxTouchStart($event)"
+                    (touchend)="onLightboxTouchEnd($event)"
+                >
+                    <div class="lightbox-header">
+                        <span class="lightbox-counter">
+                            {{ i18n.t().photoOf(lightboxIndex() + 1, lbSession.photos.length) }}
+                        </span>
+                        <button
+                            class="lightbox-close"
+                            type="button"
+                            (click)="closeLightbox(); $event.stopPropagation()"
+                        >
+                            &#10005;
+                        </button>
+                    </div>
+                    <img
+                        class="lightbox-img"
+                        [src]="photoUrl(lbPhoto.filename)"
+                        [alt]="lbPhoto.original_name"
+                        (click)="$event.stopPropagation()"
+                    />
+                    @if (lbSession.photos.length > 1) {
+                        <div class="lightbox-dots" (click)="$event.stopPropagation()">
+                            @for (p of lbSession.photos; track p.id) {
+                                <span
+                                    class="lightbox-dot"
+                                    [class.active]="$index === lightboxIndex()"
+                                ></span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </section>
+
+    <!-- Delete confirmation dialog -->
+    @if (deleteConfirmId() !== null) {
+        <app-confirm-dialog
+            [title]="i18n.t().deleteBake"
+            [message]="i18n.t().confirmDeleteBake"
+            (confirmed)="onDeleteConfirmed()"
+            (cancelled)="onDeleteCancelled()"
+        />
     }
-  </div>
-  } }
-</section>
-
-<!-- Delete confirmation dialog -->
-@if (deleteConfirmId() !== null) {
-<app-confirm-dialog
-  [title]="i18n.t().deleteSession"
-  [message]="i18n.t().confirmDeleteSession"
-  (confirmed)="onDeleteConfirmed()"
-  (cancelled)="onDeleteCancelled()"
-/>
-} }
+}

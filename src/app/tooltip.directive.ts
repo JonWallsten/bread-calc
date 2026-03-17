@@ -1,103 +1,96 @@
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  input,
-  inject,
-  OnDestroy,
-} from "@angular/core";
+import { Directive, ElementRef, HostListener, input, inject, OnDestroy } from '@angular/core';
 
 @Directive({
-  selector: "[appTooltip]",
+    selector: '[appTooltip]',
 })
 export class TooltipDirective implements OnDestroy {
-  readonly appTooltip = input.required<string>();
+    readonly appTooltip = input.required<string>();
 
-  private readonly el = inject(ElementRef);
-  private tooltipEl: HTMLElement | null = null;
-  private sticky = false;
-  private hoverTimer: ReturnType<typeof setTimeout> | null = null;
+    private readonly el = inject(ElementRef);
+    private tooltipEl: HTMLElement | null = null;
+    private sticky = false;
+    private hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
-  @HostListener("mouseenter")
-  onMouseEnter(): void {
-    if (!this.sticky) {
-      this.hoverTimer = setTimeout(() => this.show(), 120);
-    }
-  }
-
-  @HostListener("mouseleave")
-  onMouseLeave(): void {
-    if (this.hoverTimer !== null) {
-      clearTimeout(this.hoverTimer);
-      this.hoverTimer = null;
-    }
-    if (!this.sticky) {
-      this.hide();
-    }
-  }
-
-  @HostListener("click")
-  onClick(): void {
-    if (this.sticky) {
-      this.sticky = false;
-      this.hide();
-    } else {
-      this.sticky = true;
-      this.show();
-    }
-  }
-
-  @HostListener("document:click", ["$event.target"])
-  onDocClick(target: EventTarget | null): void {
-    if (
-      this.sticky &&
-      this.tooltipEl &&
-      target instanceof Node &&
-      !this.el.nativeElement.contains(target) &&
-      !this.tooltipEl.contains(target)
-    ) {
-      this.sticky = false;
-      this.hide();
-    }
-  }
-
-  private show(): void {
-    if (this.tooltipEl) return;
-    const tip = document.createElement("div");
-    tip.className = "app-tooltip";
-    if (this.sticky) tip.classList.add("app-tooltip--sticky");
-    tip.textContent = this.appTooltip();
-    document.body.appendChild(tip);
-    this.tooltipEl = tip;
-    this.position();
-  }
-
-  private position(): void {
-    const tip = this.tooltipEl;
-    if (!tip) return;
-    const rect = this.el.nativeElement.getBoundingClientRect();
-    const tipRect = tip.getBoundingClientRect();
-
-    let left = rect.left + rect.width / 2 - tipRect.width / 2;
-    left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
-
-    let top = rect.bottom + 8;
-    if (top + tipRect.height > window.innerHeight) {
-      top = rect.top - tipRect.height - 8;
+    @HostListener('mouseenter')
+    onMouseEnter(): void {
+        if (!this.sticky) {
+            this.hoverTimer = setTimeout(() => this.show(), 120);
+        }
     }
 
-    tip.style.left = `${left}px`;
-    tip.style.top = `${top}px`;
-    tip.style.opacity = "1";
-  }
+    @HostListener('mouseleave')
+    onMouseLeave(): void {
+        if (this.hoverTimer !== null) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = null;
+        }
+        if (!this.sticky) {
+            this.hide();
+        }
+    }
 
-  private hide(): void {
-    this.tooltipEl?.remove();
-    this.tooltipEl = null;
-  }
+    @HostListener('click')
+    onClick(): void {
+        if (this.sticky) {
+            this.sticky = false;
+            this.hide();
+        } else {
+            this.sticky = true;
+            this.show();
+        }
+    }
 
-  ngOnDestroy(): void {
-    if (this.hoverTimer !== null) clearTimeout(this.hoverTimer);
-    this.hide();
-  }
+    @HostListener('document:click', ['$event.target'])
+    onDocClick(target: EventTarget | null): void {
+        if (
+            this.sticky &&
+            this.tooltipEl &&
+            target instanceof Node &&
+            !this.el.nativeElement.contains(target) &&
+            !this.tooltipEl.contains(target)
+        ) {
+            this.sticky = false;
+            this.hide();
+        }
+    }
+
+    private show(): void {
+        if (this.tooltipEl) return;
+        const tip = document.createElement('div');
+        tip.className = 'app-tooltip';
+        if (this.sticky) tip.classList.add('app-tooltip--sticky');
+        tip.textContent = this.appTooltip();
+        document.body.appendChild(tip);
+        this.tooltipEl = tip;
+        this.position();
+    }
+
+    private position(): void {
+        const tip = this.tooltipEl;
+        if (!tip) return;
+        const rect = this.el.nativeElement.getBoundingClientRect();
+        const tipRect = tip.getBoundingClientRect();
+
+        let left = rect.left + rect.width / 2 - tipRect.width / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+
+        let top = rect.bottom + 8;
+        if (top + tipRect.height > window.innerHeight) {
+            top = rect.top - tipRect.height - 8;
+        }
+
+        tip.style.left = `${left}px`;
+        tip.style.top = `${top}px`;
+        tip.style.opacity = '1';
+    }
+
+    private hide(): void {
+        this.tooltipEl?.remove();
+        this.tooltipEl = null;
+    }
+
+    ngOnDestroy(): void {
+        if (this.hoverTimer !== null) clearTimeout(this.hoverTimer);
+        this.hide();
+    }
 }

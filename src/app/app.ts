@@ -1,564 +1,162 @@
-import {
-  Component,
-  inject,
-  signal,
-  computed,
-  viewChild,
-  OnInit,
-  HostListener,
-  effect,
-} from "@angular/core";
-import { Title } from "@angular/platform-browser";
-import { FormsModule } from "@angular/forms";
-import {
-  CalcService,
-  CalcInputs,
-  CalcResult,
-  CalcOutput,
-} from "./calc.service";
-import {
-  DEFAULT_INPUTS,
-  YEAST_LABELS,
-  FIELD_RANGES,
-  DEFAULT_MIXER_SPEEDS,
-} from "./config";
-import { I18nService } from "./i18n.service";
-import { StorageService } from "./storage.service";
-import { StepperComponent } from "./stepper/stepper";
-import { ResultsComponent } from "./results/results";
-import { InstructionsComponent } from "./instructions/instructions";
-import { TooltipDirective } from "./tooltip.directive";
-import { SplashComponent } from "./splash/splash";
-import { FlourBlendComponent } from "./flour-blend/flour-blend";
-import { FlourBlendService } from "./flour-blend.service";
-import { RecipeService } from "./recipe.service";
-import { Recipe } from "./recipe-presets";
-import { AuthService } from "./auth.service";
-import { BakingSessionComponent } from "./baking-session/baking-session";
-import { CompareComponent } from "./compare/compare";
-import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog";
-
-const INFO_MESSAGES: Record<string, string> = {};
+import { Component, inject, signal, OnInit, HostListener, effect } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { I18nService } from './i18n.service';
+import { AuthService } from './auth.service';
+import { RecipeService } from './recipe.service';
+import { FlourBlendService } from './flour-blend.service';
+import { SplashComponent } from './splash/splash';
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog';
 
 @Component({
-  selector: "app-root",
-  imports: [
-    FormsModule,
-    StepperComponent,
-    ResultsComponent,
-    InstructionsComponent,
-    TooltipDirective,
-    SplashComponent,
-    FlourBlendComponent,
-    BakingSessionComponent,
-    CompareComponent,
-    ConfirmDialogComponent,
-  ],
-  templateUrl: "./app.html",
-  styleUrl: "./app.scss",
+    selector: 'app-root',
+    imports: [RouterOutlet, RouterLink, RouterLinkActive, SplashComponent, ConfirmDialogComponent],
+    templateUrl: './app.html',
+    styleUrl: './app.scss',
 })
 export class App implements OnInit {
-  private readonly calc = inject(CalcService);
-  private readonly storage = inject(StorageService);
-  private readonly blend = inject(FlourBlendService);
-  readonly recipes = inject(RecipeService);
-  readonly auth = inject(AuthService);
-  private readonly instructionsRef = viewChild(InstructionsComponent);
-  private readonly titleService = inject(Title);
-  readonly i18n = inject(I18nService);
+    readonly recipes = inject(RecipeService);
+    readonly auth = inject(AuthService);
+    private readonly blend = inject(FlourBlendService);
+    private readonly titleService = inject(Title);
+    readonly i18n = inject(I18nService);
 
-  private yeastLabel(yeastType: string): string {
-    const t = this.i18n.t();
-    const labels: Record<string, string> = {
-      fresh: t.freshYeast,
-      swedishDry: t.swedishDryYeast,
-      activeDry: t.activeDryYeast,
-      instant: t.instantYeast,
-    };
-    return labels[yeastType] ?? yeastType;
-  }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    private gsiApi: { initialize: Function; renderButton: Function } | null = null;
+    private gsiClientId: string | null = null;
 
-  private gsiApi: { initialize: Function; renderButton: Function } | null =
-    null;
-  private gsiClientId: string | null = null;
+    // UI state
+    readonly showProfileMenu = signal(false);
+    readonly showScrollTop = signal(false);
+    readonly showSplash = signal(SplashComponent.shouldShow());
+    readonly showUploadPrompt = signal(false);
 
-  constructor() {
-    effect(() => {
-      this.titleService.setTitle(this.i18n.t().appTitle);
-    });
-    effect(() => {
-      if (!this.auth.isLoggedIn()) {
-        this.renderGsiButton();
-      }
-    });
-    // Sync on login / page reload when already logged in
-    effect(() => {
-      if (this.auth.isLoggedIn()) {
-        this.triggerSync();
-      }
-    });
-  }
-
-  private async triggerSync(): Promise<void> {
-    // Check for uploadable local recipes → show prompt instead of auto-uploading
-    if (this.recipes.hasUploadableRecipes()) {
-      // Sync without uploading local recipes, then show prompt
-      await this.recipes.syncToCloud(false);
-      await this.blend.syncToCloud(false);
-      this.showUploadPrompt.set(true);
-    } else {
-      await this.recipes.syncToCloud();
-      await this.blend.syncToCloud();
-    }
-  }
-
-  readonly INFO = INFO_MESSAGES;
-
-  // Auth state
-  readonly showProfileMenu = signal(false);
-
-  // Input signals
-  readonly breadCount = signal(DEFAULT_INPUTS.breadCount);
-  readonly targetBallWeight = signal(DEFAULT_INPUTS.targetBallWeight);
-  readonly yeastType = signal<CalcInputs["yeastType"]>(
-    DEFAULT_INPUTS.yeastType,
-  );
-  readonly hydrationPct = signal(DEFAULT_INPUTS.hydrationPct);
-  readonly saltPct = signal(DEFAULT_INPUTS.saltPct);
-  readonly sugarPct = signal(DEFAULT_INPUTS.sugarPct);
-  readonly oilPct = signal(DEFAULT_INPUTS.oilPct);
-  readonly milkPctOfWater = signal(DEFAULT_INPUTS.milkPctOfWater);
-  readonly starterWeight = signal(DEFAULT_INPUTS.starterWeight);
-  readonly starterHydrationPct = signal(DEFAULT_INPUTS.starterHydrationPct);
-  readonly totalHours = signal(DEFAULT_INPUTS.totalHours);
-  readonly roomTemp = signal(DEFAULT_INPUTS.roomTemp);
-  readonly mixingMethod = signal<CalcInputs["mixingMethod"]>(
-    DEFAULT_INPUTS.mixingMethod,
-  );
-  readonly mixerSpeedLow = signal(DEFAULT_INPUTS.mixerSpeedLow);
-  readonly mixerSpeedLowMedium = signal(DEFAULT_INPUTS.mixerSpeedLowMedium);
-  readonly mixerSpeedMedium = signal(DEFAULT_INPUTS.mixerSpeedMedium);
-
-  // UI state
-  readonly advancedOpen = signal(false);
-  readonly resultsVisible = signal(false);
-  readonly validationError = signal<string | null>(null);
-  readonly result = signal<CalcResult | null>(null);
-  readonly showScrollTop = signal(false);
-  readonly showSplash = signal(SplashComponent.shouldShow());
-
-  // Recipe UI state
-  readonly showSaveDialog = signal(false);
-  readonly saveRecipeName = signal("");
-  readonly showUploadPrompt = signal(false);
-  readonly showDeleteRecipeConfirm = signal(false);
-
-  // Active recipe cloud id for baking session
-  readonly activeRecipeCloudId = computed(() => {
-    const id = this.recipes.activeId();
-    if (!id || !id.startsWith("cloud-")) return null;
-    return parseInt(id.replace("cloud-", ""), 10);
-  });
-
-  // Yeast recommendation text
-  readonly yeastRecommendation = computed(() => {
-    const r = this.result();
-    const t = this.i18n.t();
-    if (!r) return t.yeastRecommendationPending;
-    const pct = r.chosenYeastPct * 100;
-    const label = this.yeastLabel(r.yeastType);
-    return `${label}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
-  });
-
-  // Dynamic starter hint based on estimated flour
-  readonly starterHint = computed(() => {
-    const t = this.i18n.t();
-    const doughWeight = this.breadCount() * this.targetBallWeight();
-    const h = this.hydrationPct() / 100;
-    const s = this.saltPct() / 100;
-    const su = this.sugarPct() / 100;
-    const o = this.oilPct() / 100;
-    const flourEstimate = doughWeight / (1 + h + s + su + o);
-    const minG = Math.round(flourEstimate * 0.1);
-    const maxG = Math.round(flourEstimate * 0.3);
-    return t.hintStarter(minG, maxG);
-  });
-
-  readonly yeastOptions = computed(() => {
-    const t = this.i18n.t();
-    return [
-      { value: "fresh", label: t.freshYeast },
-      { value: "swedishDry", label: t.swedishDryYeast },
-      { value: "activeDry", label: t.activeDryYeast },
-      { value: "instant", label: t.instantYeast },
-    ];
-  });
-
-  readonly yeastHelpText = computed(() => {
-    const t = this.i18n.t();
-    const help: Record<string, string> = {
-      fresh: t.yeastHelpFresh,
-      swedishDry: t.yeastHelpSwedishDry,
-      activeDry: t.yeastHelpActiveDry,
-      instant: t.yeastHelpInstant,
-    };
-    return help[this.yeastType()] ?? "";
-  });
-
-  // Field validation states: 'ok' | 'warn' | 'error'
-  readonly hydrationState = computed(() =>
-    this.fieldState(this.hydrationPct(), FIELD_RANGES["hydration"]),
-  );
-  readonly saltState = computed(() =>
-    this.fieldState(this.saltPct(), FIELD_RANGES["salt"]),
-  );
-  readonly sugarState = computed(() =>
-    this.fieldState(this.sugarPct(), FIELD_RANGES["sugar"]),
-  );
-  readonly oilState = computed(() =>
-    this.fieldState(this.oilPct(), FIELD_RANGES["oil"]),
-  );
-  readonly milkState = computed(() =>
-    this.fieldState(this.milkPctOfWater(), FIELD_RANGES["milk"]),
-  );
-
-  private fieldState(
-    value: number,
-    range: (typeof FIELD_RANGES)[string],
-  ): "ok" | "warn" | "error" {
-    if (value < range.error.min || value > range.error.max) return "error";
-    if (value < range.warn.min || value > range.warn.max) return "warn";
-    return "ok";
-  }
-
-  ngOnInit(): void {
-    const saved = this.storage.load();
-    this.breadCount.set(saved.breadCount);
-    this.targetBallWeight.set(saved.targetBallWeight);
-    this.yeastType.set(saved.yeastType);
-    this.hydrationPct.set(saved.hydrationPct);
-    this.saltPct.set(saved.saltPct);
-    this.sugarPct.set(saved.sugarPct);
-    this.oilPct.set(saved.oilPct);
-    this.milkPctOfWater.set(saved.milkPctOfWater);
-    this.starterWeight.set(saved.starterWeight);
-    this.starterHydrationPct.set(saved.starterHydrationPct);
-    this.totalHours.set(saved.totalHours);
-    this.roomTemp.set(saved.roomTemp);
-    this.mixingMethod.set(saved.mixingMethod);
-    if (saved.mixerSpeedLow) this.mixerSpeedLow.set(saved.mixerSpeedLow);
-    if (saved.mixerSpeedLowMedium)
-      this.mixerSpeedLowMedium.set(saved.mixerSpeedLowMedium);
-    if (saved.mixerSpeedMedium)
-      this.mixerSpeedMedium.set(saved.mixerSpeedMedium);
-    this.runCalculation();
-    this.initGoogleSignIn();
-  }
-
-  // ── Google Sign-In ──────────────────────────────────
-
-  private async initGoogleSignIn(): Promise<void> {
-    // Fetch client ID from API
-    const base =
-      typeof window !== "undefined" && window.location.hostname === "localhost"
-        ? "/api"
-        : "/bread-calc/api";
-    let clientId: string;
-    try {
-      const res = await fetch(`${base}/auth/config`);
-      if (!res.ok) return;
-      const data = await res.json();
-      clientId = data.google_client_id;
-      if (!clientId) return;
-    } catch {
-      return;
-    }
-
-    this.gsiClientId = clientId;
-
-    const tryInit = () => {
-      const google = (window as unknown as Record<string, unknown>)[
-        "google"
-      ] as
-        | {
-            accounts?: {
-              id?: { initialize: Function; renderButton: Function };
-            };
-          }
-        | undefined;
-      if (!google?.accounts?.id) {
-        setTimeout(tryInit, 200);
-        return;
-      }
-      this.gsiApi = google.accounts.id;
-      this.gsiApi.initialize({
-        client_id: clientId,
-        callback: (response: { credential: string }) => {
-          this.handleGoogleResponse(response.credential);
-        },
-      });
-      this.renderGsiButton();
-    };
-    tryInit();
-  }
-
-  private renderGsiButton(): void {
-    if (!this.gsiApi) return;
-    // Delay to let Angular render the @else branch first
-    setTimeout(() => {
-      const btnEl = document.getElementById("google-signin-btn");
-      if (btnEl) {
-        this.gsiApi!.renderButton(btnEl, {
-          type: "icon",
-          size: "medium",
-          shape: "circle",
+    constructor() {
+        effect(() => {
+            this.titleService.setTitle(this.i18n.t().appTitle);
         });
-      }
-    });
-  }
-
-  private async handleGoogleResponse(credential: string): Promise<void> {
-    await this.auth.loginWithGoogle(credential);
-    // Sync is triggered automatically by the isLoggedIn() effect
-  }
-
-  doLogout(): void {
-    this.recipes.clearCloudRecipes();
-    this.recipes.clearPendingDeletes();
-    this.blend.clearCloudPresets();
-    this.blend.clearPendingDeletes();
-    this.auth.logout();
-    this.showProfileMenu.set(false);
-  }
-
-  toggleProfileMenu(): void {
-    this.showProfileMenu.update((v) => !v);
-  }
-
-  @HostListener("window:scroll")
-  onScroll(): void {
-    this.showScrollTop.set(window.scrollY > 300);
-  }
-
-  getInputs(): CalcInputs {
-    return {
-      breadCount: this.breadCount(),
-      targetBallWeight: this.targetBallWeight(),
-      yeastType: this.yeastType(),
-      hydrationPct: this.hydrationPct(),
-      saltPct: this.saltPct(),
-      sugarPct: this.sugarPct(),
-      oilPct: this.oilPct(),
-      milkPctOfWater: this.milkPctOfWater(),
-      starterWeight: this.starterWeight(),
-      starterHydrationPct: this.starterHydrationPct(),
-      totalHours: this.totalHours(),
-      roomTemp: this.roomTemp(),
-      mixingMethod: this.mixingMethod(),
-      mixerSpeedLow: this.mixerSpeedLow(),
-      mixerSpeedLowMedium: this.mixerSpeedLowMedium(),
-      mixerSpeedMedium: this.mixerSpeedMedium(),
-      flourBlendAdjustment: this.blend.blendValid()
-        ? this.blend.flourBlendAdjustment()
-        : 0,
-      customHydrationAdjustment: this.blend.blendValid()
-        ? this.blend.customHydrationAdjustment()
-        : 0,
-    };
-  }
-
-  private saveInputs(): void {
-    this.storage.save(this.getInputs());
-  }
-
-  runCalculation(): void {
-    this.validationError.set(null);
-    this.saveInputs();
-    const output: CalcOutput = this.calc.calculate(this.getInputs());
-    if ("error" in output) {
-      const t = this.i18n.t();
-      const msg =
-        output.error === "validation" ? t.validationError : t.recipeError;
-      this.validationError.set(msg);
-      this.resultsVisible.set(false);
-      this.result.set(null);
-      return;
+        effect(() => {
+            if (!this.auth.isLoggedIn()) {
+                this.renderGsiButton();
+            }
+        });
+        effect(() => {
+            if (this.auth.isLoggedIn()) {
+                this.triggerSync();
+            }
+        });
     }
-    this.result.set(output);
-    this.resultsVisible.set(true);
-  }
 
-  onYeastTypeChange(value: string): void {
-    this.yeastType.set(value as CalcInputs["yeastType"]);
-    this.saveInputs();
-    if (this.resultsVisible()) {
-      this.runCalculation();
+    private async triggerSync(): Promise<void> {
+        if (this.recipes.hasUploadableRecipes()) {
+            await this.recipes.syncToCloud(false);
+            await this.blend.syncToCloud(false);
+            this.showUploadPrompt.set(true);
+        } else {
+            await this.recipes.syncToCloud();
+            await this.blend.syncToCloud();
+        }
     }
-  }
 
-  onMixingMethodChange(value: string): void {
-    this.mixingMethod.set(value as CalcInputs["mixingMethod"]);
-    this.saveInputs();
-    if (this.resultsVisible()) {
-      this.runCalculation();
+    ngOnInit(): void {
+        this.initGoogleSignIn();
     }
-  }
 
-  onMixerSpeedChange(): void {
-    this.saveInputs();
-    if (this.resultsVisible()) {
-      this.runCalculation();
+    // ── Google Sign-In ──────────────────────────────────
+
+    private async initGoogleSignIn(): Promise<void> {
+        const base =
+            typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                ? '/api'
+                : '/bread-calc/api';
+        let clientId: string;
+        try {
+            const res = await fetch(`${base}/auth/config`);
+            if (!res.ok) return;
+            const data = await res.json();
+            clientId = data.google_client_id;
+            if (!clientId) return;
+        } catch {
+            return;
+        }
+
+        this.gsiClientId = clientId;
+
+        const tryInit = () => {
+            const google = (window as unknown as Record<string, unknown>)['google'] as
+                | {
+                      accounts?: {
+                          // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+                          id?: { initialize: Function; renderButton: Function };
+                      };
+                  }
+                | undefined;
+            if (!google?.accounts?.id) {
+                setTimeout(tryInit, 200);
+                return;
+            }
+            this.gsiApi = google.accounts.id;
+            this.gsiApi.initialize({
+                client_id: clientId,
+                callback: (response: { credential: string }) => {
+                    this.handleGoogleResponse(response.credential);
+                },
+            });
+            this.renderGsiButton();
+        };
+        tryInit();
     }
-  }
 
-  onStepperChange(): void {
-    this.saveInputs();
-  }
-
-  toggleAdvanced(): void {
-    this.advancedOpen.update((v) => !v);
-  }
-
-  reset(): void {
-    const inst = this.instructionsRef();
-    if (inst) inst.stopActiveTimer(false);
-
-    this.breadCount.set(DEFAULT_INPUTS.breadCount);
-    this.targetBallWeight.set(DEFAULT_INPUTS.targetBallWeight);
-    this.yeastType.set(DEFAULT_INPUTS.yeastType);
-    this.hydrationPct.set(DEFAULT_INPUTS.hydrationPct);
-    this.saltPct.set(DEFAULT_INPUTS.saltPct);
-    this.sugarPct.set(DEFAULT_INPUTS.sugarPct);
-    this.oilPct.set(DEFAULT_INPUTS.oilPct);
-    this.milkPctOfWater.set(DEFAULT_INPUTS.milkPctOfWater);
-    this.starterWeight.set(DEFAULT_INPUTS.starterWeight);
-    this.starterHydrationPct.set(DEFAULT_INPUTS.starterHydrationPct);
-    this.totalHours.set(DEFAULT_INPUTS.totalHours);
-    this.roomTemp.set(DEFAULT_INPUTS.roomTemp);
-    this.mixingMethod.set(DEFAULT_INPUTS.mixingMethod);
-    this.mixerSpeedLow.set(DEFAULT_INPUTS.mixerSpeedLow);
-    this.mixerSpeedLowMedium.set(DEFAULT_INPUTS.mixerSpeedLowMedium);
-    this.mixerSpeedMedium.set(DEFAULT_INPUTS.mixerSpeedMedium);
-
-    this.validationError.set(null);
-    this.resultsVisible.set(false);
-    this.result.set(null);
-    this.blend.clearBlend();
-    this.storage.clear();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  // ── Recipe methods ──────────────────────────────────
-
-  private applyInputs(inputs: Recipe["inputs"]): void {
-    this.breadCount.set(inputs.breadCount);
-    this.targetBallWeight.set(inputs.targetBallWeight);
-    this.yeastType.set(inputs.yeastType);
-    this.hydrationPct.set(inputs.hydrationPct);
-    this.saltPct.set(inputs.saltPct);
-    this.sugarPct.set(inputs.sugarPct);
-    this.oilPct.set(inputs.oilPct);
-    this.milkPctOfWater.set(inputs.milkPctOfWater);
-    this.starterWeight.set(inputs.starterWeight);
-    this.starterHydrationPct.set(inputs.starterHydrationPct);
-    this.totalHours.set(inputs.totalHours);
-    this.roomTemp.set(inputs.roomTemp);
-    if (inputs.mixingMethod) this.mixingMethod.set(inputs.mixingMethod);
-    if (inputs.mixerSpeedLow) this.mixerSpeedLow.set(inputs.mixerSpeedLow);
-    if (inputs.mixerSpeedLowMedium)
-      this.mixerSpeedLowMedium.set(inputs.mixerSpeedLowMedium);
-    if (inputs.mixerSpeedMedium)
-      this.mixerSpeedMedium.set(inputs.mixerSpeedMedium);
-  }
-
-  loadRecipe(recipe: Recipe): void {
-    this.applyInputs(recipe.inputs);
-    this.recipes.setActive(recipe.id);
-    this.saveInputs();
-    this.runCalculation();
-  }
-
-  onRecipeSelect(id: string): void {
-    if (!id) {
-      this.recipes.clearActive();
-      return;
+    private renderGsiButton(): void {
+        if (!this.gsiApi) return;
+        setTimeout(() => {
+            const btnEl = document.getElementById('google-signin-btn');
+            if (btnEl) {
+                this.gsiApi?.renderButton(btnEl, {
+                    type: 'icon',
+                    size: 'medium',
+                    shape: 'circle',
+                });
+            }
+        });
     }
-    const recipe = this.recipes.allRecipes().find((r) => r.id === id);
-    if (recipe) this.loadRecipe(recipe);
-  }
 
-  openSaveDialog(): void {
-    this.saveRecipeName.set("");
-    this.showSaveDialog.set(true);
-  }
-
-  closeSaveDialog(): void {
-    this.showSaveDialog.set(false);
-  }
-
-  confirmSaveRecipe(): void {
-    const name = this.saveRecipeName().trim();
-    if (!name) return;
-    const inputs = this.getInputs();
-    this.recipes.saveRecipe(name, inputs);
-    this.showSaveDialog.set(false);
-  }
-
-  updateActiveRecipe(): void {
-    const active = this.recipes.activeRecipe();
-    if (!active || active.builtIn) return;
-    this.recipes.updateRecipe(active.id, this.getInputs());
-  }
-
-  deleteActiveRecipe(): void {
-    const active = this.recipes.activeRecipe();
-    if (!active || active.builtIn) return;
-    this.showDeleteRecipeConfirm.set(true);
-  }
-
-  onDeleteRecipeConfirmed(): void {
-    this.showDeleteRecipeConfirm.set(false);
-    const active = this.recipes.activeRecipe();
-    if (!active || active.builtIn) return;
-    this.recipes.deleteRecipe(active.id);
-  }
-
-  onDeleteRecipeCancelled(): void {
-    this.showDeleteRecipeConfirm.set(false);
-  }
-
-  recipeName(recipe: Recipe): string {
-    if (recipe.nameKey) {
-      const t = this.i18n.t();
-      return (
-        ((t as unknown as Record<string, unknown>)[recipe.nameKey] as string) ??
-        recipe.name
-      );
+    private async handleGoogleResponse(credential: string): Promise<void> {
+        await this.auth.loginWithGoogle(credential);
     }
-    return recipe.name;
-  }
 
-  // Upload prompt handlers
-  async confirmUploadLocal(): Promise<void> {
-    this.showUploadPrompt.set(false);
-    await this.recipes.syncToCloud(true);
-    await this.blend.syncToCloud(true);
-  }
+    doLogout(): void {
+        this.recipes.clearCloudRecipes();
+        this.recipes.clearPendingDeletes();
+        this.blend.clearCloudPresets();
+        this.blend.clearPendingDeletes();
+        this.auth.logout();
+        this.showProfileMenu.set(false);
+    }
 
-  declineUploadLocal(): void {
-    this.showUploadPrompt.set(false);
-    this.recipes.skipUploadForLocalRecipes();
-    this.blend.skipUploadForLocalPresets();
-  }
+    toggleProfileMenu(): void {
+        this.showProfileMenu.update((v) => !v);
+    }
 
-  // Manual cloud upload for a single recipe
-  async uploadActiveRecipe(): Promise<void> {
-    const active = this.recipes.activeRecipe();
-    if (!active || active.builtIn || active.id.startsWith("cloud-")) return;
-    await this.recipes.uploadRecipe(active.id);
-  }
+    @HostListener('window:scroll')
+    onScroll(): void {
+        this.showScrollTop.set(window.scrollY > 300);
+    }
+
+    scrollToTop(): void {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Upload prompt handlers
+    async confirmUploadLocal(): Promise<void> {
+        this.showUploadPrompt.set(false);
+        await this.recipes.syncToCloud(true);
+        await this.blend.syncToCloud(true);
+    }
+
+    declineUploadLocal(): void {
+        this.showUploadPrompt.set(false);
+        this.recipes.skipUploadForLocalRecipes();
+        this.blend.skipUploadForLocalPresets();
+    }
 }

@@ -1,0 +1,262 @@
+@use 'mixins' as *;
+
+/* ── Sections ──────────────────────────────────────────── */
+.section {
+    @include section-card;
+}
+
+.section-header {
+    @include section-header;
+}
+
+.section-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+}
+
+/* ── Info button ───────────────────────────────────────── */
+.info-btn {
+    @include btn-icon(28px, $round: true);
+    font-size: 18px;
+    color: var(--text-muted);
+    outline: none;
+}
+
+/* ── Field labels ──────────────────────────────────────── */
+.field-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    margin-bottom: 6px;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin: 4px 0 0;
+    transition: color 0.2s ease;
+
+    &--warn {
+        color: #b45309;
+        opacity: 1;
+    }
+
+    &--error {
+        color: #dc2626;
+        opacity: 1;
+        font-weight: 600;
+    }
+}
+
+/* ── Mixer speed inputs ────────────────────────────────── */
+.mixer-speed-label {
+    margin-top: 12px;
+}
+
+.mixer-speed-input {
+    width: 80px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text);
+    min-height: 44px;
+}
+
+/* ── Select dropdown ───────────────────────────────────── */
+.select-wrap {
+    position: relative;
+
+    select {
+        width: 100%;
+        height: var(--stepper-h);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        font-family: var(--font);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        text-align: center;
+        padding: 0 40px 0 16px;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+    }
+}
+
+.select-chevron {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* ── Yeast recommendation text ─────────────────────────── */
+.yeast-recommendation {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* ── Advanced settings banner ──────────────────────────── */
+.advanced-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: var(--gap);
+    background: #d6e4f0;
+    border: 1px solid #b0c9e0;
+    border-radius: var(--radius);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.advanced-chevron {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+
+    &.open {
+        transform: rotate(180deg);
+    }
+}
+
+.advanced-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0 12px;
+}
+
+/* ── Recipe selector ───────────────────────────────────── */
+.recipe-section {
+    padding-bottom: 16px;
+}
+
+.recipe-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.recipe-select {
+    flex: 1;
+}
+
+.recipe-action-btn {
+    @include btn-icon(44px);
+    height: var(--stepper-h);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 18px;
+
+    &:hover {
+        background: var(--bg);
+    }
+
+    &--danger:hover {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    &--cloud {
+        color: var(--accent);
+
+        &:hover {
+            background: #eff6ff;
+        }
+    }
+}
+
+.recipe-save-dialog {
+    background: var(--surface);
+    padding: 16px;
+    margin-top: var(--gap);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.recipe-name-input {
+    width: 100%;
+    height: var(--stepper-h);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--font);
+    font-size: 16px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    margin-top: 4px;
+
+    &:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: -1px;
+    }
+}
+
+.recipe-save-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+
+    .reset-btn,
+    .calculate-btn {
+        flex: 1;
+        height: 44px;
+        font-size: 15px;
+    }
+}
+
+/* ── Action buttons ────────────────────────────────────── */
+.action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: var(--gap);
+}
+
+.reset-btn {
+    @include btn-secondary(lg);
+    padding: 0 20px;
+    white-space: nowrap;
+}
+
+.calculate-btn {
+    @include btn-primary(lg);
+    flex: 1;
+}
+
+/* ── Validation error ──────────────────────────────────── */
+.validation-msg {
+    color: #c0392b;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 12px;
+}
+
+/* ── Responsive: tablet ────────────────────────────────── */
+@media (min-width: 600px) {
+    .section {
+        padding: 24px 20px;
+    }
+}

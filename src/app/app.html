@@ -1,483 +1,110 @@
 @if (showSplash()) {
-<app-splash (dismissed)="showSplash.set(false)" />
-} @if (showUploadPrompt()) {
-<app-confirm-dialog
-  [title]="i18n.t().uploadLocalRecipesTitle"
-  [message]="i18n.t().uploadLocalRecipesBody(recipes.uploadableRecipeCount())"
-  [confirmLabel]="i18n.t().uploadButton"
-  [cancelLabel]="i18n.t().keepLocalButton"
-  (confirmed)="confirmUploadLocal()"
-  (cancelled)="declineUploadLocal()"
-/>
-} @if (showDeleteRecipeConfirm()) {
-<app-confirm-dialog
-  [title]="i18n.t().deleteRecipe"
-  [message]="i18n.t().confirmDeleteRecipe"
-  (confirmed)="onDeleteRecipeConfirmed()"
-  (cancelled)="onDeleteRecipeCancelled()"
-/>
+    <app-splash (dismissed)="showSplash.set(false)" />
+}
+
+@if (showUploadPrompt()) {
+    <app-confirm-dialog
+        [title]="i18n.t().uploadLocalRecipesTitle"
+        [message]="i18n.t().uploadLocalRecipesBody(recipes.uploadableRecipeCount())"
+        [confirmLabel]="i18n.t().uploadButton"
+        [cancelLabel]="i18n.t().keepLocalButton"
+        (confirmed)="confirmUploadLocal()"
+        (cancelled)="declineUploadLocal()"
+    />
 }
 
 <!-- Top bar -->
 <header class="topbar">
-  <button
-    class="topbar-lang"
-    type="button"
-    [attr.aria-label]="i18n.t().switchLanguage"
-    [title]="i18n.t().switchLanguage"
-    (click)="i18n.toggleLang()"
-  >
-    {{ i18n.currentLang() === 'en' ? 'SV' : 'EN' }}
-  </button>
-  <h1 class="topbar-title">{{ i18n.t().appTitle }}</h1>
-  <div class="topbar-right">
-    @if (auth.isLoggedIn()) { @if (auth.user(); as user) {
-    <button class="topbar-avatar" type="button" (click)="toggleProfileMenu()">
-      @if (user.picture_url) {
-      <img
-        [src]="user.picture_url"
-        [alt]="user.name"
-        class="avatar-img"
-        referrerpolicy="no-referrer"
-      />
-      } @else {
-      <span class="avatar-initial">{{ user.name.charAt(0) }}</span>
-      }
+    <button
+        class="topbar-lang"
+        type="button"
+        [attr.aria-label]="i18n.t().switchLanguage"
+        [title]="i18n.t().switchLanguage"
+        (click)="i18n.toggleLang()"
+    >
+        {{ i18n.currentLang() === 'en' ? 'SV' : 'EN' }}
     </button>
-    @if (showProfileMenu()) {
-    <div class="profile-menu">
-      <p class="profile-name">{{ user.name }}</p>
-      <button class="profile-logout" type="button" (click)="doLogout()">
-        {{ i18n.t().logout }}
-      </button>
+
+    <!-- Desktop tabs (inline in topbar) -->
+    <nav class="topbar-tabs" role="tablist" aria-label="Navigation">
+        <a
+            class="topbar-tab"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            role="tab"
+        >
+            {{ i18n.t().calculator }}
+        </a>
+        @if (auth.isLoggedIn()) {
+            <a class="topbar-tab" routerLink="/sessions" routerLinkActive="active" role="tab">
+                {{ i18n.t().sessions }}
+            </a>
+        }
+    </nav>
+
+    <div class="topbar-right">
+        @if (auth.isLoggedIn()) {
+            @if (auth.user(); as user) {
+                <button class="topbar-avatar" type="button" (click)="toggleProfileMenu()">
+                    @if (user.picture_url) {
+                        <img
+                            [src]="user.picture_url"
+                            [alt]="user.name"
+                            class="avatar-img"
+                            referrerpolicy="no-referrer"
+                        />
+                    } @else {
+                        <span class="avatar-initial">{{ user.name.charAt(0) }}</span>
+                    }
+                </button>
+                @if (showProfileMenu()) {
+                    <div class="profile-menu">
+                        <p class="profile-name">{{ user.name }}</p>
+                        <button class="profile-logout" type="button" (click)="doLogout()">
+                            {{ i18n.t().logout }}
+                        </button>
+                    </div>
+                }
+            }
+        } @else {
+            <div id="google-signin-btn" class="google-btn-wrap"></div>
+        }
     </div>
-    } } } @else {
-    <div id="google-signin-btn" class="google-btn-wrap"></div>
-    }
-  </div>
 </header>
 
 <main class="container">
-  <!-- Recipe selector -->
-  <section class="section recipe-section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#128214;</span>
-      <h2 class="section-title">{{ i18n.t().recipes }}</h2>
-    </div>
-
-    <div class="recipe-row">
-      <div class="select-wrap recipe-select">
-        <select
-          [value]="recipes.activeId() ?? ''"
-          (change)="onRecipeSelect($any($event.target).value)"
-        >
-          <option value="" disabled hidden>{{ i18n.t().selectRecipe }}</option>
-          @for (r of recipes.allRecipes(); track r.id) {
-          <option [value]="r.id" [selected]="r.id === recipes.activeId()">
-            {{ recipeName(r) }}{{ r.builtIn ? ' ★' : r.id.startsWith('cloud-') ?
-            ' ☁' : ' 💾' }}
-          </option>
-          }
-        </select>
-        <span class="select-chevron" aria-hidden="true">&#9662;</span>
-      </div>
-      <button
-        class="recipe-action-btn"
-        type="button"
-        (click)="openSaveDialog()"
-        [attr.aria-label]="i18n.t().saveRecipe"
-        [title]="i18n.t().saveRecipe"
-      >
-        &#128190;
-      </button>
-      @if (recipes.activeRecipe(); as active) { @if (!active.builtIn) {
-      <button
-        class="recipe-action-btn"
-        type="button"
-        (click)="updateActiveRecipe()"
-        [attr.aria-label]="i18n.t().updateRecipe"
-        [title]="i18n.t().updateRecipe"
-      >
-        &#8635;
-      </button>
-      <button
-        class="recipe-action-btn recipe-action-btn--danger"
-        type="button"
-        (click)="deleteActiveRecipe()"
-        [attr.aria-label]="i18n.t().deleteRecipe"
-        [title]="i18n.t().deleteRecipe"
-      >
-        &#128465;
-      </button>
-      @if (auth.isLoggedIn() && !active.id.startsWith('cloud-')) {
-      <button
-        class="recipe-action-btn recipe-action-btn--cloud"
-        type="button"
-        (click)="uploadActiveRecipe()"
-        [attr.aria-label]="i18n.t().uploadToCloud"
-        [title]="i18n.t().uploadToCloud"
-      >
-        ☁
-      </button>
-      } } }
-    </div>
-  </section>
-
-  @if (showSaveDialog()) {
-  <div class="recipe-save-dialog">
-    <label class="field-label">{{ i18n.t().recipeName }}</label>
-    <input
-      class="recipe-name-input"
-      type="text"
-      [value]="saveRecipeName()"
-      (input)="saveRecipeName.set($any($event.target).value)"
-      (keydown.enter)="confirmSaveRecipe()"
-      [placeholder]="i18n.t().enterRecipeName"
-    />
-    <div class="recipe-save-actions">
-      <button class="reset-btn" type="button" (click)="closeSaveDialog()">
-        {{ i18n.t().cancel }}
-      </button>
-      <button class="calculate-btn" type="button" (click)="confirmSaveRecipe()">
-        {{ i18n.t().save }}
-      </button>
-    </div>
-  </div>
-  }
-
-  <!-- Dough section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#129366;</span>
-      <h2 class="section-title">{{ i18n.t().dough }}</h2>
-      <button
-        class="info-btn"
-        type="button"
-        [attr.aria-label]="i18n.t().dough"
-        [appTooltip]="i18n.t().infoDough"
-      >
-        &#9432;
-      </button>
-    </div>
-
-    <label class="field-label">{{ i18n.t().numberOfBreads }}</label>
-    <app-stepper
-      [(value)]="breadCount"
-      [step]="1"
-      [min]="1"
-      suffix=""
-      (valueChange)="onStepperChange()"
-    />
-
-    <label class="field-label">{{ i18n.t().ballWeight }}</label>
-    <app-stepper
-      [(value)]="targetBallWeight"
-      [step]="10"
-      [min]="10"
-      suffix="g"
-      (valueChange)="onStepperChange()"
-    />
-    <p class="field-hint">{{ i18n.t().hintBallWeight }}</p>
-  </section>
-
-  <!-- Yeast section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#129440;</span>
-      <h2 class="section-title">{{ i18n.t().yeast }}</h2>
-      <button
-        class="info-btn"
-        type="button"
-        [attr.aria-label]="i18n.t().yeast"
-        [appTooltip]="i18n.t().infoYeast"
-      >
-        &#9432;
-      </button>
-    </div>
-
-    <label class="field-label">{{ i18n.t().yeastType }}</label>
-    <div class="select-wrap">
-      <select
-        [value]="yeastType()"
-        (change)="onYeastTypeChange($any($event.target).value)"
-      >
-        @for (opt of yeastOptions(); track opt.value) {
-        <option [value]="opt.value">{{ opt.label }}</option>
-        }
-      </select>
-      <span class="select-chevron" aria-hidden="true">&#9662;</span>
-    </div>
-    <p class="field-hint">{{ yeastHelpText() }}</p>
-    <p class="yeast-recommendation">{{ yeastRecommendation() }}</p>
-  </section>
-
-  <!-- Advanced settings banner -->
-  <button
-    class="advanced-banner"
-    type="button"
-    [attr.aria-expanded]="advancedOpen()"
-    (click)="toggleAdvanced()"
-  >
-    <span>{{ i18n.t().advancedSettings }}</span>
-    <span class="advanced-chevron" [class.open]="advancedOpen()">&#9662;</span>
-  </button>
-
-  <!-- Percentages section (collapsible) -->
-  @if (advancedOpen()) {
-  <section class="section section-collapsible">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#128295;</span>
-      <h2 class="section-title">{{ i18n.t().percentages }}</h2>
-      <button
-        class="info-btn"
-        type="button"
-        [attr.aria-label]="i18n.t().percentages"
-        [appTooltip]="i18n.t().infoPercentages"
-      >
-        &#9432;
-      </button>
-    </div>
-
-    <label class="field-label">{{ i18n.t().hydration }}</label>
-    <app-stepper
-      [(value)]="hydrationPct"
-      [step]="1"
-      [min]="1"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p
-      class="field-hint"
-      [class.field-hint--warn]="hydrationState() === 'warn'"
-      [class.field-hint--error]="hydrationState() === 'error'"
-    >
-      {{ i18n.t().hintHydration }}
-    </p>
-
-    <label class="field-label">{{ i18n.t().salt }}</label>
-    <app-stepper
-      [(value)]="saltPct"
-      [step]="0.1"
-      [min]="0.1"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p
-      class="field-hint"
-      [class.field-hint--warn]="saltState() === 'warn'"
-      [class.field-hint--error]="saltState() === 'error'"
-    >
-      {{ i18n.t().hintSalt }}
-    </p>
-
-    <label class="field-label">{{ i18n.t().sugar }}</label>
-    <app-stepper
-      [(value)]="sugarPct"
-      [step]="0.5"
-      [min]="0"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p
-      class="field-hint"
-      [class.field-hint--warn]="sugarState() === 'warn'"
-      [class.field-hint--error]="sugarState() === 'error'"
-    >
-      {{ i18n.t().hintSugar }}
-    </p>
-
-    <label class="field-label">{{ i18n.t().oil }}</label>
-    <app-stepper
-      [(value)]="oilPct"
-      [step]="0.5"
-      [min]="0"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p
-      class="field-hint"
-      [class.field-hint--warn]="oilState() === 'warn'"
-      [class.field-hint--error]="oilState() === 'error'"
-    >
-      {{ i18n.t().hintOil }}
-    </p>
-
-    <label class="field-label">{{ i18n.t().milkAsPctOfWater }}</label>
-    <app-stepper
-      [(value)]="milkPctOfWater"
-      [step]="5"
-      [min]="0"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p
-      class="field-hint"
-      [class.field-hint--warn]="milkState() === 'warn'"
-      [class.field-hint--error]="milkState() === 'error'"
-    >
-      {{ i18n.t().hintMilk }}
-    </p>
-
-    <hr class="advanced-divider" />
-    <app-flour-blend />
-  </section>
-  }
-
-  <!-- Starter section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#129753;</span>
-      <h2 class="section-title">{{ i18n.t().starter }}</h2>
-      <button
-        class="info-btn"
-        type="button"
-        [attr.aria-label]="i18n.t().starter"
-        [appTooltip]="i18n.t().infoStarter"
-      >
-        &#9432;
-      </button>
-    </div>
-
-    <label class="field-label">{{ i18n.t().starterTotalWeight }}</label>
-    <app-stepper
-      [(value)]="starterWeight"
-      [step]="10"
-      [min]="0"
-      suffix="g"
-      (valueChange)="onStepperChange()"
-    />
-    <p class="field-hint">{{ starterHint() }}</p>
-
-    <label class="field-label">{{ i18n.t().starterHydration }}</label>
-    <app-stepper
-      [(value)]="starterHydrationPct"
-      [step]="5"
-      [min]="1"
-      suffix="%"
-      (valueChange)="onStepperChange()"
-    />
-    <p class="field-hint">{{ i18n.t().hintStarterHydration }}</p>
-  </section>
-
-  <!-- Proofing section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#128336;</span>
-      <h2 class="section-title">{{ i18n.t().proofing }}</h2>
-      <button
-        class="info-btn"
-        type="button"
-        [attr.aria-label]="i18n.t().proofing"
-        [appTooltip]="i18n.t().infoProofing"
-      >
-        &#9432;
-      </button>
-    </div>
-
-    <label class="field-label">{{ i18n.t().timeUntilOven }}</label>
-    <app-stepper
-      [(value)]="totalHours"
-      [step]="0.5"
-      [min]="0.5"
-      suffix="h"
-      (valueChange)="onStepperChange()"
-    />
-
-    <label class="field-label">{{ i18n.t().roomTemperature }}</label>
-    <app-stepper
-      [(value)]="roomTemp"
-      [step]="1"
-      [min]="5"
-      suffix="&deg;C"
-      (valueChange)="onStepperChange()"
-    />
-  </section>
-
-  <!-- Mixing method section -->
-  <section class="section">
-    <div class="section-header">
-      <span class="section-icon" aria-hidden="true">&#129379;</span>
-      <h2 class="section-title">{{ i18n.t().mixingMethod }}</h2>
-    </div>
-
-    <div class="select-wrap">
-      <select
-        [value]="mixingMethod()"
-        (change)="onMixingMethodChange($any($event.target).value)"
-      >
-        <option value="manual">{{ i18n.t().manual }}</option>
-        <option value="machine">{{ i18n.t().machine }}</option>
-      </select>
-      <span class="select-chevron" aria-hidden="true">&#9662;</span>
-    </div>
-
-    @if (mixingMethod() === 'machine') {
-    <label class="field-label mixer-speed-label"
-      >{{ i18n.t().mixerSpeedLow }}</label
-    >
-    <input
-      class="mixer-speed-input"
-      type="text"
-      [value]="mixerSpeedLow()"
-      (input)="mixerSpeedLow.set($any($event.target).value); onMixerSpeedChange()"
-    />
-
-    <label class="field-label mixer-speed-label"
-      >{{ i18n.t().mixerSpeedLowMedium }}</label
-    >
-    <input
-      class="mixer-speed-input"
-      type="text"
-      [value]="mixerSpeedLowMedium()"
-      (input)="mixerSpeedLowMedium.set($any($event.target).value); onMixerSpeedChange()"
-    />
-
-    <label class="field-label mixer-speed-label"
-      >{{ i18n.t().mixerSpeedMedium }}</label
-    >
-    <input
-      class="mixer-speed-input"
-      type="text"
-      [value]="mixerSpeedMedium()"
-      (input)="mixerSpeedMedium.set($any($event.target).value); onMixerSpeedChange()"
-    />
-    }
-  </section>
-
-  <!-- Action buttons -->
-  <div class="action-row">
-    <button class="reset-btn" type="button" (click)="reset()">
-      {{ i18n.t().reset }}
-    </button>
-    <button class="calculate-btn" type="button" (click)="runCalculation()">
-      {{ i18n.t().calculate }}
-    </button>
-  </div>
-
-  @if (validationError()) {
-  <p class="validation-msg">{{ validationError() }}</p>
-  } @if (resultsVisible() && result()) {
-  <app-results [data]="result()!" />
-  <app-instructions [data]="result()!" />
-  } @if (auth.isLoggedIn()) {
-  <app-baking-session
-    [currentInputs]="getInputs()"
-    [currentResults]="result()"
-    [activeRecipeCloudId]="activeRecipeCloudId()"
-  />
-  <app-compare />
-  }
+    <router-outlet />
 </main>
+
+<!-- Bottom navigation (mobile) -->
+@if (auth.isLoggedIn()) {
+    <nav class="bottom-nav" aria-label="Navigation">
+        <a
+            class="bottom-tab"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+        >
+            <span class="bottom-tab-icon" aria-hidden="true">&#129366;</span>
+            <span class="bottom-tab-label">{{ i18n.t().calculator }}</span>
+        </a>
+        <a class="bottom-tab" routerLink="/sessions" routerLinkActive="active">
+            <span class="bottom-tab-icon" aria-hidden="true">&#128247;</span>
+            <span class="bottom-tab-label">{{ i18n.t().sessions }}</span>
+        </a>
+    </nav>
+}
 
 <!-- Scroll to top button -->
 @if (showScrollTop()) {
-<button
-  class="scroll-top-btn"
-  type="button"
-  [attr.aria-label]="i18n.t().scrollToTop"
-  [title]="i18n.t().scrollToTop"
-  (click)="scrollToTop()"
->
-  &#8593;
-</button>
+    <button
+        class="scroll-top-btn"
+        type="button"
+        [attr.aria-label]="i18n.t().scrollToTop"
+        [title]="i18n.t().scrollToTop"
+        (click)="scrollToTop()"
+    >
+        &#8593;
+    </button>
 }

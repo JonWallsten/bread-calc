@@ -1,85 +1,91 @@
 <section class="section">
-  <div class="section-header">
-    <h2 class="section-title">{{ i18n.t().instructions }}</h2>
-    <button
-      class="copy-btn"
-      type="button"
-      (click)="copyInstructions()"
-      [attr.aria-label]="i18n.t().copyInstructions"
-      [title]="i18n.t().copyInstructions"
-    >
-      @if (instructionsCopied()) {
-      <span class="copy-label">{{ i18n.t().copied }}</span>
-      } @else {
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-      </svg>
-      }
-    </button>
-  </div>
-
-  @if (showFlourBlendNote()) {
-  <p class="flour-blend-note">{{ i18n.t().flourBlendAbsorptionNote }}</p>
-  } @for (step of steps(); track step.title; let i = $index) {
-  <div class="instruction-card" [class.completed]="completedSteps()[i]">
-    <div class="instruction-header">
-      <div class="instruction-title-group">
-        <span class="instruction-title">{{ step.title }}</span>
-      </div>
-      <button
-        class="check-btn"
-        [class.checked]="completedSteps()[i]"
-        type="button"
-        (click)="toggleCompleted(i)"
-        [attr.aria-label]="completedSteps()[i] ? i18n.t().markIncomplete(step.title) : i18n.t().markComplete(step.title)"
-      >
-        @if (completedSteps()[i]) {
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+    <div class="section-header">
+        <h2 class="section-title">{{ i18n.t().instructions }}</h2>
+        <button
+            class="copy-btn"
+            type="button"
+            (click)="copyInstructions()"
+            [attr.aria-label]="i18n.t().copyInstructions"
+            [title]="i18n.t().copyInstructions"
         >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        }
-      </button>
+            @if (instructionsCopied()) {
+                <span class="copy-label">{{ i18n.t().copied }}</span>
+            } @else {
+                <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+            }
+        </button>
     </div>
-    <p class="instruction-body">{{ step.body }}</p>
-    <div class="timer-row">
-      @if (activeTimerIndex() !== i) {
-      <button
-        class="timer-btn"
-        type="button"
-        (click)="startTimer(i, step.minutes, step.title)"
-      >
-        {{ i18n.t().startTimer }}
-        <span class="timer-btn-time">&middot; {{ step.time }}</span>
-      </button>
-      } @if (activeTimerIndex() === i) {
-      <button class="timer-btn" type="button" (click)="togglePause()">
-        {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
-      </button>
-      <button class="timer-btn" type="button" (click)="resetTimer(i)">
-        {{ i18n.t().reset }}
-      </button>
-      }
-      <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
-    </div>
-  </div>
-  }
+
+    @if (showFlourBlendNote()) {
+        <p class="flour-blend-note">{{ i18n.t().flourBlendAbsorptionNote }}</p>
+    }
+    @for (step of steps(); track step.title; let i = $index) {
+        <div class="instruction-card" [class.completed]="completedSteps()[i]">
+            <div class="instruction-header">
+                <div class="instruction-title-group">
+                    <span class="instruction-title">{{ step.title }}</span>
+                </div>
+                <button
+                    class="check-btn"
+                    [class.checked]="completedSteps()[i]"
+                    type="button"
+                    (click)="toggleCompleted(i)"
+                    [attr.aria-label]="
+                        completedSteps()[i]
+                            ? i18n.t().markIncomplete(step.title)
+                            : i18n.t().markComplete(step.title)
+                    "
+                >
+                    @if (completedSteps()[i]) {
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    }
+                </button>
+            </div>
+            <p class="instruction-body">{{ step.body }}</p>
+            <div class="timer-row">
+                @if (activeTimerIndex() !== i) {
+                    <button
+                        class="timer-btn"
+                        type="button"
+                        (click)="startTimer(i, step.minutes, step.title)"
+                    >
+                        {{ i18n.t().startTimer }}
+                        <span class="timer-btn-time">&middot; {{ step.time }}</span>
+                    </button>
+                }
+                @if (activeTimerIndex() === i) {
+                    <button class="timer-btn" type="button" (click)="togglePause()">
+                        {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
+                    </button>
+                    <button class="timer-btn" type="button" (click)="resetTimer(i)">
+                        {{ i18n.t().reset }}
+                    </button>
+                }
+                <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
+            </div>
+        </div>
+    }
 </section>

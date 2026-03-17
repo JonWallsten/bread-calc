@@ -1,204 +1,200 @@
 <div class="section-header">
-  <span class="section-icon" aria-hidden="true">&#127806;</span>
-  <h2 class="section-title">{{ i18n.t().flourBlend }}</h2>
-  <button
-    class="info-btn"
-    type="button"
-    [attr.aria-label]="i18n.t().flourBlend"
-    [appTooltip]="i18n.t().infoFlourBlend"
-  >
-    &#9432;
-  </button>
+    <span class="section-icon" aria-hidden="true">&#127806;</span>
+    <h2 class="section-title">{{ i18n.t().flourBlend }}</h2>
+    <button
+        class="info-btn"
+        type="button"
+        [attr.aria-label]="i18n.t().flourBlend"
+        [appTooltip]="i18n.t().infoFlourBlend"
+    >
+        &#9432;
+    </button>
 </div>
 
 <!-- Preset controls -->
 <label class="field-label">{{ i18n.t().preset }}</label>
 <div class="preset-row">
-  <div class="select-wrap preset-select">
-    <select
-      [value]="blend.selectedPresetId() ?? ''"
-      (change)="onPresetChange($any($event.target).value)"
-    >
-      <option value="">—</option>
-      @for (p of builtInPresets; track p.id) {
-      <option [value]="p.id">
-        {{ i18n.currentLang() === 'sv' ? p.nameSv : p.nameEn }} ({{
-        i18n.t().builtIn }})
-      </option>
-      } @for (p of blend.userPresets(); track p.id) {
-      <option [value]="p.id">
-        {{ p.name }}{{ p.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
-      </option>
-      }
-    </select>
-    <span class="select-chevron" aria-hidden="true">&#9662;</span>
-  </div>
+    <div class="select-wrap preset-select">
+        <select
+            [value]="blend.selectedPresetId() ?? ''"
+            (change)="onPresetChange($any($event.target).value)"
+        >
+            <option value="">—</option>
+            @for (p of builtInPresets; track p.id) {
+                <option [value]="p.id">
+                    {{ i18n.currentLang() === 'sv' ? p.nameSv : p.nameEn }} ({{ i18n.t().builtIn }})
+                </option>
+            }
+            @for (p of blend.userPresets(); track p.id) {
+                <option [value]="p.id">
+                    {{ p.name }}{{ p.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
+                </option>
+            }
+        </select>
+        <span class="select-chevron" aria-hidden="true">&#9662;</span>
+    </div>
 </div>
 
 <div class="preset-actions">
-  <button class="action-btn" type="button" (click)="onNewPreset()">
-    {{ i18n.t().newPreset }}
-  </button>
-  <button class="action-btn" type="button" (click)="onSaveAs()">
-    {{ i18n.t().savePreset }}
-  </button>
-  @if (blend.selectedPresetId() && !blend.isBuiltinPreset()) {
-  <button class="action-btn" type="button" (click)="onUpdate()">
-    {{ i18n.t().updatePreset }}
-  </button>
-  <button
-    class="action-btn action-btn--danger"
-    type="button"
-    (click)="onDelete()"
-  >
-    {{ i18n.t().deletePreset }}
-  </button>
-  }
+    <button class="action-btn" type="button" (click)="onNewPreset()">
+        {{ i18n.t().newPreset }}
+    </button>
+    <button class="action-btn" type="button" (click)="onSaveAs()">
+        {{ i18n.t().savePreset }}
+    </button>
+    @if (blend.selectedPresetId() && !blend.isBuiltinPreset()) {
+        <button class="action-btn" type="button" (click)="onUpdate()">
+            {{ i18n.t().updatePreset }}
+        </button>
+        <button class="action-btn action-btn--danger" type="button" (click)="onDelete()">
+            {{ i18n.t().deletePreset }}
+        </button>
+    }
 </div>
 
 <!-- Flour rows -->
 @for (row of blend.blendRows(); track $index; let i = $index) {
-<div class="flour-row">
-  <div class="flour-row-top">
-    <div class="select-wrap flour-select">
-      <select
-        [value]="row.flourId"
-        (change)="onFlourChange(i, $any($event.target).value)"
-      >
-        @for (f of flourDefs; track f.id) {
-        <option [value]="f.id" [selected]="f.id === row.flourId">
-          {{ flourName(f.id) }}
-        </option>
+    <div class="flour-row">
+        <div class="flour-row-top">
+            <div class="select-wrap flour-select">
+                <select
+                    [value]="row.flourId"
+                    (change)="onFlourChange(i, $any($event.target).value)"
+                >
+                    @for (f of flourDefs; track f.id) {
+                        <option [value]="f.id" [selected]="f.id === row.flourId">
+                            {{ flourName(f.id) }}
+                        </option>
+                    }
+                </select>
+                <span class="select-chevron" aria-hidden="true">&#9662;</span>
+            </div>
+            <button
+                class="remove-btn"
+                type="button"
+                [attr.aria-label]="i18n.t().removeFlour"
+                [title]="i18n.t().removeFlour"
+                (click)="blend.removeRow(i)"
+            >
+                &#10005;
+            </button>
+        </div>
+        <div class="flour-row-bottom">
+            <label class="percent-label">{{ i18n.t().share }}</label>
+            <input
+                class="percent-input"
+                type="number"
+                inputmode="numeric"
+                [value]="row.percent"
+                min="0"
+                max="100"
+                (change)="onPercentChange(i, $event)"
+            />
+            <span class="percent-suffix">%</span>
+        </div>
+        @if (blend.duplicateIds().has(row.flourId)) {
+            <p class="blend-error">{{ i18n.t().duplicateFlour }}</p>
         }
-      </select>
-      <span class="select-chevron" aria-hidden="true">&#9662;</span>
     </div>
-    <button
-      class="remove-btn"
-      type="button"
-      [attr.aria-label]="i18n.t().removeFlour"
-      [title]="i18n.t().removeFlour"
-      (click)="blend.removeRow(i)"
-    >
-      &#10005;
-    </button>
-  </div>
-  <div class="flour-row-bottom">
-    <label class="percent-label">{{ i18n.t().share }}</label>
-    <input
-      class="percent-input"
-      type="number"
-      inputmode="numeric"
-      [value]="row.percent"
-      min="0"
-      max="100"
-      (change)="onPercentChange(i, $event)"
-    />
-    <span class="percent-suffix">%</span>
-  </div>
-  @if (blend.duplicateIds().has(row.flourId)) {
-  <p class="blend-error">{{ i18n.t().duplicateFlour }}</p>
-  }
-</div>
 }
 
 <button class="add-flour-btn" type="button" (click)="blend.addRow()">
-  + {{ i18n.t().addFlour }}
+    + {{ i18n.t().addFlour }}
 </button>
 
 <!-- Summary -->
 @if (blend.blendRows().length > 0) {
-<div class="blend-summary">
-  <div class="summary-row">
-    <span>{{ i18n.t().totalPct }}</span>
-    <span
-      [class.total-ok]="blend.blendTotal() === 100"
-      [class.total-bad]="blend.blendTotal() !== 100"
-    >
-      {{ blend.blendTotal() }}%
-    </span>
-  </div>
-  @if (blend.blendTotal() !== 100) {
-  <p class="blend-error">{{ i18n.t().blendMustBe100 }}</p>
-  }
+    <div class="blend-summary">
+        <div class="summary-row">
+            <span>{{ i18n.t().totalPct }}</span>
+            <span
+                [class.total-ok]="blend.blendTotal() === 100"
+                [class.total-bad]="blend.blendTotal() !== 100"
+            >
+                {{ blend.blendTotal() }}%
+            </span>
+        </div>
+        @if (blend.blendTotal() !== 100) {
+            <p class="blend-error">{{ i18n.t().blendMustBe100 }}</p>
+        }
 
-  <!-- Custom hydration adjustment -->
-  <label class="field-label">{{ i18n.t().customAdjustment }}</label>
-  <div class="custom-adj-row">
-    <input
-      class="percent-input adj-input"
-      type="number"
-      inputmode="decimal"
-      step="0.1"
-      [value]="blend.customHydrationAdjustment()"
-      (change)="onCustomAdjustmentChange($event)"
-    />
-    <span class="percent-suffix">%</span>
-  </div>
+        <!-- Custom hydration adjustment -->
+        <label class="field-label">{{ i18n.t().customAdjustment }}</label>
+        <div class="custom-adj-row">
+            <input
+                class="percent-input adj-input"
+                type="number"
+                inputmode="decimal"
+                step="0.1"
+                [value]="blend.customHydrationAdjustment()"
+                (change)="onCustomAdjustmentChange($event)"
+            />
+            <span class="percent-suffix">%</span>
+        </div>
 
-  <!-- Hydration summary -->
-  <div class="hydration-summary">
-    <div class="summary-row">
-      <span>{{ i18n.t().flourAdjustment }}</span>
-      <span
-        >{{ blend.flourBlendAdjustment() >= 0 ? '+' : '' }}{{
-        blend.flourBlendAdjustment() }}%</span
-      >
+        <!-- Hydration summary -->
+        <div class="hydration-summary">
+            <div class="summary-row">
+                <span>{{ i18n.t().flourAdjustment }}</span>
+                <span
+                    >{{ blend.flourBlendAdjustment() >= 0 ? '+' : ''
+                    }}{{ blend.flourBlendAdjustment() }}%</span
+                >
+            </div>
+            @if (blend.customHydrationAdjustment() !== 0) {
+                <div class="summary-row">
+                    <span>{{ i18n.t().presetAdjustment }}</span>
+                    <span
+                        >{{ blend.customHydrationAdjustment() >= 0 ? '+' : ''
+                        }}{{ blend.customHydrationAdjustment() }}%</span
+                    >
+                </div>
+            }
+            <div class="summary-row summary-row--total">
+                <span>{{ i18n.t().effectiveHydration }}</span>
+                <span
+                    >{{ blend.effectiveHydrationOffset() >= 0 ? '+' : ''
+                    }}{{ blend.effectiveHydrationOffset() }}%</span
+                >
+            </div>
+        </div>
     </div>
-    @if (blend.customHydrationAdjustment() !== 0) {
-    <div class="summary-row">
-      <span>{{ i18n.t().presetAdjustment }}</span>
-      <span
-        >{{ blend.customHydrationAdjustment() >= 0 ? '+' : '' }}{{
-        blend.customHydrationAdjustment() }}%</span
-      >
-    </div>
-    }
-    <div class="summary-row summary-row--total">
-      <span>{{ i18n.t().effectiveHydration }}</span>
-      <span
-        >{{ blend.effectiveHydrationOffset() >= 0 ? '+' : '' }}{{
-        blend.effectiveHydrationOffset() }}%</span
-      >
-    </div>
-  </div>
-</div>
 }
 
 <!-- Save dialog -->
 @if (showSaveDialog()) {
-<div class="save-overlay" (click)="cancelSave()">
-  <div class="save-dialog" (click)="$event.stopPropagation()">
-    <h3>{{ i18n.t().savePreset }}</h3>
-    <label class="field-label">{{ i18n.t().presetName }}</label>
-    <input
-      class="save-input"
-      type="text"
-      [value]="savePresetName()"
-      (input)="savePresetName.set($any($event.target).value); saveNameError.set(false)"
-      [class.input-error]="saveNameError()"
-    />
-    @if (saveNameError()) {
-    <p class="blend-error">{{ i18n.t().enterPresetName }}</p>
-    }
-    <label class="field-label">{{ i18n.t().presetNotes }}</label>
-    <textarea
-      class="save-input save-textarea"
-      [value]="savePresetNotes()"
-      (input)="savePresetNotes.set($any($event.target).value)"
-    ></textarea>
-    <div class="save-actions">
-      <button class="action-btn" type="button" (click)="cancelSave()">
-        {{ i18n.t().cancel }}
-      </button>
-      <button
-        class="action-btn action-btn--primary"
-        type="button"
-        (click)="confirmSave()"
-      >
-        {{ i18n.t().save }}
-      </button>
+    <div class="save-overlay" (click)="cancelSave()">
+        <div class="save-dialog" (click)="$event.stopPropagation()">
+            <h3>{{ i18n.t().savePreset }}</h3>
+            <label class="field-label">{{ i18n.t().presetName }}</label>
+            <input
+                class="save-input"
+                type="text"
+                [value]="savePresetName()"
+                (input)="savePresetName.set($any($event.target).value); saveNameError.set(false)"
+                [class.input-error]="saveNameError()"
+            />
+            @if (saveNameError()) {
+                <p class="blend-error">{{ i18n.t().enterPresetName }}</p>
+            }
+            <label class="field-label">{{ i18n.t().presetNotes }}</label>
+            <textarea
+                class="save-input save-textarea"
+                [value]="savePresetNotes()"
+                (input)="savePresetNotes.set($any($event.target).value)"
+            ></textarea>
+            <div class="save-actions">
+                <button class="action-btn" type="button" (click)="cancelSave()">
+                    {{ i18n.t().cancel }}
+                </button>
+                <button
+                    class="action-btn action-btn--primary"
+                    type="button"
+                    (click)="confirmSave()"
+                >
+                    {{ i18n.t().save }}
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 }

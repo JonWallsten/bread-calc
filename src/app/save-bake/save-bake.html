@@ -1,0 +1,98 @@
+<section class="section">
+    <div class="section-header">
+        <span class="section-icon" aria-hidden="true">&#128247;</span>
+        <h2 class="section-title">{{ i18n.t().saveBakeTitle }}</h2>
+    </div>
+
+    @if (saved()) {
+        <div class="saved-confirmation">
+            <span class="saved-check" aria-hidden="true">&#10003;</span>
+            <span>{{ i18n.t().bakeSaved }}</span>
+            <a class="view-sessions-link" routerLink="/sessions">{{ i18n.t().viewSessions }}</a>
+        </div>
+    }
+
+    @if (!showSaveForm()) {
+        <button class="save-bake-btn" type="button" (click)="openSaveForm()">
+            {{ i18n.t().saveThisBake }}
+        </button>
+    } @else {
+        <div class="save-form">
+            <label class="field-label">{{ i18n.t().bakingNotes }}</label>
+            <textarea
+                class="notes-input"
+                rows="3"
+                [value]="saveNotes()"
+                (input)="saveNotes.set($any($event.target).value)"
+            ></textarea>
+
+            <label class="field-label">{{ i18n.t().bakingRating }}</label>
+            <div class="rating-row">
+                @for (s of stars; track s) {
+                    <button
+                        class="star-btn"
+                        type="button"
+                        [class.active]="s <= saveRating()"
+                        (click)="setRating(s)"
+                        [attr.aria-label]="s + ' star'"
+                    >
+                        &#9733;
+                    </button>
+                }
+            </div>
+
+            <!-- Photo upload during creation -->
+            <label class="field-label">{{ i18n.t().addPhotos }}</label>
+            @if (pendingPreviews().length) {
+                <div class="pending-photos">
+                    @for (preview of pendingPreviews(); track $index) {
+                        <div class="pending-photo-wrapper">
+                            <img [src]="preview" alt="" />
+                            <button
+                                class="photo-delete-btn"
+                                type="button"
+                                (click)="removePendingPhoto($index)"
+                                aria-label="Remove"
+                            >
+                                &#10005;
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            @if (pendingPhotos().length < 3) {
+                <input
+                    #saveFileInput
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    class="visually-hidden"
+                    (change)="onSavePhotoSelected($event)"
+                />
+                <button
+                    class="add-photo-btn"
+                    type="button"
+                    (click)="saveFileInput.click()"
+                    [attr.aria-label]="i18n.t().addPhotos"
+                >
+                    &#128247;
+                    <span>{{ i18n.t().addPhotos }}</span>
+                </button>
+            }
+
+            <div class="save-form-actions">
+                <button class="reset-btn" type="button" (click)="closeSaveForm()">
+                    {{ i18n.t().cancel }}
+                </button>
+                <button
+                    class="calculate-btn"
+                    type="button"
+                    [disabled]="saving()"
+                    (click)="confirmSave()"
+                >
+                    {{ i18n.t().save }}
+                </button>
+            </div>
+        </div>
+    }
+</section>
