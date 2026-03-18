@@ -228,6 +228,7 @@ interface Translations {
 
     // Aria-labels
     switchLanguage: string;
+    toggleTheme: string;
     scrollToTop: string;
     decrease: string;
     increase: string;
@@ -302,6 +303,7 @@ interface Translations {
     oilAmount: string;
     deleteBake: string;
     noBakesYet: string;
+    compareNeedTwo: string;
 
     // Sync
     uploadLocalRecipesTitle: string;
@@ -529,6 +531,7 @@ const en: Translations = {
     bakeSaved: 'Bake saved!',
     viewSessions: 'View bakes →',
     switchLanguage: 'Switch language',
+    toggleTheme: 'Toggle dark/light mode',
     scrollToTop: 'Scroll to top',
     decrease: 'Decrease',
     increase: 'Increase',
@@ -590,6 +593,7 @@ const en: Translations = {
     oilAmount: 'Oil',
     deleteBake: 'Delete bake',
     noBakesYet: 'No saved bakes yet.',
+    compareNeedTwo: 'Save at least two bakes to compare them.',
 
     // Sync
     uploadLocalRecipesTitle: 'Upload local recipes?',
@@ -816,6 +820,7 @@ const sv: Translations = {
     bakeSaved: 'Bakningen sparad!',
     viewSessions: 'Visa bakningar →',
     switchLanguage: 'Byt språk',
+    toggleTheme: 'Växla mörkt/ljust läge',
     scrollToTop: 'Scrolla upp',
     decrease: 'Minska',
     increase: 'Öka',
@@ -877,6 +882,7 @@ const sv: Translations = {
     oilAmount: 'Olja',
     deleteBake: 'Ta bort bakning',
     noBakesYet: 'Inga bakningar ännu.',
+    compareNeedTwo: 'Spara minst två bakningar för att kunna jämföra.',
 
     // Sync
     uploadLocalRecipesTitle: 'Ladda upp lokala recept?',

@@ -89,12 +89,12 @@
     }
 
     &--primary {
-        background: #d6e4f0;
+        background: var(--info-bg);
         border-color: #b0c9e0;
         color: #1a3a5c;
 
         &:hover {
-            background: #c2d6ea;
+            background: var(--info-bg-hover);
         }
     }
 
@@ -103,7 +103,7 @@
         border-color: #e0b0b0;
 
         &:hover {
-            background: #fce4e4;
+            background: var(--error-border);
         }
     }
 }
@@ -134,7 +134,7 @@
     border-radius: 4px;
 
     &:hover {
-        background: #fce4e4;
+        background: var(--error-border);
     }
 }
 
@@ -192,7 +192,7 @@
 .blend-summary {
     margin-top: 12px;
     padding: 10px 12px;
-    background: #f5f8fc;
+    background: var(--info-surface);
     border-radius: 8px;
     border: 1px solid #e0e8f0;
 }

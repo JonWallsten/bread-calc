@@ -14,16 +14,29 @@
 }
 
 <!-- Top bar -->
-<header class="topbar">
-    <button
-        class="topbar-lang"
-        type="button"
-        [attr.aria-label]="i18n.t().switchLanguage"
-        [title]="i18n.t().switchLanguage"
-        (click)="i18n.toggleLang()"
-    >
-        {{ i18n.currentLang() === 'en' ? 'SV' : 'EN' }}
-    </button>
+<header class="topbar" [class.topbar-hidden]="topbarHidden()">
+    <div class="topbar-left">
+        <button
+            class="topbar-icon-btn"
+            type="button"
+            [attr.aria-label]="i18n.t().switchLanguage"
+            [title]="i18n.t().switchLanguage"
+            (click)="i18n.toggleLang()"
+        >
+            {{ i18n.currentLang() === 'en' ? 'SV' : 'EN' }}
+        </button>
+        <button
+            class="topbar-icon-btn"
+            type="button"
+            [attr.aria-label]="i18n.t().toggleTheme"
+            [title]="i18n.t().toggleTheme"
+            (click)="toggleTheme()"
+        >
+            {{ theme() === 'dark' ? '☀️' : '🌙' }}
+        </button>
+    </div>
+
+    <span class="topbar-brand">{{ i18n.t().appTitle }}</span>
 
     <!-- Desktop tabs (inline in topbar) -->
     <nav class="topbar-tabs" role="tablist" aria-label="Navigation">

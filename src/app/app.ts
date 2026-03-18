@@ -7,6 +7,7 @@ import { RecipeService } from './recipe.service';
 import { FlourBlendService } from './flour-blend.service';
 import { SplashComponent } from './splash/splash';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog';
+import { nextScrollState, INITIAL_SCROLL_STATE, type ScrollState } from './scroll-state';
 
 @Component({
     selector: 'app-root',
@@ -30,6 +31,25 @@ export class App implements OnInit {
     readonly showScrollTop = signal(false);
     readonly showSplash = signal(SplashComponent.shouldShow());
     readonly showUploadPrompt = signal(false);
+    readonly topbarHidden = signal(false);
+    readonly theme = signal<'light' | 'dark'>(this.initTheme());
+    private scrollState: ScrollState = { ...INITIAL_SCROLL_STATE };
+
+    private initTheme(): 'light' | 'dark' {
+        const stored = localStorage.getItem('breadCalcTheme');
+        if (stored === 'dark' || stored === 'light') {
+            document.documentElement.dataset['theme'] = stored;
+            return stored;
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    toggleTheme(): void {
+        const next = this.theme() === 'dark' ? 'light' : 'dark';
+        this.theme.set(next);
+        document.documentElement.dataset['theme'] = next;
+        localStorage.setItem('breadCalcTheme', next);
+    }
 
     constructor() {
         effect(() => {
@@ -140,7 +160,10 @@ export class App implements OnInit {
 
     @HostListener('window:scroll')
     onScroll(): void {
-        this.showScrollTop.set(window.scrollY > 300);
+        const y = window.scrollY;
+        this.showScrollTop.set(y > 300);
+        this.scrollState = nextScrollState(this.scrollState, y);
+        this.topbarHidden.set(this.scrollState.hidden);
     }
 
     scrollToTop(): void {

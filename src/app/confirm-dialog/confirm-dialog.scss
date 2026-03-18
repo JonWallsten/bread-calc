@@ -44,7 +44,7 @@
 
     &--primary {
         background: var(--accent);
-        color: #fff;
+        color: var(--text-on-accent);
 
         &:hover {
             filter: brightness(1.08);

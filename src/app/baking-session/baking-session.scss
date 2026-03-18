@@ -35,7 +35,7 @@
 
     &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px var(--shadow);
     }
 
     &:focus-visible {
@@ -292,7 +292,7 @@
         border-color 0.15s ease;
 
     &:hover {
-        background: #fef2f2;
+        background: var(--error-bg);
         color: #dc2626;
         border-color: #fca5a5;
     }

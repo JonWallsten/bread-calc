@@ -61,7 +61,7 @@
 }
 
 .ingredient-table tr:nth-child(even) {
-    background: #fafafa;
+    background: var(--surface-alt);
 }
 
 .ingredient-table td {

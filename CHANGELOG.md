@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-03-18
+
 ### Added
 
 - **Angular Router with lazy loading**: Two-page navigation using `withHashLocation()` — `/#/` for calculator, `/#/sessions` for baking sessions. Routes are lazy-loaded for smaller initial bundle
@@ -17,6 +19,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **SaveBakeComponent**: Dedicated save-bake form (notes, rating, photos) shown in the calculator after results — with "View sessions →" link after saving
 - **Auth guard**: Functional `canActivate` guard on the sessions route — redirects to calculator when not logged in
 - **Starter-aware instructions**: When starter weight > 0, both manual and machine instructions now explicitly tell the user to disperse/dissolve the starter into the liquid, with yeast-type-specific handling (fresh yeast dissolves with starter; active dry is hydrated separately; instant and Swedish dry are mixed into flour)
+- **Dark mode**: Automatic dark theme via `prefers-color-scheme: dark`, with manual override via `data-theme` attribute. All hardcoded colors replaced with semantic CSS custom properties (`--error-bg`, `--info-bg`, `--success-bg`, `--warning-bg`, etc.)
+- **Auto-hide topbar**: Header hides after scrolling 100px down, reappears after scrolling 100px up — smooth CSS transition
+- **Brand title in topbar**: App title always visible in the header — centered on mobile, left-anchored on desktop
+- **Compare empty state**: Shows a friendlier message when only 1 bake exists ("Save at least two bakes to compare them." / "Spara minst två bakningar för att kunna jämföra.") instead of the generic "no bakes yet"
 
 ### Changed
 

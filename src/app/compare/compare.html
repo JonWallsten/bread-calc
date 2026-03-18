@@ -4,8 +4,10 @@
         <h2 class="section-title">{{ i18n.t().compareBakes }}</h2>
     </div>
 
-    @if (allSessions().length < 2) {
+    @if (allSessions().length === 0) {
         <p class="compare-empty">{{ i18n.t().noBakesYet }}</p>
+    } @else if (allSessions().length < 2) {
+        <p class="compare-empty">{{ i18n.t().compareNeedTwo }}</p>
     } @else {
         <div class="compare-selectors">
             <div class="compare-select">
