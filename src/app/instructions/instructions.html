@@ -29,7 +29,10 @@
     </div>
 
     @if (showFlourBlendNote()) {
-        <p class="flour-blend-note">{{ i18n.t().flourBlendAbsorptionNote }}</p>
+        <div class="flour-blend-note">
+            <span class="flour-blend-note-icon" aria-hidden="true">&#9888;&#65039;</span>
+            <p class="flour-blend-note-text">{{ i18n.t().flourBlendAbsorptionNote }}</p>
+        </div>
     }
     @for (step of steps(); track step.title; let i = $index) {
         <div class="instruction-card" [class.completed]="completedSteps()[i]">

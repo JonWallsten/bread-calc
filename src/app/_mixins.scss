@@ -206,7 +206,7 @@
 @mixin hover-danger {
     &:hover {
         background: var(--error-bg);
-        color: #dc2626;
-        border-color: #fca5a5;
+        color: var(--error-color);
+        border-color: var(--danger-border);
     }
 }

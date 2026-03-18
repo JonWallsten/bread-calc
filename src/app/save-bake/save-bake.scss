@@ -22,10 +22,10 @@
     padding: 10px 14px;
     margin-bottom: 12px;
     background: var(--success-bg);
-    border: 1px solid #a7f3d0;
+    border: 1px solid var(--success-border);
     border-radius: var(--radius);
     font-size: 14px;
-    color: #065f46;
+    color: var(--success-text);
 }
 
 .saved-check {
@@ -84,7 +84,7 @@
     line-height: 1;
 
     &.active {
-        color: #f59e0b;
+        color: var(--star-color);
     }
 }
 

@@ -100,7 +100,7 @@
     margin-top: 2px;
 
     .active {
-        color: #f59e0b;
+        color: var(--star-color);
     }
 }
 
@@ -255,7 +255,7 @@
     margin-top: 6px;
 
     .active {
-        color: #f59e0b;
+        color: var(--star-color);
     }
 }
 
@@ -293,8 +293,8 @@
 
     &:hover {
         background: var(--error-bg);
-        color: #dc2626;
-        border-color: #fca5a5;
+        color: var(--error-color);
+        border-color: var(--danger-border);
     }
 }
 

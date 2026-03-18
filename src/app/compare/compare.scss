@@ -89,9 +89,9 @@
 }
 
 .diff-higher {
-    color: #16a34a;
+    color: var(--success-color);
 }
 
 .diff-lower {
-    color: #dc2626;
+    color: var(--error-color);
 }
