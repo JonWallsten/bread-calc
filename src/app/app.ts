@@ -32,23 +32,34 @@ export class App implements OnInit {
     readonly showSplash = signal(SplashComponent.shouldShow());
     readonly showUploadPrompt = signal(false);
     readonly topbarHidden = signal(false);
-    readonly theme = signal<'light' | 'dark'>(this.initTheme());
+    readonly theme = signal<'light' | 'dark' | 'system'>(this.initTheme());
     private scrollState: ScrollState = { ...INITIAL_SCROLL_STATE };
 
-    private initTheme(): 'light' | 'dark' {
+    private initTheme(): 'light' | 'dark' | 'system' {
         const stored = localStorage.getItem('breadCalcTheme');
         if (stored === 'dark' || stored === 'light') {
             document.documentElement.dataset['theme'] = stored;
             return stored;
         }
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        delete document.documentElement.dataset['theme'];
+        return 'system';
     }
 
     toggleTheme(): void {
-        const next = this.theme() === 'dark' ? 'light' : 'dark';
+        const cycle: Record<'light' | 'dark' | 'system', 'light' | 'dark' | 'system'> = {
+            system: 'light',
+            light: 'dark',
+            dark: 'system',
+        };
+        const next = cycle[this.theme()];
         this.theme.set(next);
-        document.documentElement.dataset['theme'] = next;
-        localStorage.setItem('breadCalcTheme', next);
+        if (next === 'system') {
+            delete document.documentElement.dataset['theme'];
+            localStorage.removeItem('breadCalcTheme');
+        } else {
+            document.documentElement.dataset['theme'] = next;
+            localStorage.setItem('breadCalcTheme', next);
+        }
     }
 
     constructor() {

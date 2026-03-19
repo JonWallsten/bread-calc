@@ -16,6 +16,31 @@
 <!-- Top bar -->
 <header class="topbar" [class.topbar-hidden]="topbarHidden()">
     <div class="topbar-left">
+        <span class="topbar-logo" aria-hidden="true">&#129366;</span>
+        <a class="topbar-brand" routerLink="/" [attr.aria-label]="i18n.t().appTitle">{{
+            i18n.t().appTitle
+        }}</a>
+    </div>
+
+    <!-- Desktop tabs (inline in topbar, only when logged in) -->
+    @if (auth.isLoggedIn()) {
+        <nav class="topbar-tabs" role="tablist" aria-label="Navigation">
+            <a
+                class="topbar-tab"
+                routerLink="/"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                role="tab"
+            >
+                {{ i18n.t().calculator }}
+            </a>
+            <a class="topbar-tab" routerLink="/sessions" routerLinkActive="active" role="tab">
+                {{ i18n.t().sessions }}
+            </a>
+        </nav>
+    }
+
+    <div class="topbar-right">
         <button
             class="topbar-icon-btn"
             type="button"
@@ -32,31 +57,8 @@
             [title]="i18n.t().toggleTheme"
             (click)="toggleTheme()"
         >
-            {{ theme() === 'dark' ? '☀️' : '🌙' }}
+            {{ theme() === 'dark' ? '☀️' : theme() === 'light' ? '🌙' : '🖥️' }}
         </button>
-    </div>
-
-    <span class="topbar-brand">{{ i18n.t().appTitle }}</span>
-
-    <!-- Desktop tabs (inline in topbar) -->
-    <nav class="topbar-tabs" role="tablist" aria-label="Navigation">
-        <a
-            class="topbar-tab"
-            routerLink="/"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            role="tab"
-        >
-            {{ i18n.t().calculator }}
-        </a>
-        @if (auth.isLoggedIn()) {
-            <a class="topbar-tab" routerLink="/sessions" routerLinkActive="active" role="tab">
-                {{ i18n.t().sessions }}
-            </a>
-        }
-    </nav>
-
-    <div class="topbar-right">
         @if (auth.isLoggedIn()) {
             @if (auth.user(); as user) {
                 <button class="topbar-avatar" type="button" (click)="toggleProfileMenu()">

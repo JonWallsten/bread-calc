@@ -9,8 +9,9 @@
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     height: 56px;
+    padding: 0 12px;
     background: var(--surface);
     border-bottom: 1px solid var(--border-light);
     transition: transform 0.3s ease;
@@ -21,11 +22,16 @@
 }
 
 .topbar-left {
-    position: absolute;
-    left: 8px;
     display: flex;
-    gap: 4px;
+    gap: 8px;
     align-items: center;
+    flex-shrink: 0;
+}
+
+.topbar-logo {
+    font-size: 22px;
+    line-height: 1;
+    display: inline;
 }
 
 .topbar-icon-btn {
@@ -33,17 +39,16 @@
 }
 
 .topbar-brand {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--text);
     letter-spacing: -0.02em;
-}
+    white-space: nowrap;
+    text-decoration: none;
 
-@media (min-width: 600px) {
-    .topbar-brand {
-        position: absolute;
-        left: 64px;
-        font-size: 15px;
+    &:hover {
+        color: var(--text);
+        opacity: 0.75;
     }
 }
 
@@ -60,36 +65,33 @@
 }
 
 .topbar-tab {
-    @include btn-base;
     padding: 6px 16px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-muted);
-    border-radius: var(--radius);
     text-decoration: none;
+    background: none;
     transition:
         color 0.2s ease,
         background 0.2s ease;
 
     &:hover {
-        background: var(--bg);
         color: var(--text);
     }
 
     &.active {
         color: var(--text);
-        background: var(--bg);
+
         box-shadow: inset 0 -2px 0 var(--accent);
     }
 }
 
-/* ── Topbar right (auth + reset) ───────────────────────── */
+/* ── Topbar right (auth + controls) ────────────────────── */
 .topbar-right {
-    position: absolute;
-    right: 8px;
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .topbar-avatar {

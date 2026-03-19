@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Topbar layout redesigned**: App name and baguette logo anchored to the left, language/theme toggles and profile moved to the right — matching a modern SaaS-style header. Baguette logo hidden on mobile (already in bottom nav)
+
 ## [1.2.0] — 2026-03-18
 
 ### Added
