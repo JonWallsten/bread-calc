@@ -28,6 +28,7 @@ export class SaveBakeComponent {
     readonly activeRecipeCloudId = input<number | null>(null);
 
     readonly showSaveForm = signal(false);
+    readonly saveTitle = signal('');
     readonly saveNotes = signal('');
     readonly saveRating = signal<number>(0);
     readonly saving = signal(false);
@@ -40,6 +41,7 @@ export class SaveBakeComponent {
     readonly stars = [1, 2, 3, 4, 5];
 
     openSaveForm(): void {
+        this.saveTitle.set('');
         this.saveNotes.set('');
         this.saveRating.set(0);
         this.pendingPhotos.set([]);
@@ -104,6 +106,7 @@ export class SaveBakeComponent {
         this.saving.set(true);
         const session = await this.sessionService.createSession(inputs, results, {
             recipeId: this.activeRecipeCloudId() ?? undefined,
+            title: this.saveTitle() || undefined,
             notes: this.saveNotes() || undefined,
             rating: this.saveRating() || undefined,
         });

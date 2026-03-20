@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-03-20
+
 ### Added
 
+- **Baking session title**: Optional title field when saving or editing a bake — shown in the session grid, detail view, compare dropdown, and shared bake page for easier identification
 - **Edit baking session**: Pencil button on session detail opens edit mode for rating and notes — save/cancel buttons prevent accidental changes
 - **Shareable bake links**: Toggle sharing on a bake to generate a secret URL (`/#/bake/<hash>`). Uses a 64-char random hash and an `is_public` flag — both are required for access. Link can be copied to clipboard and sharing can be revoked
 - **Lightbox navigation**: Prev/next arrow buttons, clickable dots, and auto-focus for keyboard navigation in the photo lightbox

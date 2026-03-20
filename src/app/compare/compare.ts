@@ -107,6 +107,9 @@ export class CompareComponent {
 
     sessionLabel(s: BakingSessionSummary): string {
         const date = new Date(s.baked_at).toLocaleDateString();
-        return s.recipe_name ? `${date} — ${s.recipe_name}` : date;
+        const parts = [date];
+        if (s.title) parts.push(s.title);
+        if (s.recipe_name) parts.push(s.recipe_name);
+        return parts.join(' — ');
     }
 }

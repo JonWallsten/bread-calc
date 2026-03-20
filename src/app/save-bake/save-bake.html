@@ -18,6 +18,14 @@
         </button>
     } @else {
         <div class="save-form">
+            <label class="field-label">{{ i18n.t().bakeTitle }}</label>
+            <input
+                class="title-input"
+                type="text"
+                [value]="saveTitle()"
+                (input)="saveTitle.set($any($event.target).value)"
+            />
+
             <label class="field-label">{{ i18n.t().bakingNotes }}</label>
             <textarea
                 class="notes-input"

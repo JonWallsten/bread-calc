@@ -276,6 +276,7 @@ interface Translations {
     saveBakeTitle: string;
     saveThisBake: string;
     bakingNotes: string;
+    bakeTitle: string;
     bakingRating: string;
     bakedOn: string;
     noBakes: string;
@@ -572,6 +573,7 @@ const en: Translations = {
     saveBakeTitle: 'Save bake',
     saveThisBake: 'Save this bake',
     bakingNotes: 'Notes',
+    bakeTitle: 'Title',
     bakingRating: 'Rating',
     bakedOn: 'Baked on',
     noBakes: 'No saved bakes yet.',
@@ -867,6 +869,7 @@ const sv: Translations = {
     saveBakeTitle: 'Spara bakning',
     saveThisBake: 'Spara denna bakning',
     bakingNotes: 'Anteckningar',
+    bakeTitle: 'Titel',
     bakingRating: 'Betyg',
     bakedOn: 'Bakad den',
     noBakes: 'Inga bakningar ännu.',

@@ -78,7 +78,7 @@ function listSessions(int $userId): void
 
     // Sessions with first photo thumbnail
     $stmt = $db->prepare(
-        'SELECT s.id, s.recipe_id, s.notes, s.rating, s.baked_at, s.created_at,
+        'SELECT s.id, s.recipe_id, s.title, s.notes, s.rating, s.baked_at, s.created_at,
                 r.name AS recipe_name,
                 (SELECT sp.filename FROM session_photos sp WHERE sp.session_id = s.id ORDER BY sp.sort_order LIMIT 1) AS thumbnail
          FROM baking_sessions s
@@ -120,6 +120,7 @@ function createSession(int $userId): void
     }
 
     $recipeId = isset($body['recipe_id']) ? (int)$body['recipe_id'] : null;
+    $title = isset($body['title']) ? trim($body['title']) : null;
     $notes = trim($body['notes'] ?? '');
     $rating = isset($body['rating']) ? (int)$body['rating'] : null;
     $bakedAt = $body['baked_at'] ?? date('Y-m-d H:i:s');
@@ -131,12 +132,13 @@ function createSession(int $userId): void
 
     $db = getDb();
     $stmt = $db->prepare(
-        'INSERT INTO baking_sessions (user_id, recipe_id, inputs_snapshot, results_snapshot, notes, rating, baked_at)
-         VALUES (:uid, :rid, :inputs, :results, :notes, :rating, :baked)'
+        'INSERT INTO baking_sessions (user_id, recipe_id, title, inputs_snapshot, results_snapshot, notes, rating, baked_at)
+         VALUES (:uid, :rid, :title, :inputs, :results, :notes, :rating, :baked)'
     );
     $stmt->execute([
         ':uid'     => $userId,
         ':rid'     => $recipeId,
+        ':title'   => $title ?: null,
         ':inputs'  => json_encode($inputsSnapshot),
         ':results' => json_encode($resultsSnapshot),
         ':notes'   => $notes,
@@ -206,6 +208,11 @@ function updateSession(int $userId, int $id): void
     $sets = [];
     $params = [':id' => $id];
 
+    if (array_key_exists('title', $body)) {
+        $sets[] = 'title = :title';
+        $title = trim($body['title'] ?? '');
+        $params[':title'] = $title ?: null;
+    }
     if (array_key_exists('notes', $body)) {
         $sets[] = 'notes = :notes';
         $params[':notes'] = trim($body['notes'] ?? '');
@@ -411,7 +418,7 @@ function getSharedSession(string $hash): void
 {
     $db = getDb();
     $stmt = $db->prepare(
-        'SELECT s.id, s.notes, s.rating, s.baked_at, s.created_at,
+        'SELECT s.id, s.title, s.notes, s.rating, s.baked_at, s.created_at,
                 s.inputs_snapshot, s.results_snapshot,
                 r.name AS recipe_name, u.name AS user_name
          FROM baking_sessions s

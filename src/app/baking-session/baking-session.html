@@ -27,6 +27,9 @@
                             <span class="grid-card-date">
                                 {{ formatDate(s.baked_at || s.created_at) }}
                             </span>
+                            @if (s.title) {
+                                <span class="grid-card-title">{{ s.title }}</span>
+                            }
                             @if (s.recipe_name) {
                                 <span class="grid-card-recipe">{{ s.recipe_name }}</span>
                             }
@@ -151,6 +154,15 @@
                         }
 
                         @if (editing()) {
+                            <!-- Editable title -->
+                            <label class="edit-label">{{ i18n.t().bakeTitle }}</label>
+                            <input
+                                class="edit-title"
+                                type="text"
+                                [ngModel]="editTitle()"
+                                (ngModelChange)="editTitle.set($event)"
+                            />
+
                             <!-- Editable rating -->
                             <div class="detail-rating editable">
                                 @for (star of stars; track star) {
@@ -187,6 +199,9 @@
                                 </button>
                             </div>
                         } @else {
+                            @if (detail.title) {
+                                <p class="detail-title">{{ detail.title }}</p>
+                            }
                             @if (detail.rating) {
                                 <div class="detail-rating">
                                     @for (star of stars; track star) {

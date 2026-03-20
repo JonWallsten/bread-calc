@@ -4,6 +4,7 @@ import { CalcInputs, CalcResult } from './calc.service';
 
 export interface BakingSessionSummary {
     id: number;
+    title: string | null;
     recipe_name: string | null;
     notes: string | null;
     rating: number | null;
@@ -29,6 +30,7 @@ export interface SessionPhoto {
 }
 
 export interface SharedBake {
+    title: string | null;
     notes: string | null;
     rating: number | null;
     baked_at: string;
@@ -81,7 +83,7 @@ export class BakingSessionService {
     async createSession(
         inputsSnapshot: CalcInputs,
         resultsSnapshot: CalcResult,
-        options?: { recipeId?: number; notes?: string; rating?: number },
+        options?: { recipeId?: number; title?: string; notes?: string; rating?: number },
     ): Promise<BakingSessionDetail | null> {
         try {
             const body: Record<string, unknown> = {
@@ -89,6 +91,7 @@ export class BakingSessionService {
                 results_snapshot: resultsSnapshot,
             };
             if (options?.recipeId) body['recipe_id'] = options.recipeId;
+            if (options?.title) body['title'] = options.title;
             if (options?.notes) body['notes'] = options.notes;
             if (options?.rating) body['rating'] = options.rating;
             const res = await this.api.post<{ id: number }>('/sessions', body);
@@ -101,7 +104,10 @@ export class BakingSessionService {
         }
     }
 
-    async updateSession(id: number, data: { notes?: string; rating?: number }): Promise<boolean> {
+    async updateSession(
+        id: number,
+        data: { title?: string; notes?: string; rating?: number },
+    ): Promise<boolean> {
         try {
             await this.api.put(`/sessions/${id}`, data);
             return true;

@@ -37,6 +37,7 @@ export class BakingSessionComponent implements OnInit {
     readonly editing = signal(false);
     readonly editRating = signal(0);
     readonly editNotes = signal('');
+    readonly editTitle = signal('');
 
     // Share state
     readonly linkCopied = signal(false);
@@ -82,6 +83,7 @@ export class BakingSessionComponent implements OnInit {
         if (!s) return;
         this.editRating.set(s.rating ?? 0);
         this.editNotes.set(s.notes ?? '');
+        this.editTitle.set(s.title ?? '');
         this.editing.set(true);
     }
 
@@ -93,6 +95,7 @@ export class BakingSessionComponent implements OnInit {
         const s = this.selectedSession();
         if (!s) return;
         const ok = await this.sessionService.updateSession(s.id, {
+            title: this.editTitle(),
             rating: this.editRating(),
             notes: this.editNotes(),
         });

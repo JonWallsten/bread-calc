@@ -24,6 +24,9 @@
                 <p class="shared-author">{{ i18n.t().sharedByUser(b.user_name) }}</p>
             }
             <h2 class="shared-date">{{ formatDate(b.baked_at || b.created_at) }}</h2>
+            @if (b.title) {
+                <p class="shared-title">{{ b.title }}</p>
+            }
             @if (b.recipe_name) {
                 <p class="shared-recipe">{{ b.recipe_name }}</p>
             }
