@@ -23,6 +23,12 @@ function handleSessionRoutes(string $method, string $path, array $authUser): voi
         return;
     }
 
+    // PUT /sessions/:id/share — toggle sharing
+    if ($method === 'PUT' && preg_match('#^/sessions/(\d+)/share$#', $path, $m)) {
+        toggleShareSession($userId, (int)$m[1]);
+        return;
+    }
+
     // GET /sessions — list
     if ($method === 'GET' && $path === '/sessions') {
         listSessions($userId);
@@ -164,6 +170,8 @@ function getSession(int $userId, int $id): void
     $session['user_id'] = (int)$session['user_id'];
     $session['recipe_id'] = $session['recipe_id'] ? (int)$session['recipe_id'] : null;
     $session['rating'] = $session['rating'] ? (int)$session['rating'] : null;
+    $session['is_public'] = (bool)($session['is_public'] ?? false);
+    $session['share_hash'] = $session['share_hash'] ?? null;
     $session['inputs_snapshot'] = json_decode($session['inputs_snapshot'], true);
     $session['results_snapshot'] = json_decode($session['results_snapshot'], true);
 
@@ -361,4 +369,86 @@ function deletePhoto(int $userId, int $sessionId, int $photoId): void
     }
 
     sendJson(['success' => true]);
+}
+
+// ─── Toggle session sharing ───────────────────────────────
+function toggleShareSession(int $userId, int $id): void
+{
+    $db = getDb();
+    $stmt = $db->prepare('SELECT id, is_public, share_hash FROM baking_sessions WHERE id = :id AND user_id = :uid');
+    $stmt->execute([':id' => $id, ':uid' => $userId]);
+    $session = $stmt->fetch();
+
+    if (!$session) {
+        sendJson(['error' => 'Not found'], 404);
+        return;
+    }
+
+    $isPublic = (int)$session['is_public'];
+
+    if ($isPublic) {
+        // Turn off sharing
+        $db->prepare('UPDATE baking_sessions SET is_public = 0 WHERE id = :id')
+            ->execute([':id' => $id]);
+        sendJson(['is_public' => false, 'share_hash' => $session['share_hash']]);
+    } else {
+        // Turn on sharing — generate hash if not present
+        $hash = $session['share_hash'];
+        if (!$hash) {
+            $hash = bin2hex(random_bytes(32));
+            $db->prepare('UPDATE baking_sessions SET is_public = 1, share_hash = :hash WHERE id = :id')
+                ->execute([':hash' => $hash, ':id' => $id]);
+        } else {
+            $db->prepare('UPDATE baking_sessions SET is_public = 1 WHERE id = :id')
+                ->execute([':id' => $id]);
+        }
+        sendJson(['is_public' => true, 'share_hash' => $hash]);
+    }
+}
+
+// ─── Get shared session (public, no auth) ─────────────────
+function getSharedSession(string $hash): void
+{
+    $db = getDb();
+    $stmt = $db->prepare(
+        'SELECT s.id, s.notes, s.rating, s.baked_at, s.created_at,
+                s.inputs_snapshot, s.results_snapshot,
+                r.name AS recipe_name, u.name AS user_name
+         FROM baking_sessions s
+         LEFT JOIN recipes r ON r.id = s.recipe_id
+         LEFT JOIN users u ON u.id = s.user_id
+         WHERE s.share_hash = :hash AND s.is_public = 1'
+    );
+    $stmt->execute([':hash' => $hash]);
+    $session = $stmt->fetch();
+
+    if (!$session) {
+        sendJson(['error' => 'Not found'], 404);
+        return;
+    }
+
+    $sessionId = (int)$session['id'];
+    $session['id'] = $sessionId;
+    $session['rating'] = $session['rating'] ? (int)$session['rating'] : null;
+    $session['inputs_snapshot'] = json_decode($session['inputs_snapshot'], true);
+    $session['results_snapshot'] = json_decode($session['results_snapshot'], true);
+
+    // Photos
+    $stmt = $db->prepare(
+        'SELECT id, filename, original_name, sort_order FROM session_photos
+         WHERE session_id = :sid ORDER BY sort_order'
+    );
+    $stmt->execute([':sid' => $sessionId]);
+    $photos = $stmt->fetchAll();
+    foreach ($photos as &$p) {
+        $p['id'] = (int)$p['id'];
+        $p['sort_order'] = (int)$p['sort_order'];
+    }
+
+    $session['photos'] = $photos;
+
+    // Don't expose internal id to public
+    unset($session['id']);
+
+    sendJson($session);
 }

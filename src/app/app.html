@@ -57,7 +57,7 @@
             [title]="i18n.t().toggleTheme"
             (click)="toggleTheme()"
         >
-            {{ theme() === 'dark' ? '☀️' : theme() === 'light' ? '🌙' : '🖥️' }}
+            {{ themeIcon() }}
         </button>
         @if (auth.isLoggedIn()) {
             @if (auth.user(); as user) {

@@ -6,9 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Edit baking session**: Pencil button on session detail opens edit mode for rating and notes — save/cancel buttons prevent accidental changes
+- **Shareable bake links**: Toggle sharing on a bake to generate a secret URL (`/#/bake/<hash>`). Uses a 64-char random hash and an `is_public` flag — both are required for access. Link can be copied to clipboard and sharing can be revoked
+- **Lightbox navigation**: Prev/next arrow buttons, clickable dots, and auto-focus for keyboard navigation in the photo lightbox
+
 ### Changed
 
 - **Topbar layout redesigned**: App name and baguette logo anchored to the left, language/theme toggles and profile moved to the right — matching a modern SaaS-style header. Baguette logo hidden on mobile (already in bottom nav)
+- **Theme toggle 3-way cycle**: System → opposite of OS → same as OS → system. Icon adapts to OS preference so the first toggle always offers the opposite theme
 
 ## [1.2.0] — 2026-03-18
 

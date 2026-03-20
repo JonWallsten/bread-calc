@@ -12,6 +12,10 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
+        path: 'bake/:hash',
+        loadComponent: () => import('./shared-bake/shared-bake').then((m) => m.SharedBakeComponent),
+    },
+    {
         path: '**',
         redirectTo: '',
     },

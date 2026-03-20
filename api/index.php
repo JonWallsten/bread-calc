@@ -56,6 +56,13 @@ if (str_starts_with($path, '/auth')) {
     exit;
 }
 
+// Public shared bake route (no auth)
+if ($method === 'GET' && preg_match('#^/shared/([a-f0-9]{64})$#', $path, $m)) {
+    require_once __DIR__ . '/routes/sessions.php';
+    getSharedSession($m[1]);
+    exit;
+}
+
 // All routes below require authentication
 $authUser = requireAuth();
 

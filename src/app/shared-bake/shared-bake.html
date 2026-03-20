@@ -1,0 +1,110 @@
+@if (notFound()) {
+    <div class="shared-empty">
+        <p>{{ i18n.t().bakeNotFound }}</p>
+    </div>
+} @else if (bake(); as b) {
+    <article class="shared-card">
+        <!-- Photos -->
+        @if (b.photos.length) {
+            <div class="shared-gallery">
+                @for (photo of b.photos; track photo.id) {
+                    <button class="gallery-photo" type="button" (click)="openLightbox($index)">
+                        <img
+                            [src]="photoUrl(photo.filename)"
+                            [alt]="photo.original_name"
+                            loading="lazy"
+                        />
+                    </button>
+                }
+            </div>
+        }
+
+        <div class="shared-info">
+            @if (b.user_name) {
+                <p class="shared-author">{{ i18n.t().sharedByUser(b.user_name) }}</p>
+            }
+            <h2 class="shared-date">{{ formatDate(b.baked_at || b.created_at) }}</h2>
+            @if (b.recipe_name) {
+                <p class="shared-recipe">{{ b.recipe_name }}</p>
+            }
+            @if (b.rating) {
+                <div class="shared-rating">
+                    @for (star of stars; track star) {
+                        <span [class.active]="star <= b.rating!">&#9733;</span>
+                    }
+                </div>
+            }
+            @if (b.notes) {
+                <p class="shared-notes">{{ b.notes }}</p>
+            }
+        </div>
+    </article>
+
+    <!-- Photo lightbox -->
+    @if (lightboxOpen()) {
+        @if (b.photos[lightboxIndex()]; as lbPhoto) {
+            <div
+                class="lightbox"
+                role="dialog"
+                aria-modal="true"
+                tabindex="0"
+                (click)="closeLightbox()"
+                (keydown)="onLightboxKeydown($event)"
+                (touchstart)="onLightboxTouchStart($event)"
+                (touchend)="onLightboxTouchEnd($event)"
+            >
+                <div class="lightbox-header">
+                    <span class="lightbox-counter">
+                        {{ i18n.t().photoOf(lightboxIndex() + 1, b.photos.length) }}
+                    </span>
+                    <button
+                        class="lightbox-close"
+                        type="button"
+                        (click)="closeLightbox(); $event.stopPropagation()"
+                    >
+                        &#10005;
+                    </button>
+                </div>
+                <img
+                    class="lightbox-img"
+                    [src]="photoUrl(lbPhoto.filename)"
+                    [alt]="lbPhoto.original_name"
+                    (click)="$event.stopPropagation()"
+                />
+                @if (b.photos.length > 1) {
+                    <button
+                        class="lightbox-arrow lightbox-prev"
+                        type="button"
+                        (click)="lightboxPrev(); $event.stopPropagation()"
+                        aria-label="Previous"
+                    >
+                        &#8249;
+                    </button>
+                    <button
+                        class="lightbox-arrow lightbox-next"
+                        type="button"
+                        (click)="lightboxNext(); $event.stopPropagation()"
+                        aria-label="Next"
+                    >
+                        &#8250;
+                    </button>
+                    <div class="lightbox-dots" (click)="$event.stopPropagation()">
+                        @for (p of b.photos; track p.id) {
+                            <button
+                                class="lightbox-dot"
+                                type="button"
+                                [class.active]="$index === lightboxIndex()"
+                                (click)="lightboxIndex.set($index)"
+                                [attr.aria-label]="'Photo ' + ($index + 1)"
+                            ></button>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+} @else {
+    <div class="shared-empty">
+        <p>...</p>
+    </div>
+}

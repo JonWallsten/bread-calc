@@ -17,6 +17,8 @@ export interface BakingSessionDetail extends BakingSessionSummary {
     inputs_snapshot: CalcInputs;
     results_snapshot: CalcResult;
     photos: SessionPhoto[];
+    is_public: boolean;
+    share_hash: string | null;
 }
 
 export interface SessionPhoto {
@@ -24,6 +26,18 @@ export interface SessionPhoto {
     filename: string;
     original_name: string;
     sort_order: number;
+}
+
+export interface SharedBake {
+    notes: string | null;
+    rating: number | null;
+    baked_at: string;
+    created_at: string;
+    recipe_name: string | null;
+    user_name: string | null;
+    inputs_snapshot: CalcInputs;
+    results_snapshot: CalcResult;
+    photos: SessionPhoto[];
 }
 
 export interface SessionPage {
@@ -94,6 +108,37 @@ export class BakingSessionService {
         } catch {
             return false;
         }
+    }
+
+    async toggleShare(id: number): Promise<{ is_public: boolean; share_hash: string } | null> {
+        try {
+            return await this.api.put<{ is_public: boolean; share_hash: string }>(
+                `/sessions/${id}/share`,
+                {},
+            );
+        } catch {
+            return null;
+        }
+    }
+
+    async getSharedSession(hash: string): Promise<SharedBake | null> {
+        try {
+            const base =
+                typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                    ? '/api'
+                    : '/bread-calc/api';
+            const res = await fetch(`${base}/shared/${hash}`);
+            if (!res.ok) return null;
+            return res.json();
+        } catch {
+            return null;
+        }
+    }
+
+    shareUrl(hash: string): string {
+        const origin = window.location.origin;
+        const base = window.location.hostname === 'localhost' ? '' : '/bread-calc';
+        return `${origin}${base}/#/bake/${hash}`;
     }
 
     async deleteSession(id: number): Promise<boolean> {

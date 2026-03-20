@@ -7,6 +7,7 @@ import {
     viewChild,
     ChangeDetectionStrategy,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { I18nService } from '../i18n.service';
 import { AuthService } from '../auth.service';
 import {
@@ -20,7 +21,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
     selector: 'app-baking-session',
     templateUrl: './baking-session.html',
     styleUrl: './baking-session.scss',
-    imports: [ConfirmDialogComponent],
+    imports: [ConfirmDialogComponent, FormsModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BakingSessionComponent implements OnInit {
@@ -32,6 +33,14 @@ export class BakingSessionComponent implements OnInit {
     readonly uploadingPhoto = signal(false);
     readonly deleteConfirmId = signal<number | null>(null);
 
+    // Edit mode state
+    readonly editing = signal(false);
+    readonly editRating = signal(0);
+    readonly editNotes = signal('');
+
+    // Share state
+    readonly linkCopied = signal(false);
+    private copyTimeout: ReturnType<typeof setTimeout> | null = null;
     // Lightbox state
     readonly lightboxOpen = signal(false);
     readonly lightboxIndex = signal(0);
@@ -41,6 +50,7 @@ export class BakingSessionComponent implements OnInit {
     private touchStartY = 0;
 
     readonly fileInputRef = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+    readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
 
     readonly sessions = this.sessionService.sessions;
     readonly loading = this.sessionService.loading;
@@ -58,16 +68,64 @@ export class BakingSessionComponent implements OnInit {
     async viewSession(id: number): Promise<void> {
         const detail = await this.sessionService.getSession(id);
         this.selectedSession.set(detail);
+        this.editing.set(false);
     }
 
     closeDetail(): void {
         this.selectedSession.set(null);
+        this.editing.set(false);
         this.closeLightbox();
+    }
+
+    startEditing(): void {
+        const s = this.selectedSession();
+        if (!s) return;
+        this.editRating.set(s.rating ?? 0);
+        this.editNotes.set(s.notes ?? '');
+        this.editing.set(true);
+    }
+
+    cancelEditing(): void {
+        this.editing.set(false);
+    }
+
+    async saveEditing(): Promise<void> {
+        const s = this.selectedSession();
+        if (!s) return;
+        const ok = await this.sessionService.updateSession(s.id, {
+            rating: this.editRating(),
+            notes: this.editNotes(),
+        });
+        if (ok) {
+            const refreshed = await this.sessionService.getSession(s.id);
+            this.selectedSession.set(refreshed);
+            this.sessionService.loadSessions(this.currentPage());
+        }
+        this.editing.set(false);
     }
 
     requestDeleteSession(id: number, event: Event): void {
         event.stopPropagation();
         this.deleteConfirmId.set(id);
+    }
+
+    async toggleShare(sessionId: number): Promise<void> {
+        const result = await this.sessionService.toggleShare(sessionId);
+        if (result) {
+            const refreshed = await this.sessionService.getSession(sessionId);
+            this.selectedSession.set(refreshed);
+        }
+    }
+
+    shareUrl(hash: string): string {
+        return this.sessionService.shareUrl(hash);
+    }
+
+    copyShareLink(hash: string): void {
+        navigator.clipboard.writeText(this.sessionService.shareUrl(hash));
+        this.linkCopied.set(true);
+        if (this.copyTimeout) clearTimeout(this.copyTimeout);
+        this.copyTimeout = setTimeout(() => this.linkCopied.set(false), 2000);
     }
 
     async onDeleteConfirmed(): Promise<void> {
@@ -126,6 +184,7 @@ export class BakingSessionComponent implements OnInit {
     openLightbox(index: number): void {
         this.lightboxIndex.set(index);
         this.lightboxOpen.set(true);
+        setTimeout(() => this.lightboxEl()?.nativeElement.focus());
     }
 
     closeLightbox(): void {

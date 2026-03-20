@@ -130,21 +130,114 @@
 
                     <!-- Session info -->
                     <div class="detail-info">
-                        <h3 class="detail-date">
-                            {{ formatDate(detail.baked_at || detail.created_at) }}
-                        </h3>
+                        <div class="detail-info-header">
+                            <h3 class="detail-date">
+                                {{ formatDate(detail.baked_at || detail.created_at) }}
+                            </h3>
+                            @if (!editing()) {
+                                <button
+                                    class="edit-btn"
+                                    type="button"
+                                    [attr.aria-label]="i18n.t().editBake"
+                                    [title]="i18n.t().editBake"
+                                    (click)="startEditing()"
+                                >
+                                    &#9998;
+                                </button>
+                            }
+                        </div>
                         @if (detail.recipe_name) {
                             <p class="detail-recipe">{{ detail.recipe_name }}</p>
                         }
-                        @if (detail.rating) {
-                            <div class="detail-rating">
+
+                        @if (editing()) {
+                            <!-- Editable rating -->
+                            <div class="detail-rating editable">
                                 @for (star of stars; track star) {
-                                    <span [class.active]="star <= detail.rating!">&#9733;</span>
+                                    <button
+                                        class="star-btn"
+                                        type="button"
+                                        [class.active]="star <= editRating()"
+                                        (click)="editRating.set(star)"
+                                        [attr.aria-label]="star + '/5'"
+                                    >
+                                        &#9733;
+                                    </button>
                                 }
                             </div>
+
+                            <!-- Editable notes -->
+                            <textarea
+                                class="edit-notes"
+                                rows="4"
+                                [ngModel]="editNotes()"
+                                (ngModelChange)="editNotes.set($event)"
+                            ></textarea>
+
+                            <div class="edit-actions">
+                                <button
+                                    class="edit-cancel-btn"
+                                    type="button"
+                                    (click)="cancelEditing()"
+                                >
+                                    {{ i18n.t().cancel }}
+                                </button>
+                                <button class="edit-save-btn" type="button" (click)="saveEditing()">
+                                    {{ i18n.t().save }}
+                                </button>
+                            </div>
+                        } @else {
+                            @if (detail.rating) {
+                                <div class="detail-rating">
+                                    @for (star of stars; track star) {
+                                        <span [class.active]="star <= detail.rating!">&#9733;</span>
+                                    }
+                                </div>
+                            }
+                            @if (detail.notes) {
+                                <p class="detail-notes">{{ detail.notes }}</p>
+                            }
                         }
-                        @if (detail.notes) {
-                            <p class="detail-notes">{{ detail.notes }}</p>
+                    </div>
+
+                    <!-- Share toggle -->
+                    <div class="share-section">
+                        @if (detail.is_public && detail.share_hash) {
+                            <div class="share-link-row">
+                                <input
+                                    class="share-link-input"
+                                    type="text"
+                                    readonly
+                                    [value]="shareUrl(detail.share_hash)"
+                                    (click)="copyShareLink(detail.share_hash)"
+                                />
+                                <button
+                                    class="share-copy-btn"
+                                    type="button"
+                                    (click)="copyShareLink(detail.share_hash)"
+                                >
+                                    @if (linkCopied()) {
+                                        &#10003;
+                                    } @else {
+                                        &#128203;
+                                    }
+                                </button>
+                            </div>
+                            <button
+                                class="share-toggle-btn unshare"
+                                type="button"
+                                (click)="toggleShare(detail.id)"
+                            >
+                                {{ i18n.t().stopSharing }}
+                            </button>
+                        } @else {
+                            <button
+                                class="share-toggle-btn"
+                                type="button"
+                                (click)="toggleShare(detail.id)"
+                            >
+                                &#128279; {{ i18n.t().shareBake }}
+                            </button>
                         }
                     </div>
 
@@ -163,6 +256,7 @@
         @if (lightboxOpen() && selectedSession(); as lbSession) {
             @if (lbSession.photos[lightboxIndex()]; as lbPhoto) {
                 <div
+                    #lightboxEl
                     class="lightbox"
                     role="dialog"
                     aria-modal="true"
@@ -191,12 +285,31 @@
                         (click)="$event.stopPropagation()"
                     />
                     @if (lbSession.photos.length > 1) {
+                        <button
+                            class="lightbox-arrow lightbox-prev"
+                            type="button"
+                            (click)="lightboxPrev(); $event.stopPropagation()"
+                            aria-label="Previous"
+                        >
+                            &#8249;
+                        </button>
+                        <button
+                            class="lightbox-arrow lightbox-next"
+                            type="button"
+                            (click)="lightboxNext(); $event.stopPropagation()"
+                            aria-label="Next"
+                        >
+                            &#8250;
+                        </button>
                         <div class="lightbox-dots" (click)="$event.stopPropagation()">
                             @for (p of lbSession.photos; track p.id) {
-                                <span
+                                <button
                                     class="lightbox-dot"
+                                    type="button"
                                     [class.active]="$index === lightboxIndex()"
-                                ></span>
+                                    (click)="lightboxIndex.set($index)"
+                                    [attr.aria-label]="'Photo ' + ($index + 1)"
+                                ></button>
                             }
                         </div>
                     }

@@ -237,10 +237,26 @@
     padding: 0 16px 12px;
 }
 
+.detail-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .detail-date {
     font-size: 16px;
     font-weight: 700;
     margin: 0;
+}
+
+.edit-btn {
+    @include btn-icon(36px);
+    font-size: 18px;
+    color: var(--text-muted);
+
+    &:hover {
+        color: var(--text);
+    }
 }
 
 .detail-recipe {
@@ -257,6 +273,60 @@
     .active {
         color: var(--star-color);
     }
+
+    &.editable {
+        display: flex;
+        gap: 2px;
+    }
+}
+
+.star-btn {
+    @include btn-base;
+    background: none;
+    font-size: 22px;
+    color: var(--border);
+    padding: 2px;
+
+    &.active {
+        color: var(--star-color);
+    }
+}
+
+.edit-notes {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    resize: vertical;
+
+    &:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: -1px;
+    }
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.edit-cancel-btn {
+    @include btn-secondary(sm);
+    flex: 1;
+    border-radius: var(--radius);
+}
+
+.edit-save-btn {
+    @include btn-primary(sm);
+    flex: 1;
+    border-radius: var(--radius);
 }
 
 .detail-notes {
@@ -296,6 +366,50 @@
         color: var(--error-color);
         border-color: var(--danger-border);
     }
+}
+
+/* ── Share section ─────────────────────────────────── */
+.share-section {
+    padding: 0 16px 4px;
+}
+
+.share-toggle-btn {
+    @include btn-secondary(sm);
+    width: 100%;
+    border-radius: var(--radius);
+    gap: 6px;
+
+    &.unshare {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+}
+
+.share-link-row {
+    display: flex;
+    gap: 4px;
+}
+
+.share-link-input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.share-copy-btn {
+    @include btn-icon(36px);
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 16px;
 }
 
 /* ── Photo shared ──────────────────────────────────── */
@@ -355,6 +469,33 @@
     border-radius: 4px;
 }
 
+/* ── Lightbox navigation arrows ────────────────────── */
+.lightbox-arrow {
+    @include btn-base;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 28px;
+    z-index: 1;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.75);
+    }
+}
+
+.lightbox-prev {
+    left: 12px;
+}
+
+.lightbox-next {
+    right: 12px;
+}
+
 .lightbox-dots {
     display: flex;
     gap: 8px;
@@ -362,10 +503,13 @@
 }
 
 .lightbox-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
+    border: none;
+    padding: 0;
     background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
     transition: background 0.2s ease;
 
     &.active {

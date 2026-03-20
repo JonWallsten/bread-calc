@@ -302,6 +302,12 @@ interface Translations {
     sugarAmount: string;
     oilAmount: string;
     deleteBake: string;
+    editBake: string;
+    shareBake: string;
+    stopSharing: string;
+    linkCopied: string;
+    sharedByUser: (name: string) => string;
+    bakeNotFound: string;
     noBakesYet: string;
     compareNeedTwo: string;
 
@@ -592,6 +598,12 @@ const en: Translations = {
     sugarAmount: 'Sugar',
     oilAmount: 'Oil',
     deleteBake: 'Delete bake',
+    editBake: 'Edit',
+    shareBake: 'Share bake',
+    stopSharing: 'Stop sharing',
+    linkCopied: 'Link copied!',
+    sharedByUser: (name: string) => `Shared by ${name}`,
+    bakeNotFound: 'This bake is not available.',
     noBakesYet: 'No saved bakes yet.',
     compareNeedTwo: 'Save at least two bakes to compare them.',
 
@@ -881,6 +893,12 @@ const sv: Translations = {
     sugarAmount: 'Socker',
     oilAmount: 'Olja',
     deleteBake: 'Ta bort bakning',
+    editBake: 'Redigera',
+    shareBake: 'Dela bakning',
+    stopSharing: 'Sluta dela',
+    linkCopied: 'L\u00e4nk kopierad!',
+    sharedByUser: (name: string) => `Delad av ${name}`,
+    bakeNotFound: 'Denna bakning \u00e4r inte tillg\u00e4nglig.',
     noBakesYet: 'Inga bakningar ännu.',
     compareNeedTwo: 'Spara minst två bakningar för att kunna jämföra.',
 

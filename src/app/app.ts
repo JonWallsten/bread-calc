@@ -35,6 +35,8 @@ export class App implements OnInit {
     readonly theme = signal<'light' | 'dark' | 'system'>(this.initTheme());
     private scrollState: ScrollState = { ...INITIAL_SCROLL_STATE };
 
+    private readonly prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
     private initTheme(): 'light' | 'dark' | 'system' {
         const stored = localStorage.getItem('breadCalcTheme');
         if (stored === 'dark' || stored === 'light') {
@@ -46,12 +48,21 @@ export class App implements OnInit {
     }
 
     toggleTheme(): void {
-        const cycle: Record<'light' | 'dark' | 'system', 'light' | 'dark' | 'system'> = {
-            system: 'light',
-            light: 'dark',
-            dark: 'system',
-        };
-        const next = cycle[this.theme()];
+        const osDark = this.prefersDark.matches;
+        const current = this.theme();
+
+        // Cycle order depends on OS preference:
+        // OS dark:  system → light → dark → system
+        // OS light: system → dark → light → system
+        let next: 'light' | 'dark' | 'system';
+        if (current === 'system') {
+            next = osDark ? 'light' : 'dark';
+        } else if ((osDark && current === 'light') || (!osDark && current === 'dark')) {
+            next = osDark ? 'dark' : 'light';
+        } else {
+            next = 'system';
+        }
+
         this.theme.set(next);
         if (next === 'system') {
             delete document.documentElement.dataset['theme'];
@@ -60,6 +71,21 @@ export class App implements OnInit {
             document.documentElement.dataset['theme'] = next;
             localStorage.setItem('breadCalcTheme', next);
         }
+    }
+
+    themeIcon(): string {
+        const osDark = this.prefersDark.matches;
+        const current = this.theme();
+
+        // Icon shows what the *next* click will switch to:
+        // ☀️ = will go to light, 🌙 = will go to dark, 🖥️ = will go to system
+        if (current === 'system') {
+            return osDark ? '☀️' : '🌙';
+        }
+        if ((osDark && current === 'light') || (!osDark && current === 'dark')) {
+            return osDark ? '🌙' : '☀️';
+        }
+        return '🖥️';
     }
 
     constructor() {
