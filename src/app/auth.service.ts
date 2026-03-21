@@ -13,7 +13,8 @@ export interface AuthUser {
 export class AuthService {
     private readonly token = signal<string | null>(this.loadToken());
     private readonly userSignal = signal<AuthUser | null>(null);
-    private initialCheckDone = false;
+    private readyResolve!: () => void;
+    readonly ready = new Promise<void>((r) => (this.readyResolve = r));
 
     readonly isLoggedIn = computed(() => !!this.token() && !!this.userSignal());
     readonly user = this.userSignal.asReadonly();
@@ -22,6 +23,8 @@ export class AuthService {
     constructor() {
         if (this.token()) {
             this.fetchMe();
+        } else {
+            this.readyResolve();
         }
     }
 
@@ -63,7 +66,7 @@ export class AuthService {
         } catch {
             this.logout();
         } finally {
-            this.initialCheckDone = true;
+            this.readyResolve();
         }
     }
 

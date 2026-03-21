@@ -43,11 +43,7 @@
         </div>
 
         <!-- Recipe toggle -->
-        <button
-            class="recipe-toggle-btn"
-            type="button"
-            (click)="showRecipe.set(!showRecipe())"
-        >
+        <button class="recipe-toggle-btn" type="button" (click)="showRecipe.set(!showRecipe())">
             @if (showRecipe()) {
                 &#9650; {{ i18n.t().hideRecipe }}
             } @else {
