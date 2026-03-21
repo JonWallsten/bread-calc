@@ -92,7 +92,24 @@
     margin: 12px 0 0;
     white-space: pre-wrap;
 }
+.recipe-toggle-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px 16px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
 
+    &:hover {
+        color: var(--text);
+    }
+}
 /* ── Lightbox (shared with baking-session) ─────────── */
 .lightbox {
     position: fixed;

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-03-21
+
+### Added
+
+- **Recipe toggle in bake view**: Expandable "Show recipe" / "Hide recipe" button in both session detail and shared bake pages — displays the full results snapshot (stats, ingredients) inline
+
 ## [1.3.0] — 2026-03-20
 
 ### Added

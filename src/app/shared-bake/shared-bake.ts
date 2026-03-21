@@ -2,11 +2,13 @@ import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@ang
 import { ActivatedRoute } from '@angular/router';
 import { I18nService } from '../i18n.service';
 import { BakingSessionService, SharedBake } from '../baking-session.service';
+import { ResultsComponent } from '../results/results';
 
 @Component({
     selector: 'app-shared-bake',
     templateUrl: './shared-bake.html',
     styleUrl: './shared-bake.scss',
+    imports: [ResultsComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharedBakeComponent implements OnInit {
@@ -17,6 +19,7 @@ export class SharedBakeComponent implements OnInit {
     readonly bake = signal<SharedBake | null>(null);
     readonly notFound = signal(false);
     readonly stars = [1, 2, 3, 4, 5];
+    readonly showRecipe = signal(false);
 
     // Lightbox
     readonly lightboxOpen = signal(false);

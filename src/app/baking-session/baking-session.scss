@@ -409,7 +409,13 @@
         border-color: var(--danger-border);
     }
 }
-
+/* ── Recipe toggle ──────────────────────────────── */
+.recipe-toggle-btn {
+    @include btn-secondary(sm);
+    width: 100%;
+    margin: 12px 16px;
+    width: calc(100% - 32px);
+}
 /* ── Share section ─────────────────────────────────── */
 .share-section {
     padding: 0 16px 4px;

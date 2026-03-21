@@ -16,12 +16,13 @@ import {
     BakingSessionDetail,
 } from '../baking-session.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
+import { ResultsComponent } from '../results/results';
 
 @Component({
     selector: 'app-baking-session',
     templateUrl: './baking-session.html',
     styleUrl: './baking-session.scss',
-    imports: [ConfirmDialogComponent, FormsModule],
+    imports: [ConfirmDialogComponent, FormsModule, ResultsComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BakingSessionComponent implements OnInit {
@@ -41,6 +42,7 @@ export class BakingSessionComponent implements OnInit {
 
     // Share state
     readonly linkCopied = signal(false);
+    readonly showRecipe = signal(false);
     private copyTimeout: ReturnType<typeof setTimeout> | null = null;
     // Lightbox state
     readonly lightboxOpen = signal(false);
@@ -75,6 +77,7 @@ export class BakingSessionComponent implements OnInit {
     closeDetail(): void {
         this.selectedSession.set(null);
         this.editing.set(false);
+        this.showRecipe.set(false);
         this.closeLightbox();
     }
 

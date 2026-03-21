@@ -285,6 +285,8 @@ interface Translations {
     deletePhoto: string;
     maxPhotos: string;
     viewBake: string;
+    showRecipe: string;
+    hideRecipe: string;
     addPhotos: string;
     pendingPhotos: string;
     noPhotos: string;
@@ -582,6 +584,8 @@ const en: Translations = {
     deletePhoto: 'Delete photo',
     maxPhotos: 'Maximum 3 photos per bake.',
     viewBake: 'View bake',
+    showRecipe: 'Show recipe',
+    hideRecipe: 'Hide recipe',
     addPhotos: 'Add photos',
     pendingPhotos: 'photos selected',
     noPhotos: 'No photos yet',
@@ -878,6 +882,8 @@ const sv: Translations = {
     deletePhoto: 'Ta bort bild',
     maxPhotos: 'Maximalt 3 bilder per bakning.',
     viewBake: 'Visa bakning',
+    showRecipe: 'Visa recept',
+    hideRecipe: 'Dölj recept',
     addPhotos: 'Lägg till bilder',
     pendingPhotos: 'bilder valda',
     noPhotos: 'Inga bilder ännu',

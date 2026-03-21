@@ -41,6 +41,22 @@
                 <p class="shared-notes">{{ b.notes }}</p>
             }
         </div>
+
+        <!-- Recipe toggle -->
+        <button
+            class="recipe-toggle-btn"
+            type="button"
+            (click)="showRecipe.set(!showRecipe())"
+        >
+            @if (showRecipe()) {
+                &#9650; {{ i18n.t().hideRecipe }}
+            } @else {
+                &#9660; {{ i18n.t().showRecipe }}
+            }
+        </button>
+        @if (showRecipe()) {
+            <app-results [data]="b.results_snapshot" />
+        }
     </article>
 
     <!-- Photo lightbox -->
