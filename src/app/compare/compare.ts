@@ -7,6 +7,7 @@ import {
     BakingSessionDetail,
 } from '../baking-session.service';
 import { CalcResult } from '../calc.service';
+import { getFlourDefinitionById } from '../flour.config';
 
 interface CompareRow {
     label: string;
@@ -83,6 +84,9 @@ export class CompareComponent {
         });
     });
 
+    readonly blendA = computed(() => this.formatBlend(this.resultA()));
+    readonly blendB = computed(() => this.formatBlend(this.resultB()));
+
     async onSelectA(id: string): Promise<void> {
         this.sessionIdA.set(id);
         await this.loadResult(id, this.resultA);
@@ -111,5 +115,15 @@ export class CompareComponent {
         if (s.title) parts.push(s.title);
         if (s.recipe_name) parts.push(s.recipe_name);
         return parts.join(' — ');
+    }
+
+    private formatBlend(result: CalcResult | null): string[] {
+        if (!result?.flourBlendRows?.length) return [];
+        const lang = this.i18n.currentLang();
+        return result.flourBlendRows.map((r) => {
+            const def = getFlourDefinitionById(r.flourId);
+            const name = def ? (lang === 'sv' ? def.nameSv : def.nameEn) : r.flourId;
+            return `${name} ${r.percent}%`;
+        });
     }
 }

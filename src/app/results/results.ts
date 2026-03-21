@@ -2,7 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { CalcResult, CalcService } from '../calc.service';
 import { I18nService } from '../i18n.service';
 import { FlourBlendService } from '../flour-blend.service';
-import { getFlourDefinitionById } from '../flour.config';
+import { FlourBlendRow, getFlourDefinitionById } from '../flour.config';
 
 @Component({
     selector: 'app-results',
@@ -69,8 +69,15 @@ export class ResultsComponent {
         const rows: [string, string][] = [];
 
         // Flour — expand into per-type rows when blend is active and valid
-        const blendRows = this.blend.blendRows();
-        if (blendRows.length > 0 && this.blend.blendValid()) {
+        const snapshotBlend = d.flourBlendRows;
+        const liveBlend = this.blend.blendRows();
+        const blendRows: FlourBlendRow[] =
+            snapshotBlend && snapshotBlend.length > 0
+                ? snapshotBlend
+                : liveBlend.length > 0 && this.blend.blendValid()
+                  ? liveBlend
+                  : [];
+        if (blendRows.length > 0) {
             const lang = this.i18n.currentLang();
             rows.push([t.flourToAdd, `${fmtW(d.flourToAdd)} g`]);
             for (const br of blendRows) {
@@ -99,6 +106,15 @@ export class ResultsComponent {
         }
         rows.push([this.yeastLabel(d.yeastType), `${fmtY(d.yeastToAdd)} g`]);
         return rows;
+    });
+
+    protected readonly hydrationNotice = computed(() => {
+        const d = this.data();
+        const totalAdj = d.flourBlendAdjustment + d.customHydrationAdjustment;
+        if (totalAdj === 0) return '';
+        const t = this.i18n.t();
+        const sign = totalAdj > 0 ? '+' : '';
+        return t.hydrationAdjustedNote(sign + this.calc.round1(totalAdj));
     });
 
     protected readonly supportText = computed(() => {

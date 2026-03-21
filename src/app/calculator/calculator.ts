@@ -224,6 +224,10 @@ export class CalculatorComponent implements OnInit {
             return;
         }
         this.result.set(output);
+        // Attach flour blend snapshot to the result for persistence
+        if (this.blend.blendValid() && this.blend.blendRows().length > 0) {
+            output.flourBlendRows = this.blend.blendRows().map((r) => ({ ...r }));
+        }
         this.resultsVisible.set(true);
     }
 

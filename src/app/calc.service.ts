@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FlourBlendRow } from './flour.config';
 import {
     YEAST_LABELS,
     TIMER_CONSTANTS,
@@ -84,6 +85,7 @@ export interface CalcResult {
     mixerSpeedLow: string;
     mixerSpeedLowMedium: string;
     mixerSpeedMedium: string;
+    flourBlendRows?: FlourBlendRow[];
 }
 
 export type CalcOutput = CalcResult | { error: string };

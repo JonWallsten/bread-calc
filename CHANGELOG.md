@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.3.2] — 2026-03-21
+## [Unreleased]
+
+### Added
+
+- **Flour blend in bake view**: Saved bakes now store and display the flour blend breakdown (per-flour percentages and weights) in the recipe results — visible in session detail, shared bake, and compare views
+- **Hydration adjustment notice**: When flour blend caused a hydration adjustment, an info box in the recipe results explains the change and advises recipients using different flours to start at base hydration
+- **Flour blend in compare view**: Side-by-side flour blend comparison shown below the data table when either bake used a custom flour blend
 
 ### Fixed
 

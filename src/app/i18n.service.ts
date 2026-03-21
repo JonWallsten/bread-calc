@@ -213,6 +213,7 @@ interface Translations {
     effectiveHydration: string;
     hydrationWarning: string;
     flourBlendAbsorptionNote: string;
+    hydrationAdjustedNote: (adjustment: string) => string;
     enterPresetName: string;
     confirmDeletePreset: string;
     noPresets: string;
@@ -529,6 +530,8 @@ const en: Translations = {
     hydrationWarning: 'Effective hydration is outside the typical range.',
     flourBlendAbsorptionNote:
         'This flour blend tends to absorb more water than a neutral mix. Dough may feel slightly firm early and relax after resting.',
+    hydrationAdjustedNote: (adj) =>
+        `Hydration has been adjusted (${adj} pp) to account for the flour blend. If you use different flours, start at the base hydration and adjust to feel.`,
     enterPresetName: 'Enter a preset name.',
     confirmDeletePreset: 'Delete this preset?',
     noPresets: 'No presets yet.',
@@ -827,6 +830,8 @@ const sv: Translations = {
     hydrationWarning: 'Effektiv hydrering är utanför normalt intervall.',
     flourBlendAbsorptionNote:
         'Denna mjölblandning tenderar att absorbera mer vatten än en neutral blandning. Degen kan kännas lite fast tidigt och slappna av efter vila.',
+    hydrationAdjustedNote: (adj) =>
+        `Hydreringen har justerats (${adj} pp) utifrån mjölblandningen. Om du använder andra mjölsorter, börja med bashydreringen och justera efter känsla.`,
     enterPresetName: 'Ange ett förinställningsnamn.',
     confirmDeletePreset: 'Ta bort denna förinställning?',
     noPresets: 'Inga förinställningar ännu.',

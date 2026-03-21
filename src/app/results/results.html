@@ -49,5 +49,9 @@
         </tbody>
     </table>
 
+    @if (hydrationNotice()) {
+        <p class="hydration-notice">&#9432; {{ hydrationNotice() }}</p>
+    }
+
     <p class="support-text">{{ supportText() }}</p>
 </section>

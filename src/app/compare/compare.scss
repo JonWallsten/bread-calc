@@ -95,3 +95,42 @@
 .diff-lower {
     color: var(--error-color);
 }
+
+/* ── Flour blend comparison ────────────────────────── */
+.compare-blends {
+    margin-top: 20px;
+}
+
+.compare-blend-heading {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.compare-blend-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.compare-blend-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.compare-blend-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.compare-blend-item {
+    font-size: 13px;
+
+    &.muted {
+        color: var(--text-muted);
+    }
+}

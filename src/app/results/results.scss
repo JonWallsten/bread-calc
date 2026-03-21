@@ -93,6 +93,17 @@
     font-weight: 500;
 }
 
+.hydration-notice {
+    font-size: 13px;
+    color: var(--info-text);
+    background: var(--info-bg);
+    border: 1px solid var(--info-border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
 .support-text {
     font-size: 13px;
     color: var(--text-muted);

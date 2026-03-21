@@ -60,6 +60,34 @@
                     </tbody>
                 </table>
             </div>
+
+            @if (blendA().length || blendB().length) {
+                <div class="compare-blends">
+                    <h3 class="compare-blend-heading">{{ i18n.t().flourBlend }}</h3>
+                    <div class="compare-blend-cols">
+                        <div class="compare-blend-col">
+                            <span class="compare-blend-label">A</span>
+                            @if (blendA().length) {
+                                @for (line of blendA(); track line) {
+                                    <span class="compare-blend-item">{{ line }}</span>
+                                }
+                            } @else {
+                                <span class="compare-blend-item muted">—</span>
+                            }
+                        </div>
+                        <div class="compare-blend-col">
+                            <span class="compare-blend-label">B</span>
+                            @if (blendB().length) {
+                                @for (line of blendB(); track line) {
+                                    <span class="compare-blend-item">{{ line }}</span>
+                                }
+                            } @else {
+                                <span class="compare-blend-item muted">—</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         }
     }
 </section>
