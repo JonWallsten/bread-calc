@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-03-22
+
 ### Added
 
 - **"Bake this again" button**: Session detail overlay has a new button that loads the saved recipe back into the calculator, pre-filling all inputs so you can repeat or tweak a previous bake
