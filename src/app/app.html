@@ -42,7 +42,7 @@
 
     <div class="topbar-right">
         <button
-            class="topbar-icon-btn"
+            class="btn-lang topbar-icon-btn"
             type="button"
             [attr.aria-label]="i18n.t().switchLanguage"
             [title]="i18n.t().switchLanguage"
@@ -51,7 +51,7 @@
             {{ i18n.currentLang() === 'en' ? 'SV' : 'EN' }}
         </button>
         <button
-            class="topbar-icon-btn"
+            class="btn-lang topbar-icon-btn"
             type="button"
             [attr.aria-label]="i18n.t().toggleTheme"
             [title]="i18n.t().toggleTheme"
@@ -76,7 +76,11 @@
                 @if (showProfileMenu()) {
                     <div class="profile-menu">
                         <p class="profile-name">{{ user.name }}</p>
-                        <button class="profile-logout" type="button" (click)="doLogout()">
+                        <button
+                            class="btn-secondary btn-sm profile-logout"
+                            type="button"
+                            (click)="doLogout()"
+                        >
                             {{ i18n.t().logout }}
                         </button>
                     </div>
@@ -114,7 +118,8 @@
 <!-- Scroll to top button -->
 @if (showScrollTop()) {
     <button
-        class="scroll-top-btn"
+        class="btn-icon btn-round scroll-top-btn"
+        style="--btn-size: 48px"
         type="button"
         [attr.aria-label]="i18n.t().scrollToTop"
         [title]="i18n.t().scrollToTop"

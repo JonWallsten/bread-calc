@@ -2,9 +2,8 @@ import {
     Component,
     inject,
     signal,
+    computed,
     OnInit,
-    ElementRef,
-    viewChild,
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,12 +16,20 @@ import {
 } from '../baking-session.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { ResultsComponent } from '../results/results';
+import { LightboxComponent, LightboxPhoto } from '../lightbox/lightbox';
+import { ExpansionComponent } from '../expansion/expansion';
 
 @Component({
     selector: 'app-baking-session',
     templateUrl: './baking-session.html',
     styleUrl: './baking-session.scss',
-    imports: [ConfirmDialogComponent, FormsModule, ResultsComponent],
+    imports: [
+        ConfirmDialogComponent,
+        FormsModule,
+        ResultsComponent,
+        LightboxComponent,
+        ExpansionComponent,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BakingSessionComponent implements OnInit {
@@ -48,12 +55,15 @@ export class BakingSessionComponent implements OnInit {
     readonly lightboxOpen = signal(false);
     readonly lightboxIndex = signal(0);
 
-    // Swipe tracking for lightbox
-    private touchStartX = 0;
-    private touchStartY = 0;
-
-    readonly fileInputRef = viewChild<ElementRef<HTMLInputElement>>('fileInput');
-    readonly lightboxEl = viewChild<ElementRef<HTMLDivElement>>('lightboxEl');
+    // Computed lightbox photos from selected session
+    readonly lightboxPhotos = computed<LightboxPhoto[]>(() => {
+        const session = this.selectedSession();
+        if (!session) return [];
+        return session.photos.map((p) => ({
+            url: this.photoUrl(p.filename),
+            alt: p.original_name,
+        }));
+    });
 
     readonly sessions = this.sessionService.sessions;
     readonly loading = this.sessionService.loading;
@@ -190,52 +200,10 @@ export class BakingSessionComponent implements OnInit {
     openLightbox(index: number): void {
         this.lightboxIndex.set(index);
         this.lightboxOpen.set(true);
-        setTimeout(() => this.lightboxEl()?.nativeElement.focus());
     }
 
     closeLightbox(): void {
         this.lightboxOpen.set(false);
-    }
-
-    lightboxPrev(): void {
-        const photos = this.selectedSession()?.photos;
-        if (!photos) return;
-        this.lightboxIndex.update((i) => (i > 0 ? i - 1 : photos.length - 1));
-    }
-
-    lightboxNext(): void {
-        const photos = this.selectedSession()?.photos;
-        if (!photos) return;
-        this.lightboxIndex.update((i) => (i < photos.length - 1 ? i + 1 : 0));
-    }
-
-    onLightboxTouchStart(event: TouchEvent): void {
-        this.touchStartX = event.touches[0].clientX;
-        this.touchStartY = event.touches[0].clientY;
-    }
-
-    onLightboxTouchEnd(event: TouchEvent): void {
-        const dx = event.changedTouches[0].clientX - this.touchStartX;
-        const dy = event.changedTouches[0].clientY - this.touchStartY;
-
-        // Only handle horizontal swipe if it's more horizontal than vertical
-        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-            if (dx < 0) {
-                this.lightboxNext();
-            } else {
-                this.lightboxPrev();
-            }
-        }
-    }
-
-    onLightboxKeydown(event: KeyboardEvent): void {
-        if (event.key === 'ArrowLeft') {
-            this.lightboxPrev();
-        } else if (event.key === 'ArrowRight') {
-            this.lightboxNext();
-        } else if (event.key === 'Escape') {
-            this.closeLightbox();
-        }
     }
 
     photoUrl(filename: string): string {

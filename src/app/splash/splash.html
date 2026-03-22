@@ -1,7 +1,7 @@
-<div class="splash-overlay" (click)="dismiss()">
-    <div class="splash-card" (click)="$event.stopPropagation()">
+<div class="overlay splash-overlay" (click)="dismiss()">
+    <div class="overlay-card splash-card" (click)="$event.stopPropagation()">
         <button
-            class="splash-lang"
+            class="btn-lang splash-lang"
             type="button"
             [attr.aria-label]="i18n.t().switchLanguage"
             (click)="i18n.toggleLang()"
@@ -35,7 +35,7 @@
             </li>
         </ul>
 
-        <button class="splash-btn" type="button" (click)="dismiss()">
+        <button class="btn-primary btn-lg splash-btn" type="button" (click)="dismiss()">
             {{ i18n.t().splashGetStarted }}
         </button>
     </div>

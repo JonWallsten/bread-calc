@@ -1,21 +1,7 @@
-@use 'mixins' as *;
-
-.section {
-    @include section-card;
-}
-
-.section-header {
-    @include section-header;
-}
-
 .section-title {
     font-size: 18px;
     font-weight: 700;
     flex: 1;
-}
-
-.copy-btn {
-    @include btn-copy;
 }
 
 .copy-label {
@@ -114,11 +100,5 @@
 @media (min-width: 900px) {
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (min-width: 600px) {
-    .section {
-        padding: 24px 20px;
     }
 }

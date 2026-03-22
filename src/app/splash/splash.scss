@@ -1,17 +1,9 @@
-@use 'mixins' as *;
-
-.splash-overlay {
-    @include overlay;
-}
-
 .splash-card {
-    @include overlay-card;
     position: relative;
     padding: 40px 28px 32px;
 }
 
 .splash-lang {
-    @include btn-lang;
     position: absolute;
     top: 12px;
     right: 12px;
@@ -66,10 +58,7 @@
 }
 
 .splash-btn {
-    @include btn-primary(lg);
     display: block;
     width: 100%;
     height: 50px;
 }
-
-@include overlay-keyframes;

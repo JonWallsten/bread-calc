@@ -8,9 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **Post-deploy smoke test**: `npm run deploy` now verifies the production API responds correctly after upload — checks `/auth/config` returns 200 and authenticated endpoints return 401 (not 500). Catches incomplete FTP uploads that leave PHP files broken.
+- **Reusable `app-expansion` component**: Collapsible toggle panel with chevron indicator and `aria-expanded` — replaces duplicated show/hide patterns in calculator (advanced settings), baking-session (show recipe), and shared-bake (show recipe). Styled via CSS custom properties (`--expansion-bg`, `--expansion-padding`, etc.)
+- **Reusable `app-select` component**: Encapsulates the select + chevron pattern used across calculator, flour blend, and compare views — configured via CSS custom properties (`--select-height`, `--select-font-size`, etc.)
+- **Reusable `app-lightbox` component**: Encapsulates photo lightbox with keyboard navigation, swipe gestures, dots, and arrows — replaces duplicated lightbox code in baking-session and shared-bake views
+- **Global UI classes**: Button variants (`.btn-primary`, `.btn-secondary`, `.btn-icon`, `.btn-copy`, `.btn-lang`), layout primitives (`.section-card`, `.section-header`, `.overlay`, `.overlay-card`), and form helpers (`.field-label`, `.field-hint`) defined once in `styles.scss`
 - **Flour blend in bake view**: Saved bakes now store and display the flour blend breakdown (per-flour percentages and weights) in the recipe results — visible in session detail, shared bake, and compare views
 - **Hydration adjustment notice**: When flour blend caused a hydration adjustment, an info box in the recipe results explains the change and advises recipients using different flours to start at base hydration
 - **Flour blend in compare view**: Side-by-side flour blend comparison shown below the data table when either bake used a custom flour blend
+
+### Changed
+
+- **Removed `_mixins.scss`**: All SCSS mixins replaced with global CSS classes or inline styles — eliminates duplicated CSS output and simplifies component stylesheets
+- **Removed `styles.css`**: Stale unused file (Angular only loads `styles.scss`)
+- **Migrated all components**: Calculator, flour-blend, results, instructions, save-bake, baking-session, compare, confirm-dialog, splash, shared-bake, and app root — all now use global classes instead of mixin includes
 
 ### Fixed
 

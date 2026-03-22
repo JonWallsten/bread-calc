@@ -1,16 +1,11 @@
-@use 'mixins' as *;
-
 /* ── Host spacing ────────────────────────────────── */
 :host {
     display: block;
     margin-top: var(--gap);
 }
-.section-header {
-    @include section-header;
-}
+
 /* ── Save bake button ──────────────────────────────── */
 .save-bake-btn {
-    @include btn-primary;
     width: 100%;
     font-size: 14px;
     margin-top: 12px;
@@ -49,14 +44,6 @@
 /* ── Save form ─────────────────────────────────────── */
 .save-form {
     margin-top: 12px;
-}
-
-.field-label {
-    display: block;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 14px;
-    margin-bottom: 6px;
 }
 
 .title-input,
@@ -118,7 +105,12 @@
 }
 
 .add-photo-btn {
-    @include btn-base;
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 6px;
     width: 100%;
     height: 40px;
@@ -138,29 +130,18 @@
     gap: 10px;
     margin-top: 12px;
 
-    .reset-btn {
-        @include btn-secondary;
-        flex: 1;
-    }
-
+    .reset-btn,
     .calculate-btn {
-        @include btn-primary;
         flex: 1;
     }
 }
 
 /* ── Photo shared ──────────────────────────────────── */
 .photo-delete-btn {
-    @include btn-icon(24px, $round: true);
     position: absolute;
     top: 4px;
     right: 4px;
     background: rgba(0, 0, 0, 0.6);
     color: white;
     font-size: 12px;
-}
-
-/* ── Visually hidden ───────────────────────────────── */
-.visually-hidden {
-    @include visually-hidden;
 }

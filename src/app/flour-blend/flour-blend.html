@@ -2,8 +2,9 @@
     <span class="section-icon" aria-hidden="true">&#127806;</span>
     <h2 class="section-title">{{ i18n.t().flourBlend }}</h2>
     <button
-        class="info-btn"
+        class="btn-icon btn-round info-btn"
         type="button"
+        style="--btn-size: 28px"
         [attr.aria-label]="i18n.t().flourBlend"
         [appTooltip]="i18n.t().infoFlourBlend"
     >
@@ -14,25 +15,23 @@
 <!-- Preset controls -->
 <label class="field-label">{{ i18n.t().preset }}</label>
 <div class="preset-row">
-    <div class="select-wrap preset-select">
-        <select
-            [value]="blend.selectedPresetId() ?? ''"
-            (change)="onPresetChange($any($event.target).value)"
-        >
-            <option value="">—</option>
-            @for (p of builtInPresets; track p.id) {
-                <option [value]="p.id">
-                    {{ i18n.currentLang() === 'sv' ? p.nameSv : p.nameEn }} ({{ i18n.t().builtIn }})
-                </option>
-            }
-            @for (p of blend.userPresets(); track p.id) {
-                <option [value]="p.id">
-                    {{ p.name }}{{ p.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
-                </option>
-            }
-        </select>
-        <span class="select-chevron" aria-hidden="true">&#9662;</span>
-    </div>
+    <app-select
+        class="preset-select"
+        [value]="blend.selectedPresetId() ?? ''"
+        (valueChange)="onPresetChange($event)"
+    >
+        <option value="">—</option>
+        @for (p of builtInPresets; track p.id) {
+            <option [value]="p.id">
+                {{ i18n.currentLang() === 'sv' ? p.nameSv : p.nameEn }} ({{ i18n.t().builtIn }})
+            </option>
+        }
+        @for (p of blend.userPresets(); track p.id) {
+            <option [value]="p.id">
+                {{ p.name }}{{ p.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
+            </option>
+        }
+    </app-select>
 </div>
 
 <div class="preset-actions">
@@ -56,22 +55,21 @@
 @for (row of blend.blendRows(); track $index; let i = $index) {
     <div class="flour-row">
         <div class="flour-row-top">
-            <div class="select-wrap flour-select">
-                <select
-                    [value]="row.flourId"
-                    (change)="onFlourChange(i, $any($event.target).value)"
-                >
-                    @for (f of flourDefs; track f.id) {
-                        <option [value]="f.id" [selected]="f.id === row.flourId">
-                            {{ flourName(f.id) }}
-                        </option>
-                    }
-                </select>
-                <span class="select-chevron" aria-hidden="true">&#9662;</span>
-            </div>
+            <app-select
+                class="flour-select"
+                [value]="row.flourId"
+                (valueChange)="onFlourChange(i, $event)"
+            >
+                @for (f of flourDefs; track f.id) {
+                    <option [value]="f.id" [selected]="f.id === row.flourId">
+                        {{ flourName(f.id) }}
+                    </option>
+                }
+            </app-select>
             <button
-                class="remove-btn"
+                class="btn-icon remove-btn"
                 type="button"
+                style="--btn-size: 28px"
                 [attr.aria-label]="i18n.t().removeFlour"
                 [title]="i18n.t().removeFlour"
                 (click)="blend.removeRow(i)"
@@ -163,8 +161,8 @@
 
 <!-- Save dialog -->
 @if (showSaveDialog()) {
-    <div class="save-overlay" (click)="cancelSave()">
-        <div class="save-dialog" (click)="$event.stopPropagation()">
+    <div class="save-overlay overlay" (click)="cancelSave()">
+        <div class="save-dialog overlay-card" (click)="$event.stopPropagation()">
             <h3>{{ i18n.t().savePreset }}</h3>
             <label class="field-label">{{ i18n.t().presetName }}</label>
             <input

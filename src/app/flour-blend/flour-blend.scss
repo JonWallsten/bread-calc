@@ -1,34 +1,15 @@
-@use 'mixins' as *;
-
 :host {
     display: block;
 }
 
-.section-header {
-    @include section-header;
-}
-
-.section-icon {
-    font-size: 20px;
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-}
-
 .info-btn {
-    @include btn-icon(28px, $round: true);
     font-size: 18px;
     color: var(--text-muted);
+    outline: none;
 }
 
 .field-label {
-    display: block;
-    font-size: 13px;
     font-weight: 600;
-    color: var(--text-muted);
     margin-bottom: 4px;
     margin-top: 12px;
 }
@@ -40,32 +21,14 @@
     align-items: center;
 }
 
-.select-wrap {
-    position: relative;
+.preset-select {
     flex: 1;
-
-    select {
-        width: 100%;
-        appearance: none;
-        -webkit-appearance: none;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 9px 32px 9px 12px;
-        font-size: 15px;
-        color: var(--text);
-        cursor: pointer;
-    }
-}
-
-.select-chevron {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: var(--text-muted);
-    font-size: 13px;
+    --select-height: auto;
+    --select-font-size: 15px;
+    --select-font-weight: 400;
+    --select-align: left;
+    --select-padding: 9px 32px 9px 12px;
+    --select-chevron-right: 10px;
 }
 
 .preset-actions {
@@ -76,7 +39,12 @@
 }
 
 .action-btn {
-    @include btn-base;
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -125,10 +93,15 @@
 
 .flour-select {
     flex: 1;
+    --select-height: auto;
+    --select-font-size: 15px;
+    --select-font-weight: 400;
+    --select-align: left;
+    --select-padding: 9px 32px 9px 12px;
+    --select-chevron-right: 10px;
 }
 
 .remove-btn {
-    @include btn-icon(28px);
     font-size: 16px;
     color: var(--danger-color);
     border-radius: 4px;
@@ -172,7 +145,9 @@
 }
 
 .add-flour-btn {
-    @include btn-base;
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
     display: block;
     width: 100%;
     background: var(--bg);
@@ -245,14 +220,13 @@
 
 /* Save dialog */
 .save-overlay {
-    @include overlay;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
 
 .save-dialog {
-    @include overlay-card(360px);
+    --overlay-max-width: 360px;
     text-align: left;
     padding: 19px 22px;
 }
@@ -294,5 +268,3 @@
     gap: 8px;
     margin-top: 12px;
 }
-
-@include overlay-keyframes;

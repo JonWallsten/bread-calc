@@ -43,80 +43,22 @@
         </div>
 
         <!-- Recipe toggle -->
-        <button class="recipe-toggle-btn" type="button" (click)="showRecipe.set(!showRecipe())">
-            @if (showRecipe()) {
-                &#9650; {{ i18n.t().hideRecipe }}
-            } @else {
-                &#9660; {{ i18n.t().showRecipe }}
-            }
-        </button>
-        @if (showRecipe()) {
+        <app-expansion
+            class="recipe-toggle-btn"
+            [label]="showRecipe() ? i18n.t().hideRecipe : i18n.t().showRecipe"
+            [(open)]="showRecipe"
+        >
             <app-results [data]="b.results_snapshot" />
-        }
+        </app-expansion>
     </article>
 
     <!-- Photo lightbox -->
     @if (lightboxOpen()) {
-        @if (b.photos[lightboxIndex()]; as lbPhoto) {
-            <div
-                class="lightbox"
-                role="dialog"
-                aria-modal="true"
-                tabindex="0"
-                (click)="closeLightbox()"
-                (keydown)="onLightboxKeydown($event)"
-                (touchstart)="onLightboxTouchStart($event)"
-                (touchend)="onLightboxTouchEnd($event)"
-            >
-                <div class="lightbox-header">
-                    <span class="lightbox-counter">
-                        {{ i18n.t().photoOf(lightboxIndex() + 1, b.photos.length) }}
-                    </span>
-                    <button
-                        class="lightbox-close"
-                        type="button"
-                        (click)="closeLightbox(); $event.stopPropagation()"
-                    >
-                        &#10005;
-                    </button>
-                </div>
-                <img
-                    class="lightbox-img"
-                    [src]="photoUrl(lbPhoto.filename)"
-                    [alt]="lbPhoto.original_name"
-                    (click)="$event.stopPropagation()"
-                />
-                @if (b.photos.length > 1) {
-                    <button
-                        class="lightbox-arrow lightbox-prev"
-                        type="button"
-                        (click)="lightboxPrev(); $event.stopPropagation()"
-                        aria-label="Previous"
-                    >
-                        &#8249;
-                    </button>
-                    <button
-                        class="lightbox-arrow lightbox-next"
-                        type="button"
-                        (click)="lightboxNext(); $event.stopPropagation()"
-                        aria-label="Next"
-                    >
-                        &#8250;
-                    </button>
-                    <div class="lightbox-dots" (click)="$event.stopPropagation()">
-                        @for (p of b.photos; track p.id) {
-                            <button
-                                class="lightbox-dot"
-                                type="button"
-                                [class.active]="$index === lightboxIndex()"
-                                (click)="lightboxIndex.set($index)"
-                                [attr.aria-label]="'Photo ' + ($index + 1)"
-                            ></button>
-                        }
-                    </div>
-                }
-            </div>
-        }
+        <app-lightbox
+            [photos]="lightboxPhotos()"
+            [(index)]="lightboxIndex"
+            (closed)="closeLightbox()"
+        />
     }
 } @else {
     <div class="shared-empty">

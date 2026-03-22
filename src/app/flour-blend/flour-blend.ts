@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { FlourBlendService } from '../flour-blend.service';
 import { I18nService } from '../i18n.service';
 import { TooltipDirective } from '../tooltip.directive';
+import { SelectComponent } from '../select/select';
 import { FLOUR_DEFINITIONS, BUILT_IN_PRESETS, getFlourDefinitionById } from '../flour.config';
 
 @Component({
     selector: 'app-flour-blend',
-    imports: [FormsModule, TooltipDirective],
+    imports: [FormsModule, TooltipDirective, SelectComponent],
     templateUrl: './flour-blend.html',
     styleUrl: './flour-blend.scss',
 })

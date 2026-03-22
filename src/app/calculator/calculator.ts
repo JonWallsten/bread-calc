@@ -23,6 +23,8 @@ import { Recipe } from '../recipe-presets';
 import { AuthService } from '../auth.service';
 import { SaveBakeComponent } from '../save-bake/save-bake';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
+import { SelectComponent } from '../select/select';
+import { ExpansionComponent } from '../expansion/expansion';
 
 @Component({
     selector: 'app-calculator',
@@ -37,6 +39,8 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
         FlourBlendComponent,
         SaveBakeComponent,
         ConfirmDialogComponent,
+        SelectComponent,
+        ExpansionComponent,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -88,6 +92,9 @@ export class CalculatorComponent implements OnInit {
     readonly showSaveDialog = signal(false);
     readonly saveRecipeName = signal('');
     readonly showDeleteRecipeConfirm = signal(false);
+
+    // Computed signal for recipe select two-way binding
+    readonly recipeSelectValue = computed(() => this.recipes.activeId() ?? '');
 
     // Active recipe cloud id for baking session
     readonly activeRecipeCloudId = computed(() => {
@@ -256,10 +263,6 @@ export class CalculatorComponent implements OnInit {
 
     onStepperChange(): void {
         this.saveInputs();
-    }
-
-    toggleAdvanced(): void {
-        this.advancedOpen.update((v) => !v);
     }
 
     reset(): void {

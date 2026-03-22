@@ -1,5 +1,5 @@
 @if (auth.isLoggedIn()) {
-    <section class="section">
+    <section class="section-card">
         <div class="section-header">
             <span class="section-icon" aria-hidden="true">&#128247;</span>
             <h2 class="section-title">{{ i18n.t().myBakes }}</h2>
@@ -71,7 +71,12 @@
                     (click)="$event.stopPropagation()"
                 >
                     <div class="detail-header">
-                        <button class="detail-close" type="button" (click)="closeDetail()">
+                        <button
+                            class="btn-icon detail-close"
+                            type="button"
+                            style="--btn-size: 36px"
+                            (click)="closeDetail()"
+                        >
                             &#10005;
                         </button>
                     </div>
@@ -92,8 +97,9 @@
                                         loading="lazy"
                                     />
                                     <button
-                                        class="photo-delete-btn"
+                                        class="btn-icon btn-round photo-delete-btn"
                                         type="button"
+                                        style="--btn-size: 24px"
                                         (click)="removePhoto(photo.id); $event.stopPropagation()"
                                         [attr.aria-label]="i18n.t().deletePhoto"
                                         [title]="i18n.t().deletePhoto"
@@ -120,7 +126,7 @@
                             (change)="onPhotoSelected($event)"
                         />
                         <button
-                            class="upload-btn"
+                            class="btn-primary btn-sm upload-btn"
                             type="button"
                             [disabled]="uploadingPhoto()"
                             (click)="fileInput.click()"
@@ -139,8 +145,9 @@
                             </h3>
                             @if (!editing()) {
                                 <button
-                                    class="edit-btn"
+                                    class="btn-icon edit-btn"
                                     type="button"
+                                    style="--btn-size: 36px"
                                     [attr.aria-label]="i18n.t().editBake"
                                     [title]="i18n.t().editBake"
                                     (click)="startEditing()"
@@ -188,13 +195,17 @@
 
                             <div class="edit-actions">
                                 <button
-                                    class="edit-cancel-btn"
+                                    class="btn-secondary btn-sm edit-cancel-btn"
                                     type="button"
                                     (click)="cancelEditing()"
                                 >
                                     {{ i18n.t().cancel }}
                                 </button>
-                                <button class="edit-save-btn" type="button" (click)="saveEditing()">
+                                <button
+                                    class="btn-primary btn-sm edit-save-btn"
+                                    type="button"
+                                    (click)="saveEditing()"
+                                >
                                     {{ i18n.t().save }}
                                 </button>
                             </div>
@@ -216,20 +227,13 @@
                     </div>
 
                     <!-- Recipe toggle -->
-                    <button
+                    <app-expansion
                         class="recipe-toggle-btn"
-                        type="button"
-                        (click)="showRecipe.set(!showRecipe())"
+                        [label]="showRecipe() ? i18n.t().hideRecipe : i18n.t().showRecipe"
+                        [(open)]="showRecipe"
                     >
-                        @if (showRecipe()) {
-                            &#9650; {{ i18n.t().hideRecipe }}
-                        } @else {
-                            &#9660; {{ i18n.t().showRecipe }}
-                        }
-                    </button>
-                    @if (showRecipe()) {
                         <app-results [data]="detail.results_snapshot" />
-                    }
+                    </app-expansion>
 
                     <!-- Share toggle -->
                     <div class="share-section">
@@ -243,8 +247,9 @@
                                     (click)="copyShareLink(detail.share_hash)"
                                 />
                                 <button
-                                    class="share-copy-btn"
+                                    class="btn-icon share-copy-btn"
                                     type="button"
+                                    style="--btn-size: 36px"
                                     (click)="copyShareLink(detail.share_hash)"
                                 >
                                     @if (linkCopied()) {
@@ -255,7 +260,7 @@
                                 </button>
                             </div>
                             <button
-                                class="share-toggle-btn unshare"
+                                class="btn-secondary btn-sm share-toggle-btn"
                                 type="button"
                                 (click)="toggleShare(detail.id)"
                             >
@@ -263,7 +268,7 @@
                             </button>
                         } @else {
                             <button
-                                class="share-toggle-btn"
+                                class="btn-secondary btn-sm share-toggle-btn"
                                 type="button"
                                 (click)="toggleShare(detail.id)"
                             >
@@ -273,7 +278,7 @@
                     </div>
 
                     <button
-                        class="delete-session-btn"
+                        class="btn-secondary delete-session-btn"
                         type="button"
                         (click)="requestDeleteSession(detail.id, $event)"
                     >
@@ -285,67 +290,11 @@
 
         <!-- Photo lightbox -->
         @if (lightboxOpen() && selectedSession(); as lbSession) {
-            @if (lbSession.photos[lightboxIndex()]; as lbPhoto) {
-                <div
-                    #lightboxEl
-                    class="lightbox"
-                    role="dialog"
-                    aria-modal="true"
-                    tabindex="0"
-                    (click)="closeLightbox()"
-                    (keydown)="onLightboxKeydown($event)"
-                    (touchstart)="onLightboxTouchStart($event)"
-                    (touchend)="onLightboxTouchEnd($event)"
-                >
-                    <div class="lightbox-header">
-                        <span class="lightbox-counter">
-                            {{ i18n.t().photoOf(lightboxIndex() + 1, lbSession.photos.length) }}
-                        </span>
-                        <button
-                            class="lightbox-close"
-                            type="button"
-                            (click)="closeLightbox(); $event.stopPropagation()"
-                        >
-                            &#10005;
-                        </button>
-                    </div>
-                    <img
-                        class="lightbox-img"
-                        [src]="photoUrl(lbPhoto.filename)"
-                        [alt]="lbPhoto.original_name"
-                        (click)="$event.stopPropagation()"
-                    />
-                    @if (lbSession.photos.length > 1) {
-                        <button
-                            class="lightbox-arrow lightbox-prev"
-                            type="button"
-                            (click)="lightboxPrev(); $event.stopPropagation()"
-                            aria-label="Previous"
-                        >
-                            &#8249;
-                        </button>
-                        <button
-                            class="lightbox-arrow lightbox-next"
-                            type="button"
-                            (click)="lightboxNext(); $event.stopPropagation()"
-                            aria-label="Next"
-                        >
-                            &#8250;
-                        </button>
-                        <div class="lightbox-dots" (click)="$event.stopPropagation()">
-                            @for (p of lbSession.photos; track p.id) {
-                                <button
-                                    class="lightbox-dot"
-                                    type="button"
-                                    [class.active]="$index === lightboxIndex()"
-                                    (click)="lightboxIndex.set($index)"
-                                    [attr.aria-label]="'Photo ' + ($index + 1)"
-                                ></button>
-                            }
-                        </div>
-                    }
-                </div>
-            }
+            <app-lightbox
+                [photos]="lightboxPhotos()"
+                [(index)]="lightboxIndex"
+                (closed)="closeLightbox()"
+            />
         }
     </section>
 

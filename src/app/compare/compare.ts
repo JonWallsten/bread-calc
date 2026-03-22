@@ -8,6 +8,7 @@ import {
 } from '../baking-session.service';
 import { CalcResult } from '../calc.service';
 import { getFlourDefinitionById } from '../flour.config';
+import { SelectComponent } from '../select/select';
 
 interface CompareRow {
     label: string;
@@ -21,6 +22,7 @@ interface CompareRow {
     selector: 'app-compare',
     templateUrl: './compare.html',
     styleUrl: './compare.scss',
+    imports: [SelectComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareComponent {

@@ -1,0 +1,10 @@
+<button class="expansion-toggle" type="button" [attr.aria-expanded]="open()" (click)="toggle()">
+    <span>{{ label() }}</span>
+    <span class="expansion-chevron" [class.open]="open()" aria-hidden="true">&#9662;</span>
+</button>
+
+@if (open()) {
+    <div class="expansion-body">
+        <ng-content />
+    </div>
+}

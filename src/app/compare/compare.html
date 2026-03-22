@@ -1,4 +1,4 @@
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#128200;</span>
         <h2 class="section-title">{{ i18n.t().compareBakes }}</h2>
@@ -12,28 +12,22 @@
         <div class="compare-selectors">
             <div class="compare-select">
                 <label class="field-label">{{ i18n.t().selectBakeA }}</label>
-                <div class="select-wrap">
-                    <select [value]="sessionIdA()" (change)="onSelectA($any($event.target).value)">
-                        <option value="" disabled hidden>—</option>
-                        @for (s of allSessions(); track s.id) {
-                            <option [value]="s.id">{{ sessionLabel(s) }}</option>
-                        }
-                    </select>
-                    <span class="select-chevron" aria-hidden="true">&#9662;</span>
-                </div>
+                <app-select [value]="sessionIdA()" (valueChange)="onSelectA($event)">
+                    <option value="" disabled hidden>—</option>
+                    @for (s of allSessions(); track s.id) {
+                        <option [value]="s.id">{{ sessionLabel(s) }}</option>
+                    }
+                </app-select>
             </div>
 
             <div class="compare-select">
                 <label class="field-label">{{ i18n.t().selectBakeB }}</label>
-                <div class="select-wrap">
-                    <select [value]="sessionIdB()" (change)="onSelectB($any($event.target).value)">
-                        <option value="" disabled hidden>—</option>
-                        @for (s of allSessions(); track s.id) {
-                            <option [value]="s.id">{{ sessionLabel(s) }}</option>
-                        }
-                    </select>
-                    <span class="select-chevron" aria-hidden="true">&#9662;</span>
-                </div>
+                <app-select [value]="sessionIdB()" (valueChange)="onSelectB($event)">
+                    <option value="" disabled hidden>—</option>
+                    @for (s of allSessions(); track s.id) {
+                        <option [value]="s.id">{{ sessionLabel(s) }}</option>
+                    }
+                </app-select>
             </div>
         </div>
 

@@ -1,59 +1,8 @@
-@use 'mixins' as *;
-
-/* ── Sections ──────────────────────────────────────────── */
-.section {
-    @include section-card;
-}
-
-.section-header {
-    @include section-header;
-}
-
-.section-icon {
-    font-size: 20px;
-    line-height: 1;
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 700;
-    flex: 1;
-}
-
 /* ── Info button ───────────────────────────────────────── */
 .info-btn {
-    @include btn-icon(28px, $round: true);
     font-size: 18px;
     color: var(--text-muted);
     outline: none;
-}
-
-/* ── Field labels ──────────────────────────────────────── */
-.field-label {
-    display: block;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 14px;
-    margin-bottom: 6px;
-}
-
-.field-hint {
-    font-size: 11px;
-    color: var(--text-muted);
-    opacity: 0.7;
-    margin: 4px 0 0;
-    transition: color 0.2s ease;
-
-    &--warn {
-        color: var(--warn-color);
-        opacity: 1;
-    }
-
-    &--error {
-        color: var(--error-color);
-        opacity: 1;
-        font-weight: 600;
-    }
 }
 
 /* ── Mixer speed inputs ────────────────────────────────── */
@@ -73,38 +22,6 @@
     min-height: 44px;
 }
 
-/* ── Select dropdown ───────────────────────────────────── */
-.select-wrap {
-    position: relative;
-
-    select {
-        width: 100%;
-        height: var(--stepper-h);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        background: var(--surface);
-        font-family: var(--font);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--text);
-        text-align: center;
-        padding: 0 40px 0 16px;
-        appearance: none;
-        -webkit-appearance: none;
-        cursor: pointer;
-    }
-}
-
-.select-chevron {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    color: var(--text-muted);
-    pointer-events: none;
-}
-
 /* ── Yeast recommendation text ─────────────────────────── */
 .yeast-recommendation {
     font-size: 13px;
@@ -115,31 +32,12 @@
 
 /* ── Advanced settings banner ──────────────────────────── */
 .advanced-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 14px 16px;
-    margin-top: var(--gap);
-    background: var(--info-bg);
-    border: 1px solid var(--info-bg-hover);
-    border-radius: var(--radius);
-    font-family: var(--font);
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.advanced-chevron {
-    font-size: 14px;
-    transition: transform 0.2s ease;
-
-    &.open {
-        transform: rotate(180deg);
-    }
+    --expansion-padding: 14px 16px;
+    --expansion-bg: var(--info-bg);
+    --expansion-border: var(--info-bg-hover);
+    --expansion-font-size: 15px;
+    --expansion-font-weight: 700;
+    --expansion-color: var(--text);
 }
 
 .advanced-divider {
@@ -164,7 +62,6 @@
 }
 
 .recipe-action-btn {
-    @include btn-icon(44px);
     height: var(--stepper-h);
     border: 1px solid var(--border);
     background: var(--surface);
@@ -235,13 +132,11 @@
 }
 
 .reset-btn {
-    @include btn-secondary(lg);
     padding: 0 20px;
     white-space: nowrap;
 }
 
 .calculate-btn {
-    @include btn-primary(lg);
     flex: 1;
 }
 
@@ -254,9 +149,6 @@
     margin-top: 12px;
 }
 
-/* ── Responsive: tablet ────────────────────────────────── */
-@media (min-width: 600px) {
-    .section {
-        padding: 24px 20px;
-    }
+.section-collapsible {
+    margin-top: var(--gap);
 }

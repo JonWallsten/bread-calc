@@ -1,0 +1,34 @@
+:host {
+    display: block;
+}
+
+.select-wrap {
+    position: relative;
+
+    select {
+        width: 100%;
+        height: var(--select-height, var(--stepper-h));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        font-family: var(--font);
+        font-size: var(--select-font-size, 16px);
+        font-weight: 600;
+        color: var(--text);
+        text-align: var(--select-align, center);
+        padding: var(--select-padding, 0 40px 0 16px);
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+    }
+}
+
+.select-chevron {
+    position: absolute;
+    right: var(--select-chevron-right, 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+}

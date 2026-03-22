@@ -1,11 +1,11 @@
 <div
-    class="dialog-overlay"
+    class="overlay dialog-overlay"
     role="dialog"
     aria-modal="true"
     [attr.aria-label]="title()"
     (click)="onBackdropClick($event)"
 >
-    <div class="dialog-card">
+    <div class="overlay-card dialog-card">
         @if (title()) {
             <h2 class="dialog-title">{{ title() }}</h2>
         }

@@ -8,30 +8,28 @@
 }
 
 <!-- Recipe selector -->
-<section class="section recipe-section">
+<section class="section-card recipe-section">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#128214;</span>
         <h2 class="section-title">{{ i18n.t().recipes }}</h2>
     </div>
 
     <div class="recipe-row">
-        <div class="select-wrap recipe-select">
-            <select
-                [value]="recipes.activeId() ?? ''"
-                (change)="onRecipeSelect($any($event.target).value)"
-            >
-                <option value="" disabled hidden>{{ i18n.t().selectRecipe }}</option>
-                @for (r of recipes.allRecipes(); track r.id) {
-                    <option [value]="r.id" [selected]="r.id === recipes.activeId()">
-                        {{ recipeName(r)
-                        }}{{ r.builtIn ? ' ★' : r.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
-                    </option>
-                }
-            </select>
-            <span class="select-chevron" aria-hidden="true">&#9662;</span>
-        </div>
+        <app-select
+            class="recipe-select"
+            [value]="recipeSelectValue()"
+            (valueChange)="onRecipeSelect($event)"
+        >
+            <option value="" disabled hidden>{{ i18n.t().selectRecipe }}</option>
+            @for (r of recipes.allRecipes(); track r.id) {
+                <option [value]="r.id" [selected]="r.id === recipes.activeId()">
+                    {{ recipeName(r)
+                    }}{{ r.builtIn ? ' ★' : r.id.startsWith('cloud-') ? ' ☁' : ' 💾' }}
+                </option>
+            }
+        </app-select>
         <button
-            class="recipe-action-btn"
+            class="btn-icon recipe-action-btn"
             type="button"
             (click)="openSaveDialog()"
             [attr.aria-label]="i18n.t().saveRecipe"
@@ -42,7 +40,7 @@
         @if (recipes.activeRecipe(); as active) {
             @if (!active.builtIn) {
                 <button
-                    class="recipe-action-btn"
+                    class="btn-icon recipe-action-btn"
                     type="button"
                     (click)="updateActiveRecipe()"
                     [attr.aria-label]="i18n.t().updateRecipe"
@@ -51,7 +49,7 @@
                     &#8635;
                 </button>
                 <button
-                    class="recipe-action-btn recipe-action-btn--danger"
+                    class="btn-icon recipe-action-btn recipe-action-btn--danger"
                     type="button"
                     (click)="deleteActiveRecipe()"
                     [attr.aria-label]="i18n.t().deleteRecipe"
@@ -61,7 +59,7 @@
                 </button>
                 @if (auth.isLoggedIn() && !active.id.startsWith('cloud-')) {
                     <button
-                        class="recipe-action-btn recipe-action-btn--cloud"
+                        class="btn-icon recipe-action-btn recipe-action-btn--cloud"
                         type="button"
                         (click)="uploadActiveRecipe()"
                         [attr.aria-label]="i18n.t().uploadToCloud"
@@ -87,10 +85,10 @@
             [placeholder]="i18n.t().enterRecipeName"
         />
         <div class="recipe-save-actions">
-            <button class="reset-btn" type="button" (click)="closeSaveDialog()">
+            <button class="btn-secondary" type="button" (click)="closeSaveDialog()">
                 {{ i18n.t().cancel }}
             </button>
-            <button class="calculate-btn" type="button" (click)="confirmSaveRecipe()">
+            <button class="btn-primary" type="button" (click)="confirmSaveRecipe()">
                 {{ i18n.t().save }}
             </button>
         </div>
@@ -98,13 +96,14 @@
 }
 
 <!-- Dough section -->
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#129366;</span>
         <h2 class="section-title">{{ i18n.t().dough }}</h2>
         <button
-            class="info-btn"
+            class="btn-icon btn-round info-btn"
             type="button"
+            style="--btn-size: 28px"
             [attr.aria-label]="i18n.t().dough"
             [appTooltip]="i18n.t().infoDough"
         >
@@ -133,13 +132,14 @@
 </section>
 
 <!-- Yeast section -->
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#129440;</span>
         <h2 class="section-title">{{ i18n.t().yeast }}</h2>
         <button
-            class="info-btn"
+            class="btn-icon btn-round info-btn"
             type="button"
+            style="--btn-size: 28px"
             [attr.aria-label]="i18n.t().yeast"
             [appTooltip]="i18n.t().infoYeast"
         >
@@ -148,38 +148,25 @@
     </div>
 
     <label class="field-label">{{ i18n.t().yeastType }}</label>
-    <div class="select-wrap">
-        <select [value]="yeastType()" (change)="onYeastTypeChange($any($event.target).value)">
-            @for (opt of yeastOptions(); track opt.value) {
-                <option [value]="opt.value">{{ opt.label }}</option>
-            }
-        </select>
-        <span class="select-chevron" aria-hidden="true">&#9662;</span>
-    </div>
+    <app-select [value]="yeastType()" (valueChange)="onYeastTypeChange($event)">
+        @for (opt of yeastOptions(); track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+        }
+    </app-select>
     <p class="field-hint">{{ yeastHelpText() }}</p>
     <p class="yeast-recommendation">{{ yeastRecommendation() }}</p>
 </section>
 
-<!-- Advanced settings banner -->
-<button
-    class="advanced-banner"
-    type="button"
-    [attr.aria-expanded]="advancedOpen()"
-    (click)="toggleAdvanced()"
->
-    <span>{{ i18n.t().advancedSettings }}</span>
-    <span class="advanced-chevron" [class.open]="advancedOpen()">&#9662;</span>
-</button>
-
-<!-- Percentages section (collapsible) -->
-@if (advancedOpen()) {
-    <section class="section section-collapsible">
+<!-- Advanced settings (collapsible) -->
+<app-expansion class="advanced-banner" [label]="i18n.t().advancedSettings" [(open)]="advancedOpen">
+    <section class="section-card section-collapsible">
         <div class="section-header">
             <span class="section-icon" aria-hidden="true">&#128295;</span>
             <h2 class="section-title">{{ i18n.t().percentages }}</h2>
             <button
-                class="info-btn"
+                class="btn-icon btn-round info-btn"
                 type="button"
+                style="--btn-size: 28px"
                 [attr.aria-label]="i18n.t().percentages"
                 [appTooltip]="i18n.t().infoPercentages"
             >
@@ -270,16 +257,17 @@
         <hr class="advanced-divider" />
         <app-flour-blend />
     </section>
-}
+</app-expansion>
 
 <!-- Starter section -->
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#129753;</span>
         <h2 class="section-title">{{ i18n.t().starter }}</h2>
         <button
-            class="info-btn"
+            class="btn-icon btn-round info-btn"
             type="button"
+            style="--btn-size: 28px"
             [attr.aria-label]="i18n.t().starter"
             [appTooltip]="i18n.t().infoStarter"
         >
@@ -309,13 +297,14 @@
 </section>
 
 <!-- Proofing section -->
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#128336;</span>
         <h2 class="section-title">{{ i18n.t().proofing }}</h2>
         <button
-            class="info-btn"
+            class="btn-icon btn-round info-btn"
             type="button"
+            style="--btn-size: 28px"
             [attr.aria-label]="i18n.t().proofing"
             [appTooltip]="i18n.t().infoProofing"
         >
@@ -343,19 +332,16 @@
 </section>
 
 <!-- Mixing method section -->
-<section class="section">
+<section class="section-card">
     <div class="section-header">
         <span class="section-icon" aria-hidden="true">&#129379;</span>
         <h2 class="section-title">{{ i18n.t().mixingMethod }}</h2>
     </div>
 
-    <div class="select-wrap">
-        <select [value]="mixingMethod()" (change)="onMixingMethodChange($any($event.target).value)">
-            <option value="manual">{{ i18n.t().manual }}</option>
-            <option value="machine">{{ i18n.t().machine }}</option>
-        </select>
-        <span class="select-chevron" aria-hidden="true">&#9662;</span>
-    </div>
+    <app-select [value]="mixingMethod()" (valueChange)="onMixingMethodChange($event)">
+        <option value="manual">{{ i18n.t().manual }}</option>
+        <option value="machine">{{ i18n.t().machine }}</option>
+    </app-select>
 
     @if (mixingMethod() === 'machine') {
         <label class="field-label mixer-speed-label">{{ i18n.t().mixerSpeedLow }}</label>
@@ -386,10 +372,10 @@
 
 <!-- Action buttons -->
 <div class="action-row">
-    <button class="reset-btn" type="button" (click)="reset()">
+    <button class="btn-secondary btn-lg reset-btn" type="button" (click)="reset()">
         {{ i18n.t().reset }}
     </button>
-    <button class="calculate-btn" type="button" (click)="runCalculation()">
+    <button class="btn-primary btn-lg calculate-btn" type="button" (click)="runCalculation()">
         {{ i18n.t().calculate }}
     </button>
 </div>

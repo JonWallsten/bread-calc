@@ -1,21 +1,7 @@
-@use 'mixins' as *;
-
-.section {
-    @include section-card;
-}
-
-.section-header {
-    @include section-header;
-}
-
 .section-title {
     font-size: 18px;
     font-weight: 700;
     flex: 1;
-}
-
-.copy-btn {
-    @include btn-copy;
 }
 
 .copy-label {
@@ -78,7 +64,10 @@
 }
 
 .check-btn {
-    @include btn-icon(28px, $round: true);
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 50%;
     border: 2px solid var(--border);
     background: transparent;
     color: transparent;
@@ -121,11 +110,25 @@
 }
 
 .timer-btn {
-    @include btn-secondary;
-    border-radius: 8px;
-    padding: 8px 18px;
+    font-family: var(--font);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text-muted);
     font-size: 14px;
     white-space: nowrap;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: var(--bg);
+    }
 }
 
 .timer-btn-time {
@@ -141,7 +144,7 @@
 }
 
 @media (min-width: 600px) {
-    .section {
+    .section-card {
         padding: 24px 20px;
     }
 }

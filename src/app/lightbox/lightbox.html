@@ -1,0 +1,60 @@
+@if (photos()[index()]; as photo) {
+    <div
+        #lightboxEl
+        class="lightbox"
+        role="dialog"
+        aria-modal="true"
+        tabindex="0"
+        (click)="close()"
+        (keydown)="onKeydown($event)"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+    >
+        <div class="lightbox-header">
+            <span class="lightbox-counter"> {{ index() + 1 }} / {{ photos().length }} </span>
+            <button
+                class="btn-icon btn-round lightbox-close"
+                type="button"
+                (click)="close(); $event.stopPropagation()"
+                style="--btn-size: 36px"
+            >
+                &#10005;
+            </button>
+        </div>
+        <img
+            class="lightbox-img"
+            [src]="photo.url"
+            [alt]="photo.alt"
+            (click)="$event.stopPropagation()"
+        />
+        @if (photos().length > 1) {
+            <button
+                class="btn lightbox-arrow lightbox-prev"
+                type="button"
+                (click)="prev(); $event.stopPropagation()"
+                aria-label="Previous"
+            >
+                &#8249;
+            </button>
+            <button
+                class="btn lightbox-arrow lightbox-next"
+                type="button"
+                (click)="next(); $event.stopPropagation()"
+                aria-label="Next"
+            >
+                &#8250;
+            </button>
+            <div class="lightbox-dots" (click)="$event.stopPropagation()">
+                @for (p of photos(); track $index) {
+                    <button
+                        class="lightbox-dot"
+                        type="button"
+                        [class.active]="$index === index()"
+                        (click)="index.set($index)"
+                        [attr.aria-label]="'Photo ' + ($index + 1)"
+                    ></button>
+                }
+            </div>
+        }
+    </div>
+}

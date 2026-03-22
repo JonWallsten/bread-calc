@@ -1,5 +1,3 @@
-@use 'mixins' as *;
-
 /* ── Top bar ───────────────────────────────────────────── */
 .topbar {
     position: fixed;
@@ -32,10 +30,6 @@
     font-size: 22px;
     line-height: 1;
     display: inline;
-}
-
-.topbar-icon-btn {
-    @include btn-lang;
 }
 
 .topbar-brand {
@@ -142,17 +136,17 @@
 
 .profile-logout {
     width: 100%;
-    @include btn-secondary(sm);
     border-radius: var(--radius);
 }
 
 .google-btn-wrap {
     display: flex;
     align-items: center;
+    justify-content: center;
     overflow: hidden;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
 }
 
 /* ── Container ─────────────────────────────────────────── */
@@ -226,7 +220,6 @@
 
 /* ── Scroll to top ─────────────────────────────────────── */
 .scroll-top-btn {
-    @include btn-icon(48px, $round: true);
     position: fixed;
     bottom: 72px;
     right: 24px;
