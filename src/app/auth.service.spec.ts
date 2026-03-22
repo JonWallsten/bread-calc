@@ -7,6 +7,7 @@ describe('AuthService', () => {
 
     beforeEach(() => {
         localStorage.clear();
+        sessionStorage.clear();
         // Mock fetch to prevent constructor fetchMe() from making real calls
         vi.stubGlobal(
             'fetch',
@@ -19,6 +20,7 @@ describe('AuthService', () => {
     afterEach(() => {
         vi.restoreAllMocks();
         localStorage.clear();
+        sessionStorage.clear();
     });
 
     it('should start with no user', () => {
@@ -26,12 +28,8 @@ describe('AuthService', () => {
         expect(service.isLoggedIn()).toBe(false);
     });
 
-    it('should start with no token', () => {
-        expect(service.authToken()).toBeNull();
-    });
-
     describe('loginWithGoogle', () => {
-        it('should set token and user on success', async () => {
+        it('should set user on success', async () => {
             const mockUser: AuthUser = {
                 id: 1,
                 email: 'test@example.com',
@@ -42,7 +40,7 @@ describe('AuthService', () => {
                 'fetch',
                 vi.fn(() =>
                     Promise.resolve(
-                        new Response(JSON.stringify({ token: 'jwt-abc', user: mockUser }), {
+                        new Response(JSON.stringify({ user: mockUser }), {
                             status: 200,
                             headers: { 'Content-Type': 'application/json' },
                         }),
@@ -52,9 +50,31 @@ describe('AuthService', () => {
 
             const result = await service.loginWithGoogle('google-id-token');
             expect(result).toBe(true);
-            expect(service.authToken()).toBe('jwt-abc');
             expect(service.user()).toEqual(mockUser);
             expect(service.isLoggedIn()).toBe(true);
+        });
+
+        it('should send credentials: include', async () => {
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() =>
+                    Promise.resolve(
+                        new Response(
+                            JSON.stringify({
+                                user: { id: 1, email: 'a@b.com', name: 'A', picture_url: null },
+                            }),
+                            {
+                                status: 200,
+                                headers: { 'Content-Type': 'application/json' },
+                            },
+                        ),
+                    ),
+                ),
+            );
+
+            await service.loginWithGoogle('id-token');
+            const [, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+            expect(options.credentials).toBe('include');
         });
 
         it('should return false on failure', async () => {
@@ -78,32 +98,34 @@ describe('AuthService', () => {
             expect(result).toBe(false);
         });
 
-        it('should persist token to localStorage', async () => {
-            const mockUser: AuthUser = {
-                id: 1,
-                email: 'a@b.com',
-                name: 'A',
-                picture_url: null,
-            };
+        it('should clear legacy tokens from storage', async () => {
+            localStorage.setItem('breadCalcAuthToken', 'old');
+            sessionStorage.setItem('breadCalcAuthToken', 'old');
             vi.stubGlobal(
                 'fetch',
                 vi.fn(() =>
                     Promise.resolve(
-                        new Response(JSON.stringify({ token: 'jwt-xyz', user: mockUser }), {
-                            status: 200,
-                            headers: { 'Content-Type': 'application/json' },
-                        }),
+                        new Response(
+                            JSON.stringify({
+                                user: { id: 1, email: 'a@b.com', name: 'A', picture_url: null },
+                            }),
+                            {
+                                status: 200,
+                                headers: { 'Content-Type': 'application/json' },
+                            },
+                        ),
                     ),
                 ),
             );
 
             await service.loginWithGoogle('id-token');
-            expect(localStorage.getItem('breadCalcAuthToken')).toBe('jwt-xyz');
+            expect(localStorage.getItem('breadCalcAuthToken')).toBeNull();
+            expect(sessionStorage.getItem('breadCalcAuthToken')).toBeNull();
         });
     });
 
     describe('logout', () => {
-        it('should clear token and user', async () => {
+        it('should clear user and call POST /auth/logout', async () => {
             // First login
             const mockUser: AuthUser = {
                 id: 1,
@@ -115,7 +137,7 @@ describe('AuthService', () => {
                 'fetch',
                 vi.fn(() =>
                     Promise.resolve(
-                        new Response(JSON.stringify({ token: 'jwt-123', user: mockUser }), {
+                        new Response(JSON.stringify({ user: mockUser }), {
                             status: 200,
                             headers: { 'Content-Type': 'application/json' },
                         }),
@@ -126,35 +148,33 @@ describe('AuthService', () => {
             expect(service.isLoggedIn()).toBe(true);
 
             // Then logout
-            service.logout();
-            expect(service.authToken()).toBeNull();
+            vi.stubGlobal(
+                'fetch',
+                vi.fn(() =>
+                    Promise.resolve(
+                        new Response(JSON.stringify({ success: true }), { status: 200 }),
+                    ),
+                ),
+            );
+            await service.logout();
             expect(service.user()).toBeNull();
             expect(service.isLoggedIn()).toBe(false);
-        });
-
-        it('should remove token from localStorage', async () => {
-            localStorage.setItem('breadCalcAuthToken', 'old-token');
-            service.logout();
-            expect(localStorage.getItem('breadCalcAuthToken')).toBeNull();
+            const [url, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+            expect(url).toContain('/auth/logout');
+            expect(options.method).toBe('POST');
+            expect(options.credentials).toBe('include');
         });
     });
 
-    describe('token restoration', () => {
-        it('should load token from localStorage on init', () => {
-            localStorage.setItem('breadCalcAuthToken', 'stored-jwt');
-            // Re-create the service to pick up the stored token
+    describe('fetchMe on init', () => {
+        it('should call /auth/me with credentials on construction', async () => {
             vi.stubGlobal(
                 'fetch',
                 vi.fn(() =>
                     Promise.resolve(
                         new Response(
                             JSON.stringify({
-                                user: {
-                                    id: 1,
-                                    email: 'a@b.com',
-                                    name: 'A',
-                                    picture_url: null,
-                                },
+                                user: { id: 1, email: 'a@b.com', name: 'A', picture_url: null },
                             }),
                             { status: 200, headers: { 'Content-Type': 'application/json' } },
                         ),
@@ -164,21 +184,23 @@ describe('AuthService', () => {
             TestBed.resetTestingModule();
             TestBed.configureTestingModule({});
             const freshService = TestBed.inject(AuthService);
-            expect(freshService.authToken()).toBe('stored-jwt');
+            await freshService.ready;
+            expect(freshService.isLoggedIn()).toBe(true);
+            const [url, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+            expect(url).toContain('/auth/me');
+            expect(options.credentials).toBe('include');
         });
     });
 
     describe('apiUrl', () => {
-        it('should use /bread-calc/api for non-localhost', async () => {
+        it('should use localhost URL in test environment', async () => {
             vi.stubGlobal(
                 'fetch',
                 vi.fn(() => Promise.resolve(new Response(null, { status: 401 }))),
             );
 
-            // loginWithGoogle calls this.apiUrl — verify the fetch URL
             await service.loginWithGoogle('token');
             const fetchCall = vi.mocked(fetch).mock.calls[0];
-            // In jsdom, hostname is 'localhost', so it should use the localhost URL
             expect(fetchCall[0]).toContain('/auth/google');
         });
     });

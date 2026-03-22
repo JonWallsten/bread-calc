@@ -57,3 +57,44 @@ function verifyJwt(string $token): ?array
 
     return $payload;
 }
+
+// ─── Cookie helpers ───────────────────────────────────────
+
+function getAuthCookiePath(): string
+{
+    // In production the app lives at /bread-calc/api/; in dev it's /
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    if (str_contains($scriptName, '/bread-calc/')) {
+        return '/bread-calc/api/';
+    }
+    return '/';
+}
+
+function setAuthCookie(string $jwt, int $expiresInSeconds = 2592000): void
+{
+    $isSecure = ($_SERVER['HTTPS'] ?? '') === 'on'
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
+    setcookie('auth_token', $jwt, [
+        'expires'  => time() + $expiresInSeconds,
+        'path'     => getAuthCookiePath(),
+        'secure'   => $isSecure,
+        'httponly'  => true,
+        'samesite' => 'Strict',
+    ]);
+}
+
+function clearAuthCookie(): void
+{
+    $isSecure = ($_SERVER['HTTPS'] ?? '') === 'on'
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
+    setcookie('auth_token', '', [
+        'expires'  => time() - 3600,
+        'path'     => getAuthCookiePath(),
+        'secure'   => $isSecure,
+        'httponly'  => true,
+        'samesite' => 'Strict',
+    ]);
+    unset($_COOKIE['auth_token']);
+}

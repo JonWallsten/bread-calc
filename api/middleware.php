@@ -3,18 +3,17 @@
 declare(strict_types=1);
 
 /**
- * Extract and verify the authenticated user from the Authorization header.
- * Returns the JWT payload (containing user_id, email, name) or null.
+ * Extract and verify the authenticated user from the auth cookie.
+ * Returns the JWT payload (containing user_id, email) or null.
  */
 function getAuthUser(): ?array
 {
-    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    $token = $_COOKIE['auth_token'] ?? null;
 
-    if (!str_starts_with($header, 'Bearer ')) {
+    if ($token === null) {
         return null;
     }
 
-    $token = substr($header, 7);
     return verifyJwt($token);
 }
 

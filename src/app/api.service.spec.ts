@@ -57,38 +57,15 @@ describe('ApiService', () => {
             expect(headers['Content-Type']).toBe('application/json');
         });
 
-        it('should include Authorization header when logged in', async () => {
-            // Login first
-            vi.stubGlobal(
-                'fetch',
-                vi.fn(() =>
-                    Promise.resolve(
-                        new Response(
-                            JSON.stringify({
-                                token: 'my-jwt',
-                                user: {
-                                    id: 1,
-                                    email: 'a@b.com',
-                                    name: 'A',
-                                    picture_url: null,
-                                },
-                            }),
-                            { status: 200, headers: { 'Content-Type': 'application/json' } },
-                        ),
-                    ),
-                ),
-            );
-            await authService.loginWithGoogle('id-token');
-
-            // Now make a GET request
+        it('should include credentials: include', async () => {
             vi.stubGlobal(
                 'fetch',
                 vi.fn(() => Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))),
             );
+
             await service.get('/recipes');
             const [, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
-            const headers = options.headers as Record<string, string>;
-            expect(headers['Authorization']).toBe('Bearer my-jwt');
+            expect(options.credentials).toBe('include');
         });
 
         it('should throw on non-OK response', async () => {
@@ -104,33 +81,10 @@ describe('ApiService', () => {
             // Login first
             vi.stubGlobal(
                 'fetch',
-                vi.fn(() =>
-                    Promise.resolve(
-                        new Response(
-                            JSON.stringify({
-                                token: 'jwt',
-                                user: {
-                                    id: 1,
-                                    email: 'a@b.com',
-                                    name: 'A',
-                                    picture_url: null,
-                                },
-                            }),
-                            { status: 200, headers: { 'Content-Type': 'application/json' } },
-                        ),
-                    ),
-                ),
-            );
-            await authService.loginWithGoogle('id-token');
-            expect(authService.authToken()).toBe('jwt');
-
-            // 401 response triggers logout
-            vi.stubGlobal(
-                'fetch',
                 vi.fn(() => Promise.resolve(new Response(null, { status: 401 }))),
             );
             await expect(service.get('/test')).rejects.toThrow('Unauthorized');
-            expect(authService.authToken()).toBeNull();
+            expect(authService.isLoggedIn()).toBe(false);
         });
     });
 
@@ -189,8 +143,7 @@ describe('ApiService', () => {
             await service.upload('/sessions/1/photos', formData);
 
             const [, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
-            const headers = options.headers as Record<string, string>;
-            expect(headers['Content-Type']).toBeUndefined();
+            expect(options.credentials).toBe('include');
             expect(options.body).toBe(formData);
         });
     });

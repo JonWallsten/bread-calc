@@ -41,3 +41,8 @@ define('DB_PASS', $_ENV['DB_PASS'] ?? '');
 define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '');
 define('JWT_SECRET', $_ENV['JWT_SECRET'] ?? '');
 define('UPLOADS_DIR', __DIR__ . '/uploads');
+
+// ─── Validate critical secrets ────────────────────────────
+if (JWT_SECRET === '') {
+    throw new RuntimeException('JWT_SECRET is not set. Check .credentials.env.');
+}

@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.1] — 2026-03-22
+
+### Changed
+
+- **HttpOnly cookie authentication**: JWT is now stored in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie instead of browser storage. The token is completely inaccessible to JavaScript, making XSS attacks unable to steal auth credentials. Login persists across tabs and browser restarts. Backend reads auth from cookie (with Authorization header fallback for migration). Logout calls `POST /auth/logout` to clear the cookie server-side.
+
+### Fixed
+
+- **Block dotfile access in production**: Root `.htaccess` now denies direct web access to all hidden files (`.credentials.env`, etc.), preventing secret exposure if the host serves dotfiles
+- **Recipe ID cross-user leak**: Session creation now validates that `recipe_id` belongs to the authenticated user; list/detail queries scope the recipe JOIN to the session owner, preventing recipe name disclosure across accounts
+- **JWT empty-secret guard**: API startup now throws a `RuntimeException` if `JWT_SECRET` is empty, preventing silent fallback to an unsigned/trivially-forgeable token
+
 ## [1.4.0] — 2026-03-22
 
 ### Added

@@ -10,6 +10,13 @@ function handleAuthRoutes(string $method, string $path): void
         return;
     }
 
+    // POST /auth/logout — clear auth cookie
+    if ($method === 'POST' && $path === '/auth/logout') {
+        clearAuthCookie();
+        sendJson(['success' => true]);
+        return;
+    }
+
     // POST /auth/google — exchange Google ID token for JWT
     if ($method === 'POST' && $path === '/auth/google') {
         $body = getJsonBody();
@@ -79,8 +86,9 @@ function handleAuthRoutes(string $method, string $path): void
             'email'   => $user['email'],
         ]);
 
+        setAuthCookie($jwt);
+
         sendJson([
-            'token' => $jwt,
             'user'  => [
                 'id'          => (int) $user['id'],
                 'email'       => $user['email'],

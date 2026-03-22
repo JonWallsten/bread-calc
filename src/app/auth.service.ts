@@ -1,7 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
 
-const TOKEN_KEY = 'breadCalcAuthToken';
-
 export interface AuthUser {
     id: number;
     email: string;
@@ -11,21 +9,15 @@ export interface AuthUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private readonly token = signal<string | null>(this.loadToken());
     private readonly userSignal = signal<AuthUser | null>(null);
     private readyResolve!: () => void;
     readonly ready = new Promise<void>((r) => (this.readyResolve = r));
 
-    readonly isLoggedIn = computed(() => !!this.token() && !!this.userSignal());
+    readonly isLoggedIn = computed(() => !!this.userSignal());
     readonly user = this.userSignal.asReadonly();
-    readonly authToken = this.token.asReadonly();
 
     constructor() {
-        if (this.token()) {
-            this.fetchMe();
-        } else {
-            this.readyResolve();
-        }
+        this.fetchMe();
     }
 
     async loginWithGoogle(idToken: string): Promise<boolean> {
@@ -33,38 +25,44 @@ export class AuthService {
             const res = await fetch(this.apiUrl('/auth/google'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ token: idToken }),
             });
             if (!res.ok) return false;
             const data = await res.json();
-            this.token.set(data.token);
             this.userSignal.set(data.user);
-            this.persistToken();
+            this.clearLegacyTokens();
             return true;
         } catch {
             return false;
         }
     }
 
-    logout(): void {
-        this.token.set(null);
+    async logout(): Promise<void> {
+        try {
+            await fetch(this.apiUrl('/auth/logout'), {
+                method: 'POST',
+                credentials: 'include',
+            });
+        } catch {
+            /* best-effort */
+        }
         this.userSignal.set(null);
-        this.persistToken();
     }
 
     private async fetchMe(): Promise<void> {
         try {
             const res = await fetch(this.apiUrl('/auth/me'), {
-                headers: { Authorization: `Bearer ${this.token()}` },
+                credentials: 'include',
             });
             if (!res.ok) {
-                this.logout();
+                this.userSignal.set(null);
                 return;
             }
             const data = await res.json();
             this.userSignal.set(data.user);
         } catch {
-            this.logout();
+            this.userSignal.set(null);
         } finally {
             this.readyResolve();
         }
@@ -78,22 +76,10 @@ export class AuthService {
         return `${base}${path}`;
     }
 
-    private loadToken(): string | null {
+    private clearLegacyTokens(): void {
         try {
-            return localStorage.getItem(TOKEN_KEY);
-        } catch {
-            return null;
-        }
-    }
-
-    private persistToken(): void {
-        try {
-            const t = this.token();
-            if (t) {
-                localStorage.setItem(TOKEN_KEY, t);
-            } else {
-                localStorage.removeItem(TOKEN_KEY);
-            }
+            localStorage.removeItem('breadCalcAuthToken');
+            sessionStorage.removeItem('breadCalcAuthToken');
         } catch {
             /* noop */
         }

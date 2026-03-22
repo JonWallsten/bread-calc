@@ -1,3 +1,9 @@
+# ─── Block access to hidden (dot) files ───────────────────
+# Prevents .credentials.env and any other dotfiles from being served
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
 # Prevent LiteSpeed from caching index.html
 <IfModule LiteSpeed>
   <FilesMatch "^index\.html$">

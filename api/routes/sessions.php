@@ -82,7 +82,7 @@ function listSessions(int $userId): void
                 r.name AS recipe_name,
                 (SELECT sp.filename FROM session_photos sp WHERE sp.session_id = s.id ORDER BY sp.sort_order LIMIT 1) AS thumbnail
          FROM baking_sessions s
-         LEFT JOIN recipes r ON r.id = s.recipe_id
+         LEFT JOIN recipes r ON r.id = s.recipe_id AND r.user_id = s.user_id
          WHERE s.user_id = :uid
          ORDER BY s.baked_at DESC
          LIMIT :lim OFFSET :off'
@@ -120,6 +120,18 @@ function createSession(int $userId): void
     }
 
     $recipeId = isset($body['recipe_id']) ? (int)$body['recipe_id'] : null;
+
+    // Validate recipe belongs to this user
+    if ($recipeId !== null) {
+        $db = getDb();
+        $check = $db->prepare('SELECT id FROM recipes WHERE id = :rid AND user_id = :uid');
+        $check->execute([':rid' => $recipeId, ':uid' => $userId]);
+        if (!$check->fetch()) {
+            sendJson(['error' => 'Recipe not found'], 404);
+            return;
+        }
+    }
+
     $title = isset($body['title']) ? trim($body['title']) : null;
     $notes = trim($body['notes'] ?? '');
     $rating = isset($body['rating']) ? (int)$body['rating'] : null;
@@ -157,7 +169,7 @@ function getSession(int $userId, int $id): void
     $stmt = $db->prepare(
         'SELECT s.*, r.name AS recipe_name
          FROM baking_sessions s
-         LEFT JOIN recipes r ON r.id = s.recipe_id
+         LEFT JOIN recipes r ON r.id = s.recipe_id AND r.user_id = s.user_id
          WHERE s.id = :id AND s.user_id = :uid'
     );
     $stmt->execute([':id' => $id, ':uid' => $userId]);

@@ -13,15 +13,11 @@ export class ApiService {
         return `${base}${path}`;
     }
 
-    private headers(): HeadersInit {
-        const h: Record<string, string> = { 'Content-Type': 'application/json' };
-        const token = this.auth.authToken();
-        if (token) h['Authorization'] = `Bearer ${token}`;
-        return h;
-    }
-
     async get<T>(path: string): Promise<T> {
-        const res = await fetch(this.apiUrl(path), { headers: this.headers() });
+        const res = await fetch(this.apiUrl(path), {
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+        });
         if (res.status === 401) {
             this.auth.logout();
             throw new Error('Unauthorized');
@@ -33,7 +29,8 @@ export class ApiService {
     async post<T>(path: string, body: unknown): Promise<T> {
         const res = await fetch(this.apiUrl(path), {
             method: 'POST',
-            headers: this.headers(),
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(body),
         });
         if (res.status === 401) {
@@ -47,7 +44,8 @@ export class ApiService {
     async put<T>(path: string, body: unknown): Promise<T> {
         const res = await fetch(this.apiUrl(path), {
             method: 'PUT',
-            headers: this.headers(),
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(body),
         });
         if (res.status === 401) {
@@ -61,7 +59,7 @@ export class ApiService {
     async delete(path: string): Promise<void> {
         const res = await fetch(this.apiUrl(path), {
             method: 'DELETE',
-            headers: this.headers(),
+            credentials: 'include',
         });
         if (res.status === 401) {
             this.auth.logout();
@@ -71,12 +69,9 @@ export class ApiService {
     }
 
     async upload(path: string, formData: FormData): Promise<unknown> {
-        const h: Record<string, string> = {};
-        const token = this.auth.authToken();
-        if (token) h['Authorization'] = `Bearer ${token}`;
         const res = await fetch(this.apiUrl(path), {
             method: 'POST',
-            headers: h,
+            credentials: 'include',
             body: formData,
         });
         if (res.status === 401) {
