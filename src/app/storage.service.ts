@@ -3,6 +3,7 @@ import { CalcInputs } from './calc.service';
 import { DEFAULT_INPUTS } from './config';
 
 const STORAGE_KEY = 'breadCalcInputs';
+const MIXING_METHOD_KEY = 'breadCalcMixingMethod';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -31,5 +32,23 @@ export class StorageService {
         } catch {
             /* noop */
         }
+    }
+
+    saveMixingMethod(method: CalcInputs['mixingMethod']): void {
+        try {
+            localStorage.setItem(MIXING_METHOD_KEY, method);
+        } catch {
+            /* noop */
+        }
+    }
+
+    loadMixingMethod(): CalcInputs['mixingMethod'] {
+        try {
+            const val = localStorage.getItem(MIXING_METHOD_KEY);
+            if (val === 'machine' || val === 'manual') return val;
+        } catch {
+            /* noop */
+        }
+        return DEFAULT_INPUTS.mixingMethod;
     }
 }

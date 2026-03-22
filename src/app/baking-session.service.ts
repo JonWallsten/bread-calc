@@ -83,7 +83,13 @@ export class BakingSessionService {
     async createSession(
         inputsSnapshot: CalcInputs,
         resultsSnapshot: CalcResult,
-        options?: { recipeId?: number; title?: string; notes?: string; rating?: number },
+        options?: {
+            recipeId?: number;
+            title?: string;
+            notes?: string;
+            rating?: number;
+            bakedAt?: string;
+        },
     ): Promise<BakingSessionDetail | null> {
         try {
             const body: Record<string, unknown> = {
@@ -94,6 +100,7 @@ export class BakingSessionService {
             if (options?.title) body['title'] = options.title;
             if (options?.notes) body['notes'] = options.notes;
             if (options?.rating) body['rating'] = options.rating;
+            if (options?.bakedAt) body['baked_at'] = options.bakedAt;
             const res = await this.api.post<{ id: number }>('/sessions', body);
             if (res.id) {
                 return this.getSession(res.id);

@@ -47,6 +47,7 @@
 }
 
 .title-input,
+.date-input,
 .notes-input {
     width: 100%;
     border: 1px solid var(--border);
@@ -84,6 +85,68 @@
 }
 
 /* ── Pending photos during save ──────────────────── */
+
+/* ── Adjust values grid ────────────────────────────── */
+.adjust-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+    margin-top: 12px;
+
+    label {
+        font-size: 14px;
+        color: var(--text);
+    }
+}
+
+.adjust-field {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    input {
+        width: 80px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 6px 8px;
+        font-family: var(--font);
+        font-size: 14px;
+        background: var(--bg);
+        color: var(--text);
+        text-align: right;
+        box-sizing: border-box;
+
+        &.readonly {
+            opacity: 0.6;
+            cursor: default;
+        }
+    }
+
+    .date-input {
+        width: auto;
+        text-align: left;
+    }
+
+    span {
+        font-size: 13px;
+        color: var(--text-muted);
+        min-width: 12px;
+    }
+}
+
+.blend-sub-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding-left: 8px;
+}
+
+.blend-sub-value {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ── Pending photos ────────────────────────────────── */
 .pending-photos {
     display: flex;
     gap: 8px;

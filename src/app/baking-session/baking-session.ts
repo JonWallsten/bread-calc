@@ -7,8 +7,10 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { I18nService } from '../i18n.service';
 import { AuthService } from '../auth.service';
+import { StorageService } from '../storage.service';
 import {
     BakingSessionService,
     BakingSessionSummary,
@@ -36,6 +38,8 @@ export class BakingSessionComponent implements OnInit {
     readonly i18n = inject(I18nService);
     readonly auth = inject(AuthService);
     readonly sessionService = inject(BakingSessionService);
+    private readonly storage = inject(StorageService);
+    private readonly router = inject(Router);
 
     readonly selectedSession = signal<BakingSessionDetail | null>(null);
     readonly uploadingPhoto = signal(false);
@@ -89,6 +93,14 @@ export class BakingSessionComponent implements OnInit {
         this.editing.set(false);
         this.showRecipe.set(false);
         this.closeLightbox();
+    }
+
+    bakeAgain(): void {
+        const session = this.selectedSession();
+        if (!session) return;
+        this.storage.save(session.inputs_snapshot);
+        this.closeDetail();
+        this.router.navigate(['/']);
     }
 
     startEditing(): void {

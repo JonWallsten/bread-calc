@@ -399,6 +399,11 @@
     padding: 0 16px 12px;
 }
 
+.bake-again-btn {
+    width: calc(100% - 32px);
+    margin: 12px 16px 0;
+}
+
 .delete-session-btn {
     width: calc(100% - 32px);
     margin: 12px 16px 8px;

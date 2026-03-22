@@ -38,6 +38,7 @@ describe('BakingSessionService', () => {
                 sessions: [
                     {
                         id: 1,
+                        title: null,
                         recipe_name: 'Test',
                         notes: null,
                         rating: 4,
@@ -119,6 +120,7 @@ describe('BakingSessionService', () => {
             service.sessions.set([
                 {
                     id: 1,
+                    title: null,
                     recipe_name: 'A',
                     notes: null,
                     rating: null,
@@ -128,6 +130,7 @@ describe('BakingSessionService', () => {
                 },
                 {
                     id: 2,
+                    title: null,
                     recipe_name: 'B',
                     notes: null,
                     rating: null,

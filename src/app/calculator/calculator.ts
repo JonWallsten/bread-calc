@@ -182,7 +182,7 @@ export class CalculatorComponent implements OnInit {
         this.starterHydrationPct.set(saved.starterHydrationPct);
         this.totalHours.set(saved.totalHours);
         this.roomTemp.set(saved.roomTemp);
-        this.mixingMethod.set(saved.mixingMethod);
+        this.mixingMethod.set(saved.mixingMethod || this.storage.loadMixingMethod());
         if (saved.mixerSpeedLow) this.mixerSpeedLow.set(saved.mixerSpeedLow);
         if (saved.mixerSpeedLowMedium) this.mixerSpeedLowMedium.set(saved.mixerSpeedLowMedium);
         if (saved.mixerSpeedMedium) this.mixerSpeedMedium.set(saved.mixerSpeedMedium);
@@ -248,6 +248,7 @@ export class CalculatorComponent implements OnInit {
 
     onMixingMethodChange(value: string): void {
         this.mixingMethod.set(value as CalcInputs['mixingMethod']);
+        this.storage.saveMixingMethod(value as CalcInputs['mixingMethod']);
         this.saveInputs();
         if (this.resultsVisible()) {
             this.runCalculation();

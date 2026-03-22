@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **"Bake this again" button**: Session detail overlay has a new button that loads the saved recipe back into the calculator, pre-filling all inputs so you can repeat or tweak a previous bake
+- **Standalone mixing method persistence**: Mixing method is saved independently in localStorage and automatically restored — remembers your last choice across sessions without being tied to recipe selection or bake restoration
+- **Date picker on save-bake form**: New date field (defaults to today, max today) lets you register bakes from past days
+- **Adjust recipe values before saving**: Expansion toggle reveals editable ingredient fields (flour, water, milk, salt, sugar, oil, yeast, starter) so you can record actual amounts used
 - **Post-deploy smoke test**: `npm run deploy` now verifies the production API responds correctly after upload — checks `/auth/config` returns 200 and authenticated endpoints return 401 (not 500). Catches incomplete FTP uploads that leave PHP files broken.
 - **Reusable `app-expansion` component**: Collapsible toggle panel with chevron indicator and `aria-expanded` — replaces duplicated show/hide patterns in calculator (advanced settings), baking-session (show recipe), and shared-bake (show recipe). Styled via CSS custom properties (`--expansion-bg`, `--expansion-padding`, etc.)
 - **Reusable `app-select` component**: Encapsulates the select + chevron pattern used across calculator, flour blend, and compare views — configured via CSS custom properties (`--select-height`, `--select-font-size`, etc.)

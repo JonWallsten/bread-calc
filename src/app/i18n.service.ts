@@ -288,6 +288,7 @@ interface Translations {
     viewBake: string;
     showRecipe: string;
     hideRecipe: string;
+    adjustValues: string;
     addPhotos: string;
     pendingPhotos: string;
     noPhotos: string;
@@ -306,6 +307,7 @@ interface Translations {
     sugarAmount: string;
     oilAmount: string;
     deleteBake: string;
+    bakeAgain: string;
     editBake: string;
     shareBake: string;
     stopSharing: string;
@@ -589,6 +591,7 @@ const en: Translations = {
     viewBake: 'View bake',
     showRecipe: 'Show recipe',
     hideRecipe: 'Hide recipe',
+    adjustValues: 'Adjust values',
     addPhotos: 'Add photos',
     pendingPhotos: 'photos selected',
     noPhotos: 'No photos yet',
@@ -607,6 +610,7 @@ const en: Translations = {
     sugarAmount: 'Sugar',
     oilAmount: 'Oil',
     deleteBake: 'Delete bake',
+    bakeAgain: 'Bake this again',
     editBake: 'Edit',
     shareBake: 'Share bake',
     stopSharing: 'Stop sharing',
@@ -889,6 +893,7 @@ const sv: Translations = {
     viewBake: 'Visa bakning',
     showRecipe: 'Visa recept',
     hideRecipe: 'Dölj recept',
+    adjustValues: 'Justera värden',
     addPhotos: 'Lägg till bilder',
     pendingPhotos: 'bilder valda',
     noPhotos: 'Inga bilder ännu',
@@ -907,6 +912,7 @@ const sv: Translations = {
     sugarAmount: 'Socker',
     oilAmount: 'Olja',
     deleteBake: 'Ta bort bakning',
+    bakeAgain: 'Baka denna igen',
     editBake: 'Redigera',
     shareBake: 'Dela bakning',
     stopSharing: 'Sluta dela',

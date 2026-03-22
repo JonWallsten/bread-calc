@@ -49,6 +49,167 @@
                 }
             </div>
 
+            <!-- Adjust recipe values -->
+            <app-expansion [label]="i18n.t().adjustValues" [(open)]="adjustOpen">
+                @if (editedResults(); as r) {
+                    <div class="adjust-grid">
+                        <label>{{ i18n.t().bakedOn }}</label>
+                        <div class="adjust-field">
+                            <input
+                                class="date-input"
+                                type="date"
+                                [value]="saveDate()"
+                                [max]="todayDate()"
+                                (input)="saveDate.set($any($event.target).value)"
+                            />
+                        </div>
+
+                        <label>{{ i18n.t().flourToAdd }}</label>
+                        <div class="adjust-field">
+                            @if (r.flourBlendRows?.length) {
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.flourToAdd)"
+                                    readonly
+                                    class="readonly"
+                                />
+                            } @else {
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.flourToAdd)"
+                                    (input)="
+                                        updateEditedField('flourToAdd', $any($event.target).value)
+                                    "
+                                />
+                            }
+                            <span>g</span>
+                        </div>
+
+                        @if (r.flourBlendRows; as blend) {
+                            @for (row of blend; track row.flourId) {
+                                <label class="blend-sub-label"
+                                    >↳ {{ getFlourName(row.flourId) }}</label
+                                >
+                                <div class="adjust-field">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        [value]="editedBlendWeights()[row.flourId]"
+                                        (input)="
+                                            updateBlendWeight(
+                                                row.flourId,
+                                                $any($event.target).value
+                                            )
+                                        "
+                                    />
+                                    <span>g</span>
+                                </div>
+                            }
+                        }
+
+                        <label>{{ i18n.t().waterToAdd }}</label>
+                        <div class="adjust-field">
+                            <input
+                                type="number"
+                                min="0"
+                                [value]="calc.formatWeight(r.waterToAdd)"
+                                (input)="updateEditedField('waterToAdd', $any($event.target).value)"
+                            />
+                            <span>g</span>
+                        </div>
+
+                        @if (r.milkToAdd > 0) {
+                            <label>{{ i18n.t().milkToAdd }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.milkToAdd)"
+                                    (input)="
+                                        updateEditedField('milkToAdd', $any($event.target).value)
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
+
+                        <label>{{ i18n.t().saltIngredient }}</label>
+                        <div class="adjust-field">
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                [value]="calc.formatWeight(r.saltToAdd)"
+                                (input)="updateEditedField('saltToAdd', $any($event.target).value)"
+                            />
+                            <span>g</span>
+                        </div>
+
+                        @if (r.sugarToAdd > 0) {
+                            <label>{{ i18n.t().sugarIngredient }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.sugarToAdd)"
+                                    (input)="
+                                        updateEditedField('sugarToAdd', $any($event.target).value)
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
+
+                        @if (r.oilToAdd > 0) {
+                            <label>{{ i18n.t().oilIngredient }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.oilToAdd)"
+                                    (input)="
+                                        updateEditedField('oilToAdd', $any($event.target).value)
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
+
+                        <label>{{ i18n.t().yeast }}</label>
+                        <div class="adjust-field">
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                [value]="calc.formatWeight(r.yeastToAdd, true)"
+                                (input)="updateEditedField('yeastToAdd', $any($event.target).value)"
+                            />
+                            <span>g</span>
+                        </div>
+
+                        @if (r.starterWeight > 0) {
+                            <label>{{ i18n.t().starter }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    [value]="calc.formatWeight(r.starterWeight)"
+                                    (input)="
+                                        updateEditedField(
+                                            'starterWeight',
+                                            $any($event.target).value
+                                        )
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </app-expansion>
+
             <!-- Photo upload during creation -->
             <label class="field-label">{{ i18n.t().addPhotos }}</label>
             @if (pendingPreviews().length) {
