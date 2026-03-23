@@ -164,17 +164,68 @@
                     }
                 }
                 @if (activeTimerIndex() === i) {
-                    <button class="timer-btn" type="button" (click)="togglePause()">
-                        {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
-                    </button>
-                    <button class="timer-btn" type="button" (click)="extendTimer(5)">
-                        {{ i18n.t().extendTimer }}
-                    </button>
-                    <button class="timer-btn" type="button" (click)="resetTimer(i)">
-                        {{ i18n.t().reset }}
-                    </button>
+                    <!-- Mobile: two rows -->
+                    <div class="timer-running timer-running--mobile">
+                        <div class="timer-running-row">
+                            <button class="adjust-btn" type="button" (click)="extendTimer(-5)">
+                                −5
+                            </button>
+                            <button class="adjust-btn" type="button" (click)="extendTimer(-1)">
+                                −1
+                            </button>
+                            <span
+                                class="timer-pill"
+                                [class.timer-pill--paused]="activeTimerPaused()"
+                                >{{ timerDisplays()[i] || '00:00' }}</span
+                            >
+                            <button class="adjust-btn" type="button" (click)="extendTimer(1)">
+                                +1
+                            </button>
+                            <button class="adjust-btn" type="button" (click)="extendTimer(5)">
+                                +5
+                            </button>
+                        </div>
+                        <div class="timer-running-row">
+                            <button class="timer-btn" type="button" (click)="togglePause()">
+                                {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
+                            </button>
+                            <button class="timer-btn" type="button" (click)="resetTimer(i)">
+                                {{ i18n.t().reset }}
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Desktop: single row -->
+                    <div class="timer-running timer-running--desktop">
+                        <div class="timer-running-row">
+                            <button class="timer-btn" type="button" (click)="resetTimer(i)">
+                                {{ i18n.t().reset }}
+                            </button>
+                            <button class="adjust-btn" type="button" (click)="extendTimer(-5)">
+                                −5
+                            </button>
+                            <button class="adjust-btn" type="button" (click)="extendTimer(-1)">
+                                −1
+                            </button>
+                            <span
+                                class="timer-pill"
+                                [class.timer-pill--paused]="activeTimerPaused()"
+                                >{{ timerDisplays()[i] || '00:00' }}</span
+                            >
+                            <button class="adjust-btn" type="button" (click)="extendTimer(1)">
+                                +1
+                            </button>
+                            <button class="adjust-btn" type="button" (click)="extendTimer(5)">
+                                +5
+                            </button>
+                            <button class="timer-btn" type="button" (click)="togglePause()">
+                                {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
+                            </button>
+                        </div>
+                    </div>
                 }
-                <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
+                @if (activeTimerIndex() !== i) {
+                    <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
+                }
             </div>
         </div>
     }

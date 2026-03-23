@@ -405,7 +405,7 @@ export class InstructionsComponent implements OnDestroy {
                 this.onTimerFinished(stepIndex, title);
                 return;
             }
-            this.setDisplay(stepIndex, `${this.i18n.t().running}: ${this.formatTime(remaining)}`);
+            this.setDisplay(stepIndex, this.formatTime(remaining));
             this.activeTimerRemaining.update((r) => r - 1);
         };
         tick();
@@ -435,10 +435,10 @@ export class InstructionsComponent implements OnDestroy {
     extendTimer(minutes: number): void {
         const idx = this.activeTimerIndex();
         if (idx === null) return;
-        this.activeTimerRemaining.update((r) => r + minutes * 60);
+        this.activeTimerRemaining.update((r) => Math.max(0, r + minutes * 60));
         if (this.activeTimerPaused()) {
             const remaining = this.activeTimerRemaining();
-            this.setDisplay(idx, `${this.i18n.t().paused}: ${this.formatTime(remaining)}`);
+            this.setDisplay(idx, this.formatTime(remaining));
         }
     }
 
@@ -483,10 +483,7 @@ export class InstructionsComponent implements OnDestroy {
         this.clearTimer();
         this.activeTimerPaused.set(true);
         const remaining = this.activeTimerRemaining();
-        this.setDisplay(
-            this.activeTimerIndex()!,
-            `${this.i18n.t().paused}: ${this.formatTime(remaining)}`,
-        );
+        this.setDisplay(this.activeTimerIndex()!, this.formatTime(remaining));
     }
 
     resumeTimer(): void {

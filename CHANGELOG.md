@@ -10,12 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Adjustable timer durations**: Each instruction step now has −5/+5 buttons to adjust the timer duration before starting. The "Start timer" button shows the current (adjusted) duration.
 - **Extend running timer**: A "+5 min" button appears while a timer is running, allowing you to extend it without resetting.
+- **Inline timer adjustment while running**: Running timer now shows −5, −1, +1, +5 buttons around a time pill, allowing fine-grained adjustment without resetting.
 - **Dynamic baking time**: Bake time is now estimated from the weight per piece — small rolls (~80 g) get 12 min, medium bread 20–30 min, large loaves up to 60 min.
 - **Dynamic oven temperature**: Preheat step now recommends an oven temperature range based on bread size (230–250 °C for rolls, down to 190–210 °C for large loaves).
 - **Oven temperature guide**: The preheat step includes a tip explaining how temperature affects crust and crumb (higher = crispier, lower = softer).
 
 ### Changed
 
+- Running timer controls reorganized: Pause/Reset on top row, ±1/±5 adjust buttons flanking a time pill on the bottom row. The timer display is now a coloured pill badge instead of plain text.
 - Bake time is no longer a fixed 15 min constant — it scales with weight per piece using a lookup table.
 - Preheat step text now shows the calculated temperature range instead of a hard-coded "230–240 °C".
 
