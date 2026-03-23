@@ -41,9 +41,28 @@ export const TIMER_CONSTANTS = {
     benchRestMinutes: 15,
     finalShapeMinutes: 10,
     preheatMinutes: 45,
-    bakeMinutes: 15,
+    bakeMinutesDefault: 15,
     finalProofMinMinutes: 50,
 };
+
+// Baking time lookup by weight-per-piece (ascending threshold, minutes)
+export const BAKE_TIME_TABLE: { maxWeight: number; minutes: number }[] = [
+    { maxWeight: 80, minutes: 12 },
+    { maxWeight: 120, minutes: 15 },
+    { maxWeight: 200, minutes: 20 },
+    { maxWeight: 400, minutes: 30 },
+    { maxWeight: 700, minutes: 40 },
+    { maxWeight: 1000, minutes: 50 },
+    { maxWeight: Infinity, minutes: 60 },
+];
+
+// Oven temperature range by weight-per-piece (ascending threshold, °C)
+export const OVEN_TEMP_TABLE: { maxWeight: number; low: number; high: number }[] = [
+    { maxWeight: 150, low: 230, high: 250 },
+    { maxWeight: 400, low: 220, high: 230 },
+    { maxWeight: 800, low: 200, high: 220 },
+    { maxWeight: Infinity, low: 190, high: 210 },
+];
 
 // Manual mixing step durations (minutes)
 export const MANUAL_MIX_CONSTANTS = {

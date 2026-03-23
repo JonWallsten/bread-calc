@@ -22,28 +22,29 @@ Built with **Angular 21+** · Standalone components · Signals · PHP API · MyS
 
 ## ✨ Features
 
-|      | Feature                           | Details                                                                                                                                                |
-| ---- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 🍩   | **Multi-bread scaling**           | Set the number of breads and target ball weight — everything scales automatically                                                                      |
-| ⚙️   | **Smart yeast estimation**        | Calculates fresh, active dry, or instant yeast from time, temperature, starter amount, and starter hydration                                           |
-| 🔧   | **Full baker's percentages**      | Adjustable hydration, salt, sugar, oil, and milk as % of water                                                                                         |
-| 🌱   | **Sourdough starter integration** | Accounts for the flour and water inside your starter at any hydration level                                                                            |
-| 📋   | **Step-by-step instructions**     | 8 detailed steps from mixing to baking, with fold timings calculated automatically                                                                     |
-| ⏱️   | **Built-in timers**               | Start/pause/reset timer per step — alarm sound when done, auto-marks step complete                                                                     |
-| ✅   | **Step completion tracking**      | Check off steps manually or let the timer do it — visual progress through the bake                                                                     |
-| 🌡️   | **Water temperature guidance**    | Suggests water temp range based on room temperature                                                                                                    |
-| 🇸🇪🇬🇧 | **English & Swedish**             | Full i18n with auto-detection from browser language, toggle anytime                                                                                    |
-| 🎉   | **Welcome splash screen**         | First-visit feature overview with language selector                                                                                                    |
-| 💾   | **Persistent inputs**             | All settings saved to localStorage — pick up where you left off                                                                                        |
-| 📱   | **Mobile-first design**           | Clean, responsive UI built for phones, works everywhere                                                                                                |
-| ℹ️   | **Info tooltips**                 | Hover or tap the ⓘ buttons for context on every section                                                                                                |
-| 🔔   | **Alarm & notifications**         | Web Audio API beeps + browser notification on timer completion                                                                                         |
-| 🌾   | **Flour blend & presets**         | Build custom flour blends from 9 flour types, auto-adjust hydration, save/load personal presets                                                        |
-| 🔐   | **Google login & cloud sync**     | Sign in with Google to sync recipes and flour blends across devices — works fully offline without login                                                |
-| ☁️   | **Upload prompt & cloud button**  | First login prompts to upload local recipes; per-recipe ☁ button for manual cloud upload                                                               |
-| 📸   | **Baking sessions**               | Save bakes with optional title, date (default today), notes, 1–5 star rating, up to 3 photos, and adjustable ingredient values — trace back every bake |
-| 🔍   | **Recipe comparison**             | Side-by-side table of two recipes with all calculated differences highlighted                                                                          |
-| 🧭   | **Two-page navigation**           | Bottom tab bar (mobile) + topbar tabs (desktop) — calculator and baking sessions as lazy-loaded routes                                                 |
+|      | Feature                           | Details                                                                                                                                                        |
+| ---- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🍩   | **Multi-bread scaling**           | Set the number of breads and target ball weight — everything scales automatically                                                                              |
+| ⚙️   | **Smart yeast estimation**        | Calculates fresh, active dry, or instant yeast from time, temperature, starter amount, and starter hydration                                                   |
+| 🔧   | **Full baker's percentages**      | Adjustable hydration, salt, sugar, oil, and milk as % of water                                                                                                 |
+| 🌱   | **Sourdough starter integration** | Accounts for the flour and water inside your starter at any hydration level                                                                                    |
+| 📋   | **Step-by-step instructions**     | 8 detailed steps from mixing to baking, with fold timings calculated automatically                                                                             |
+| ⏱️   | **Built-in timers**               | Start/pause/reset timer per step — alarm sound when done, auto-marks step complete. Adjust duration with −5/+5 before starting, extend by +5 min while running |
+| ✅   | **Step completion tracking**      | Check off steps manually or let the timer do it — visual progress through the bake                                                                             |
+| 🌡️   | **Water temperature guidance**    | Suggests water temp range based on room temperature                                                                                                            |
+| 🔥   | **Smart oven temp & bake time**   | Recommends oven temperature and bake duration based on bread size — with a tip on how temp affects crust                                                       |
+| 🇸🇪🇬🇧 | **English & Swedish**             | Full i18n with auto-detection from browser language, toggle anytime                                                                                            |
+| 🎉   | **Welcome splash screen**         | First-visit feature overview with language selector                                                                                                            |
+| 💾   | **Persistent inputs**             | All settings saved to localStorage — pick up where you left off                                                                                                |
+| 📱   | **Mobile-first design**           | Clean, responsive UI built for phones, works everywhere                                                                                                        |
+| ℹ️   | **Info tooltips**                 | Hover or tap the ⓘ buttons for context on every section                                                                                                        |
+| 🔔   | **Alarm & notifications**         | Web Audio API beeps + browser notification on timer completion                                                                                                 |
+| 🌾   | **Flour blend & presets**         | Build custom flour blends from 9 flour types, auto-adjust hydration, save/load personal presets                                                                |
+| 🔐   | **Google login & cloud sync**     | Sign in with Google to sync recipes and flour blends across devices — works fully offline without login                                                        |
+| ☁️   | **Upload prompt & cloud button**  | First login prompts to upload local recipes; per-recipe ☁ button for manual cloud upload                                                                       |
+| 📸   | **Baking sessions**               | Save bakes with optional title, date (default today), notes, 1–5 star rating, up to 3 photos, and adjustable ingredient values — trace back every bake         |
+| 🔍   | **Recipe comparison**             | Side-by-side table of two recipes with all calculated differences highlighted                                                                                  |
+| 🧭   | **Two-page navigation**           | Bottom tab bar (mobile) + topbar tabs (desktop) — calculator and baking sessions as lazy-loaded routes                                                         |
 
 ---
 
@@ -109,7 +110,23 @@ Total time is split across 8 steps:
 | 5. Final shape        | 10 min (fixed)                         |
 | 6. Final proof        | Remaining time, min 50 min             |
 | 7. Preheat oven       | 45 min (fixed)                         |
-| 8. Bake               | 15 min (fixed)                         |
+| 8. Bake               | Based on weight per piece (see below)  |
+
+### Bake time & oven temperature
+
+Baking time is estimated from the weight per piece:
+
+| Weight per piece | Bake time | Oven temp  |
+| :--------------: | :-------: | :--------: |
+|      ≤ 80 g      |  12 min   | 230–250 °C |
+|     ≤ 120 g      |  15 min   | 230–250 °C |
+|     ≤ 200 g      |  20 min   | 220–230 °C |
+|     ≤ 400 g      |  30 min   | 220–230 °C |
+|     ≤ 700 g      |  40 min   | 200–220 °C |
+|     ≤ 1000 g     |  50 min   | 190–210 °C |
+|     > 1000 g     |  60 min   | 190–210 °C |
+
+Higher temperatures give a crispier crust and faster browning. Lower temperatures give a softer crust and more even bake.
 
 Fold timings during bulk fermentation are placed at **33%** and **66%** of bulk time.
 

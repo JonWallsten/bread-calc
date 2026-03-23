@@ -177,7 +177,30 @@ describe('Time allocation', () => {
     it('mix = 35 min', () => expect(calc().mixMinutes).toBe(35));
     it('bench rest = 15 min', () => expect(calc().benchRestMinutes).toBe(15));
     it('preheat = 45 min', () => expect(calc().preheatMinutes).toBe(45));
-    it('bake = 15 min', () => expect(calc().bakeMinutes).toBe(15));
+    it('bake time for small rolls (~90g) = 15 min', () => expect(calc().bakeMinutes).toBe(15));
+    it('bake time for tiny rolls (~60g) = 12 min', () =>
+        expect(calc({ targetBallWeight: 60 }).bakeMinutes).toBe(12));
+    it('bake time for medium bread (~180g) = 20 min', () =>
+        expect(calc({ breadCount: 2, targetBallWeight: 180 }).bakeMinutes).toBe(20));
+    it('bake time for large loaf (~800g) = 40 min', () =>
+        expect(calc({ breadCount: 1, targetBallWeight: 700 }).bakeMinutes).toBe(40));
+    it('bake time for very large loaf (~1200g) = 60 min', () =>
+        expect(calc({ breadCount: 1, targetBallWeight: 1200 }).bakeMinutes).toBe(60));
+    it('oven temp for small rolls = 230–250', () => {
+        const r = calc();
+        expect(r.ovenTempLow).toBe(230);
+        expect(r.ovenTempHigh).toBe(250);
+    });
+    it('oven temp for medium bread = 220–230', () => {
+        const r = calc({ breadCount: 2, targetBallWeight: 180 });
+        expect(r.ovenTempLow).toBe(220);
+        expect(r.ovenTempHigh).toBe(230);
+    });
+    it('oven temp for large loaf = 190–210', () => {
+        const r = calc({ breadCount: 1, targetBallWeight: 900 });
+        expect(r.ovenTempLow).toBe(190);
+        expect(r.ovenTempHigh).toBe(210);
+    });
     it('bulk in [135, 360]', () => {
         const r = calc();
         expect(r.bulkMinutes).toBeGreaterThanOrEqual(135);

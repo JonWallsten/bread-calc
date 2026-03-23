@@ -138,8 +138,9 @@ interface Translations {
     bodyBenchRest: (duration: string) => string;
     bodyFinalShape: string;
     bodyFinalProof: (temp: number, duration: string) => string;
-    bodyPreheat: (duration: string) => string;
+    bodyPreheat: (duration: string, tempLow: number, tempHigh: number) => string;
     bodyBake: (duration: string) => string;
+    ovenTempGuide: string;
 
     // Manual instruction body templates
     bodyMixLiquids: (ingredientList: string) => string;
@@ -172,6 +173,8 @@ interface Translations {
     bodyDevelopMachine: (duration: string, speedPhrase: string) => string;
     // Timer
     startTimer: string;
+    editTimer: string;
+    extendTimer: string;
     pause: string;
     resume: string;
     reset: string;
@@ -439,10 +442,12 @@ const en: Translations = {
         'Shape into rolls or rustic squares. Build enough surface tension for height without squeezing out too much gas.',
     bodyFinalProof: (temp, duration) =>
         `Proof at about ${temp}\u00b0C for around ${duration}. A fingertip dent should spring back slowly, not immediately.`,
-    bodyPreheat: (duration) =>
-        `Preheat during the last ${duration} of final proof. For rolls, 230\u2013240\u00b0C is a strong starting point.`,
+    bodyPreheat: (duration, tempLow, tempHigh) =>
+        `Preheat to ${tempLow}\u2013${tempHigh}\u00b0C during the last ${duration} of final proof.`,
     bodyBake: (duration) =>
         `Bake with steam if possible. Start at high heat, then reduce slightly if needed. Bake for about ${duration}, until golden and set.`,
+    ovenTempGuide:
+        'Higher temp (240\u00b0C+) gives a crispier crust and faster browning. Lower temp (200\u2013210\u00b0C) gives a softer crust and more even bake. Larger breads need lower temp and longer time.',
 
     // Manual instruction body templates
     bodyMixLiquids: (ingredientList) =>
@@ -485,6 +490,8 @@ const en: Translations = {
         `Increase to ${speedPhrase} and mix for about ${duration}. The dough should start pulling away from the bowl sides, becoming smooth, elastic, and slightly tacky but not loose.`,
 
     startTimer: 'Start timer',
+    editTimer: 'Edit time',
+    extendTimer: '+5 min',
     pause: 'Pause',
     resume: 'Resume',
     reset: 'Reset',
@@ -742,10 +749,12 @@ const sv: Translations = {
         'Forma till rundstycken eller rustika rutor. Bygg tillräckligt med ytspänning för höjd utan att trycka ut för mycket gas.',
     bodyFinalProof: (temp, duration) =>
         `Jäs vid ca ${temp}\u00b0C i ungefär ${duration}. Ett fingeravtryck ska fjädra tillbaka långsamt, inte direkt.`,
-    bodyPreheat: (duration) =>
-        `Förvärm under de sista ${duration} av slutjäsningen. För rundstycken, 230\u2013240\u00b0C är en bra startpunkt.`,
+    bodyPreheat: (duration, tempLow, tempHigh) =>
+        `Förvärm till ${tempLow}\u2013${tempHigh}\u00b0C under de sista ${duration} av slutjäsningen.`,
     bodyBake: (duration) =>
         `Grädda med ånga om möjligt. Börja på hög temperatur och sänk vid behov. Grädda ca ${duration} tills gyllenbruna och fasta.`,
+    ovenTempGuide:
+        'Högre temp (240\u00b0C+) ger krispigare skorpa och snabbare bryning. Lägre temp (200\u2013210\u00b0C) ger mjukare skorpa och jämnare gräddning. Större bröd behöver lägre temp och längre tid.',
 
     // Manual instruction body templates
     bodyMixLiquids: (ingredientList) =>
@@ -787,6 +796,8 @@ const sv: Translations = {
         `Öka till ${speedPhrase} och kör i ungefär ${duration}. Degen ska börja släppa från skålens kanter, kännas slät, elastisk och lätt klibbig men inte lös.`,
 
     startTimer: 'Starta timer',
+    editTimer: 'Ändra tid',
+    extendTimer: '+5 min',
     pause: 'Pausa',
     resume: 'Fortsätt',
     reset: 'Återställ',

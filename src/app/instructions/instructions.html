@@ -68,6 +68,9 @@
                 </button>
             </div>
             <p class="instruction-body">{{ step.body }}</p>
+            @if (step.tip) {
+                <p class="instruction-tip">{{ step.tip }}</p>
+            }
             <div class="timer-row">
                 @if (activeTimerIndex() !== i) {
                     <button
@@ -76,12 +79,40 @@
                         (click)="startTimer(i, step.minutes, step.title)"
                     >
                         {{ i18n.t().startTimer }}
-                        <span class="timer-btn-time">&middot; {{ step.time }}</span>
+                        <span class="timer-btn-time"
+                            >&middot;
+                            {{ formatDurationPublic(getStepMinutes(i, step.minutes)) }}</span
+                        >
                     </button>
+                    <div class="timer-adjust">
+                        <button
+                            class="adjust-btn"
+                            type="button"
+                            (click)="
+                                adjustStepMinutes(i, step.minutes, -getStepSize(i, step.minutes))
+                            "
+                            [attr.aria-label]="i18n.t().decrease"
+                        >
+                            &minus;{{ getStepSize(i, step.minutes) }}
+                        </button>
+                        <button
+                            class="adjust-btn"
+                            type="button"
+                            (click)="
+                                adjustStepMinutes(i, step.minutes, getStepSize(i, step.minutes))
+                            "
+                            [attr.aria-label]="i18n.t().increase"
+                        >
+                            +{{ getStepSize(i, step.minutes) }}
+                        </button>
+                    </div>
                 }
                 @if (activeTimerIndex() === i) {
                     <button class="timer-btn" type="button" (click)="togglePause()">
                         {{ activeTimerPaused() ? i18n.t().resume : i18n.t().pause }}
+                    </button>
+                    <button class="timer-btn" type="button" (click)="extendTimer(5)">
+                        {{ i18n.t().extendTimer }}
                     </button>
                     <button class="timer-btn" type="button" (click)="resetTimer(i)">
                         {{ i18n.t().reset }}

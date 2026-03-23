@@ -9,6 +9,8 @@ import {
     SHAPE_CLAMP,
     MANUAL_MIX_CONSTANTS,
     MACHINE_MIX_CONSTANTS,
+    BAKE_TIME_TABLE,
+    OVEN_TEMP_TABLE,
 } from './config';
 export { YEAST_LABELS } from './config';
 export { DEFAULT_INPUTS } from './config';
@@ -74,6 +76,8 @@ export interface CalcResult {
     finalProofMinutes: number;
     preheatMinutes: number;
     bakeMinutes: number;
+    ovenTempLow: number;
+    ovenTempHigh: number;
     fold1: number;
     fold2: number;
     freshPctFinal: number;
@@ -234,8 +238,20 @@ export class CalcService {
 
         const round5 = (v: number) => Math.round(v / 5) * 5;
         const totalMinutes = totalHours * 60;
-        const { benchRestMinutes, preheatMinutes, bakeMinutes, finalProofMinMinutes } =
+        const { benchRestMinutes, preheatMinutes, bakeMinutesDefault, finalProofMinMinutes } =
             TIMER_CONSTANTS;
+
+        // Dynamic bake time based on weight per piece
+        const bakeMinutes =
+            BAKE_TIME_TABLE.find((row) => actualPerBall <= row.maxWeight)?.minutes ??
+            bakeMinutesDefault;
+
+        // Oven temperature recommendation based on weight per piece
+        const ovenTempEntry =
+            OVEN_TEMP_TABLE.find((row) => actualPerBall <= row.maxWeight) ??
+            OVEN_TEMP_TABLE[OVEN_TEMP_TABLE.length - 1];
+        const ovenTempLow = ovenTempEntry.low;
+        const ovenTempHigh = ovenTempEntry.high;
 
         // Compute mixing step breakdown based on method
         let initialMixMinutes: number;
@@ -320,6 +336,8 @@ export class CalcService {
             finalProofMinutes,
             preheatMinutes,
             bakeMinutes,
+            ovenTempLow,
+            ovenTempHigh,
             fold1,
             fold2,
             freshPctFinal,

@@ -7,6 +7,7 @@ interface InstructionStep {
     time: string;
     body: string;
     minutes: number;
+    tip?: string;
 }
 
 @Component({
@@ -44,12 +45,17 @@ export class InstructionsComponent implements OnDestroy {
 
     protected readonly timerDisplays = signal<Record<number, string>>({});
     protected readonly completedSteps = signal<Record<number, boolean>>({});
+    protected readonly customMinutes = signal<Record<number, number>>({});
 
     private formatDuration(minutes: number): string {
         if (minutes < 60) return `${minutes} min`;
         const h = Math.floor(minutes / 60);
         const m = minutes % 60;
         return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    }
+
+    formatDurationPublic(minutes: number): string {
+        return this.formatDuration(minutes);
     }
 
     /** Join parts with commas and a final "and" word: ['a', 'b', 'c'] → 'a, b and c' */
@@ -158,8 +164,9 @@ export class InstructionsComponent implements OnDestroy {
             {
                 title: t.stepPreheat,
                 time: fmt(d.preheatMinutes),
-                body: t.bodyPreheat(fmt(d.preheatMinutes)),
+                body: t.bodyPreheat(fmt(d.preheatMinutes), d.ovenTempLow, d.ovenTempHigh),
                 minutes: d.preheatMinutes,
+                tip: t.ovenTempGuide,
             },
             {
                 title: t.stepBake,
@@ -391,15 +398,40 @@ export class InstructionsComponent implements OnDestroy {
         this.timerInterval = setInterval(tick, 1000);
     }
 
+    getStepMinutes(stepIndex: number, defaultMinutes: number): number {
+        return this.customMinutes()[stepIndex] ?? defaultMinutes;
+    }
+
+    getStepSize(stepIndex: number, defaultMinutes: number): number {
+        return this.getStepMinutes(stepIndex, defaultMinutes) >= 15 ? 5 : 1;
+    }
+
+    adjustStepMinutes(stepIndex: number, defaultMinutes: number, delta: number): void {
+        const current = this.getStepMinutes(stepIndex, defaultMinutes);
+        const next = Math.max(1, current + delta);
+        this.customMinutes.update((c) => ({ ...c, [stepIndex]: next }));
+    }
+
+    extendTimer(minutes: number): void {
+        const idx = this.activeTimerIndex();
+        if (idx === null) return;
+        this.activeTimerRemaining.update((r) => r + minutes * 60);
+        if (this.activeTimerPaused()) {
+            const remaining = this.activeTimerRemaining();
+            this.setDisplay(idx, `${this.i18n.t().paused}: ${this.formatTime(remaining)}`);
+        }
+    }
+
     startTimer(stepIndex: number, minutes: number, title: string): void {
         this.stopActiveTimer(true);
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
 
+        const effectiveMinutes = this.getStepMinutes(stepIndex, minutes);
         this.activeTimerIndex.set(stepIndex);
         this.activeTimerPaused.set(false);
-        this.activeTimerRemaining.set(minutes * 60);
+        this.activeTimerRemaining.set(effectiveMinutes * 60);
         this.activeTimerTitle = title;
         this.startTicking(stepIndex, title);
     }

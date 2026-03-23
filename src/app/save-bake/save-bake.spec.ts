@@ -45,6 +45,8 @@ function mockResult(overrides: Partial<CalcResult> = {}): CalcResult {
         finalProofMinutes: 50,
         preheatMinutes: 45,
         bakeMinutes: 15,
+        ovenTempLow: 230,
+        ovenTempHigh: 250,
         fold1: 60,
         fold2: 120,
         freshPctFinal: 0.65,

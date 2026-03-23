@@ -100,13 +100,52 @@
     font-size: 14px;
     color: var(--text-muted);
     line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.instruction-tip {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.45;
     margin-bottom: 12px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 3px solid var(--border);
 }
 
 .timer-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.timer-adjust {
+    display: flex;
+    gap: 4px;
+}
+
+.adjust-btn {
+    font-family: var(--font);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: var(--bg);
+    }
 }
 
 .timer-btn {
