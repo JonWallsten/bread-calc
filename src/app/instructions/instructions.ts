@@ -1,4 +1,14 @@
-import { Component, inject, input, signal, computed, OnDestroy } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    signal,
+    computed,
+    OnDestroy,
+    ElementRef,
+    viewChildren,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CalcResult, CalcService } from '../calc.service';
 import { I18nService } from '../i18n.service';
 
@@ -14,6 +24,7 @@ interface InstructionStep {
     selector: 'app-instructions',
     templateUrl: './instructions.html',
     styleUrl: './instructions.scss',
+    imports: [FormsModule],
 })
 export class InstructionsComponent implements OnDestroy {
     private readonly calc = inject(CalcService);
@@ -46,6 +57,9 @@ export class InstructionsComponent implements OnDestroy {
     protected readonly timerDisplays = signal<Record<number, string>>({});
     protected readonly completedSteps = signal<Record<number, boolean>>({});
     protected readonly customMinutes = signal<Record<number, number>>({});
+    protected readonly editingTimerIndex = signal<number | null>(null);
+    protected editingTimerValue = 0;
+    protected readonly timerInputs = viewChildren<ElementRef<HTMLInputElement>>('timerInput');
 
     private formatDuration(minutes: number): string {
         if (minutes < 60) return `${minutes} min`;
@@ -407,9 +421,15 @@ export class InstructionsComponent implements OnDestroy {
     }
 
     adjustStepMinutes(stepIndex: number, defaultMinutes: number, delta: number): void {
-        const current = this.getStepMinutes(stepIndex, defaultMinutes);
+        const current =
+            this.editingTimerIndex() === stepIndex
+                ? this.editingTimerValue
+                : this.getStepMinutes(stepIndex, defaultMinutes);
         const next = Math.max(1, current + delta);
         this.customMinutes.update((c) => ({ ...c, [stepIndex]: next }));
+        if (this.editingTimerIndex() === stepIndex) {
+            this.editingTimerValue = next;
+        }
     }
 
     extendTimer(minutes: number): void {
@@ -420,6 +440,28 @@ export class InstructionsComponent implements OnDestroy {
             const remaining = this.activeTimerRemaining();
             this.setDisplay(idx, `${this.i18n.t().paused}: ${this.formatTime(remaining)}`);
         }
+    }
+
+    openTimerEdit(stepIndex: number, defaultMinutes: number): void {
+        this.editingTimerValue = this.getStepMinutes(stepIndex, defaultMinutes);
+        this.editingTimerIndex.set(stepIndex);
+        setTimeout(() => {
+            const inputs = this.timerInputs();
+            if (inputs.length > 0) {
+                inputs[0].nativeElement.focus();
+                inputs[0].nativeElement.select();
+            }
+        });
+    }
+
+    commitTimerEdit(stepIndex: number): void {
+        const value = Math.max(1, Math.round(this.editingTimerValue));
+        this.customMinutes.update((c) => ({ ...c, [stepIndex]: value }));
+        this.editingTimerIndex.set(null);
+    }
+
+    cancelTimerEdit(): void {
+        this.editingTimerIndex.set(null);
     }
 
     startTimer(stepIndex: number, minutes: number, title: string): void {

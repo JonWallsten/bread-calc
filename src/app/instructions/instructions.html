@@ -73,39 +73,95 @@
             }
             <div class="timer-row">
                 @if (activeTimerIndex() !== i) {
-                    <button
-                        class="timer-btn"
-                        type="button"
-                        (click)="startTimer(i, step.minutes, step.title)"
-                    >
-                        {{ i18n.t().startTimer }}
-                        <span class="timer-btn-time"
-                            >&middot;
-                            {{ formatDurationPublic(getStepMinutes(i, step.minutes)) }}</span
-                        >
-                    </button>
-                    <div class="timer-adjust">
+                    @if (editingTimerIndex() === i) {
+                        <div class="timer-edit">
+                            <button
+                                class="adjust-btn"
+                                type="button"
+                                (click)="
+                                    adjustStepMinutes(
+                                        i,
+                                        step.minutes,
+                                        -getStepSize(i, step.minutes)
+                                    )
+                                "
+                                [attr.aria-label]="i18n.t().decrease"
+                            >
+                                &minus;{{ getStepSize(i, step.minutes) }}
+                            </button>
+                            <input
+                                #timerInput
+                                class="timer-edit-input"
+                                type="number"
+                                min="1"
+                                [(ngModel)]="editingTimerValue"
+                                (keydown.enter)="commitTimerEdit(i)"
+                                (keydown.escape)="cancelTimerEdit()"
+                                [attr.aria-label]="i18n.t().editTimer"
+                            />
+                            <button
+                                class="adjust-btn"
+                                type="button"
+                                (click)="
+                                    adjustStepMinutes(i, step.minutes, getStepSize(i, step.minutes))
+                                "
+                                [attr.aria-label]="i18n.t().increase"
+                            >
+                                +{{ getStepSize(i, step.minutes) }}
+                            </button>
+                            <span class="timer-edit-suffix">min</span>
+                            <button
+                                class="timer-edit-apply"
+                                type="button"
+                                (click)="commitTimerEdit(i)"
+                                [attr.aria-label]="i18n.t().save"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    } @else {
                         <button
-                            class="adjust-btn"
+                            class="timer-btn"
                             type="button"
-                            (click)="
-                                adjustStepMinutes(i, step.minutes, -getStepSize(i, step.minutes))
-                            "
-                            [attr.aria-label]="i18n.t().decrease"
+                            (click)="startTimer(i, step.minutes, step.title)"
                         >
-                            &minus;{{ getStepSize(i, step.minutes) }}
+                            {{ i18n.t().startTimer }}
+                            <span class="timer-btn-time"
+                                >&middot;
+                                {{ formatDurationPublic(getStepMinutes(i, step.minutes)) }}</span
+                            >
                         </button>
                         <button
-                            class="adjust-btn"
+                            class="adjust-btn adjust-btn--edit"
                             type="button"
-                            (click)="
-                                adjustStepMinutes(i, step.minutes, getStepSize(i, step.minutes))
-                            "
-                            [attr.aria-label]="i18n.t().increase"
+                            (click)="openTimerEdit(i, step.minutes)"
+                            [attr.aria-label]="i18n.t().editTimer"
                         >
-                            +{{ getStepSize(i, step.minutes) }}
+                            <svg
+                                viewBox="0 0 24 24"
+                                width="14"
+                                height="14"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            </svg>
                         </button>
-                    </div>
+                    }
                 }
                 @if (activeTimerIndex() === i) {
                     <button class="timer-btn" type="button" (click)="togglePause()">
