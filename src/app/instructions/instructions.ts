@@ -5,6 +5,7 @@ import {
     signal,
     computed,
     OnDestroy,
+    OnInit,
     ElementRef,
     viewChildren,
 } from '@angular/core';
@@ -26,7 +27,7 @@ interface InstructionStep {
     styleUrl: './instructions.scss',
     imports: [FormsModule],
 })
-export class InstructionsComponent implements OnDestroy {
+export class InstructionsComponent implements OnInit, OnDestroy {
     private readonly calc = inject(CalcService);
     readonly i18n = inject(I18nService);
     readonly data = input.required<CalcResult>();
@@ -53,6 +54,10 @@ export class InstructionsComponent implements OnDestroy {
     protected activeTimerRemaining = signal(0);
     private activeTimerTitle = '';
     private timerInterval: ReturnType<typeof setInterval> | null = null;
+    private timerEndTime = 0;
+    private pendingAlarm: { stepIndex: number; title: string } | null = null;
+    private keepAliveCtx: AudioContext | null = null;
+    private readonly onVisibilityChange = () => this.handleVisibilityChange();
 
     protected readonly timerDisplays = signal<Record<number, string>>({});
     protected readonly completedSteps = signal<Record<number, boolean>>({});
@@ -333,8 +338,33 @@ export class InstructionsComponent implements OnDestroy {
         }));
     });
 
+    ngOnInit(): void {
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
+    }
+
     ngOnDestroy(): void {
         this.clearTimer();
+        this.stopKeepAlive();
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    }
+
+    private handleVisibilityChange(): void {
+        if (document.visibilityState !== 'visible') return;
+        if (this.pendingAlarm) {
+            const { stepIndex, title } = this.pendingAlarm;
+            this.pendingAlarm = null;
+            this.onTimerFinished(stepIndex, title);
+            return;
+        }
+        const idx = this.activeTimerIndex();
+        if (idx === null || this.activeTimerPaused()) return;
+        const remaining = Math.max(0, Math.ceil((this.timerEndTime - Date.now()) / 1000));
+        if (remaining <= 0) {
+            this.onTimerFinished(idx, this.activeTimerTitle);
+        } else {
+            this.activeTimerRemaining.set(remaining);
+            this.setDisplay(idx, this.formatTime(remaining));
+        }
     }
 
     private clearTimer(): void {
@@ -344,9 +374,35 @@ export class InstructionsComponent implements OnDestroy {
         }
     }
 
+    /** Play near-silent audio to keep mobile browsers from throttling timers. */
+    private startKeepAlive(): void {
+        if (this.keepAliveCtx) return;
+        try {
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.value = 0.001;
+            osc.frequency.value = 200;
+            osc.start();
+            this.keepAliveCtx = ctx;
+        } catch {
+            /* Web Audio API not available */
+        }
+    }
+
+    private stopKeepAlive(): void {
+        if (this.keepAliveCtx) {
+            this.keepAliveCtx.close().catch(() => {});
+            this.keepAliveCtx = null;
+        }
+    }
+
     private formatTime(seconds: number): string {
-        const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-        const ss = String(seconds % 60).padStart(2, '0');
+        const clamped = Math.max(0, seconds);
+        const mm = String(Math.floor(clamped / 60)).padStart(2, '0');
+        const ss = String(clamped % 60).padStart(2, '0');
         return `${mm}:${ss}`;
     }
 
@@ -382,6 +438,7 @@ export class InstructionsComponent implements OnDestroy {
     private onTimerFinished(stepIndex: number, title: string): void {
         const t = this.i18n.t();
         this.clearTimer();
+        this.stopKeepAlive();
         this.setDisplay(stepIndex, `${title} ${t.finished}`);
         this.activeTimerIndex.set(null);
         this.activeTimerPaused.set(false);
@@ -400,13 +457,20 @@ export class InstructionsComponent implements OnDestroy {
 
     private startTicking(stepIndex: number, title: string): void {
         const tick = () => {
-            const remaining = this.activeTimerRemaining();
+            const remaining = Math.max(0, Math.ceil((this.timerEndTime - Date.now()) / 1000));
             if (remaining <= 0) {
-                this.onTimerFinished(stepIndex, title);
+                if (document.visibilityState === 'visible') {
+                    this.onTimerFinished(stepIndex, title);
+                } else {
+                    this.clearTimer();
+                    this.activeTimerRemaining.set(0);
+                    this.setDisplay(stepIndex, this.formatTime(0));
+                    this.pendingAlarm = { stepIndex, title };
+                }
                 return;
             }
+            this.activeTimerRemaining.set(remaining);
             this.setDisplay(stepIndex, this.formatTime(remaining));
-            this.activeTimerRemaining.update((r) => r - 1);
         };
         tick();
         this.timerInterval = setInterval(tick, 1000);
@@ -435,10 +499,11 @@ export class InstructionsComponent implements OnDestroy {
     extendTimer(minutes: number): void {
         const idx = this.activeTimerIndex();
         if (idx === null) return;
-        this.activeTimerRemaining.update((r) => Math.max(0, r + minutes * 60));
         if (this.activeTimerPaused()) {
-            const remaining = this.activeTimerRemaining();
-            this.setDisplay(idx, this.formatTime(remaining));
+            this.activeTimerRemaining.update((r) => Math.max(0, r + minutes * 60));
+            this.setDisplay(idx, this.formatTime(this.activeTimerRemaining()));
+        } else {
+            this.timerEndTime = Math.max(Date.now(), this.timerEndTime + minutes * 60 * 1000);
         }
     }
 
@@ -474,13 +539,16 @@ export class InstructionsComponent implements OnDestroy {
         this.activeTimerIndex.set(stepIndex);
         this.activeTimerPaused.set(false);
         this.activeTimerRemaining.set(effectiveMinutes * 60);
+        this.timerEndTime = Date.now() + effectiveMinutes * 60 * 1000;
         this.activeTimerTitle = title;
+        this.startKeepAlive();
         this.startTicking(stepIndex, title);
     }
 
     pauseTimer(): void {
         if (this.activeTimerIndex() === null || this.activeTimerPaused()) return;
         this.clearTimer();
+        this.stopKeepAlive();
         this.activeTimerPaused.set(true);
         const remaining = this.activeTimerRemaining();
         this.setDisplay(this.activeTimerIndex()!, this.formatTime(remaining));
@@ -489,6 +557,8 @@ export class InstructionsComponent implements OnDestroy {
     resumeTimer(): void {
         if (this.activeTimerIndex() === null || !this.activeTimerPaused()) return;
         this.activeTimerPaused.set(false);
+        this.timerEndTime = Date.now() + this.activeTimerRemaining() * 1000;
+        this.startKeepAlive();
         this.startTicking(this.activeTimerIndex()!, this.activeTimerTitle);
     }
 
@@ -503,6 +573,7 @@ export class InstructionsComponent implements OnDestroy {
     resetTimer(stepIndex: number): void {
         if (this.activeTimerIndex() === stepIndex) {
             this.clearTimer();
+            this.stopKeepAlive();
             this.activeTimerIndex.set(null);
             this.activeTimerPaused.set(false);
             this.activeTimerRemaining.set(0);
@@ -514,6 +585,7 @@ export class InstructionsComponent implements OnDestroy {
     stopActiveTimer(showStopped: boolean): void {
         const idx = this.activeTimerIndex();
         this.clearTimer();
+        this.stopKeepAlive();
         if (idx !== null) {
             if (showStopped) {
                 this.setDisplay(idx, this.i18n.t().stopped);
