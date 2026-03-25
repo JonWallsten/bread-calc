@@ -174,6 +174,7 @@ interface Translations {
     // Timer
     startTimer: string;
     editTimer: string;
+    estimatedTime: string;
     extendTimer: string;
     pause: string;
     resume: string;
@@ -182,6 +183,13 @@ interface Translations {
     running: string;
     paused: string;
     stopped: string;
+
+    // Bulk fermentation phases
+    bulkPhaseRest: string;
+    bulkPhaseFold1: string;
+    bulkPhaseFold2: string;
+    bulkPhaseFinal: string;
+    phaseLabel: (current: number, total: number) => string;
 
     // Short words / connectors
     water: string;
@@ -491,6 +499,7 @@ const en: Translations = {
 
     startTimer: 'Start timer',
     editTimer: 'Edit time',
+    estimatedTime: 'Estimated time',
     extendTimer: '+5 min',
     pause: 'Pause',
     resume: 'Resume',
@@ -499,6 +508,11 @@ const en: Translations = {
     running: 'Running',
     paused: 'Paused',
     stopped: 'Stopped.',
+    bulkPhaseRest: 'Rest',
+    bulkPhaseFold1: 'First fold',
+    bulkPhaseFold2: 'Second fold',
+    bulkPhaseFinal: 'Bulk done',
+    phaseLabel: (current, total) => `Phase ${current}/${total}`,
     splashTitle: 'Welcome to Bread Dough Calculator',
     splashSubtitle: 'Everything you need to bake great bread',
     splashFeature1: 'Calculate dough for any number of breads',
@@ -797,6 +811,7 @@ const sv: Translations = {
 
     startTimer: 'Starta timer',
     editTimer: 'Ändra tid',
+    estimatedTime: 'Uppskattad tid',
     extendTimer: '+5 min',
     pause: 'Pausa',
     resume: 'Fortsätt',
@@ -805,6 +820,11 @@ const sv: Translations = {
     running: 'Pågår',
     paused: 'Pausad',
     stopped: 'Stoppad.',
+    bulkPhaseRest: 'Vila',
+    bulkPhaseFold1: 'Första vikningen',
+    bulkPhaseFold2: 'Andra vikningen',
+    bulkPhaseFinal: 'Bulkjäsning klar',
+    phaseLabel: (current, total) => `Fas ${current}/${total}`,
     splashTitle: 'Välkommen till Degkalkylatorn',
     splashSubtitle: 'Allt du behöver för att baka fantastiskt bröd',
     splashFeature1: 'Beräkna deg för valfritt antal bröd',

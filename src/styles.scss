@@ -10,7 +10,7 @@
     --text-muted: #6b6b6b;
     --accent: #f5c518;
     --accent-hover: #e6b800;
-    --text-on-accent: #1a1a00;
+    --text-on-accent: #333;
     --error-bg: #fef2f2;
     --error-border: #fce4e4;
     --info-bg: #d6e4f0;
@@ -54,7 +54,7 @@
         --text-muted: #999999;
         --accent: #e6b000;
         --accent-hover: #d4a200;
-        --text-on-accent: #1a1a00;
+        --text-on-accent: #333;
         --error-bg: #3b1c1c;
         --error-border: #5c2a2a;
         --info-bg: #2a3f58;
@@ -94,7 +94,7 @@
     --text-muted: #999999;
     --accent: #e6b000;
     --accent-hover: #d4a200;
-    --text-on-accent: #1a1a00;
+    --text-on-accent: #333;
     --error-bg: #3b1c1c;
     --error-border: #5c2a2a;
     --info-bg: #2a3f58;
@@ -193,7 +193,7 @@ input[type='number'] {
 /* ── Responsive: desktop ───────────────────────────────── */
 @media (min-width: 900px) {
     :root {
-        --container-max: 600px;
+        --container-max: 640px;
     }
 }
 

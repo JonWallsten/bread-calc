@@ -286,10 +286,8 @@ export class CalcService {
         const bulkMinutes = round5(
             this.clamp(availableMinutes * BULK_RATIO, BULK_CLAMP.min, BULK_CLAMP.max),
         );
-        const finalProofMinutes = this.clamp(
-            availableMinutes - bulkMinutes,
-            finalProofMinMinutes,
-            FINAL_PROOF_MAX,
+        const finalProofMinutes = round5(
+            this.clamp(availableMinutes - bulkMinutes, finalProofMinMinutes, FINAL_PROOF_MAX),
         );
 
         const fold1 = round5(bulkMinutes * 0.33);

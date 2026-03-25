@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Multi-phase bulk fermentation timer**: The bulk fermentation step now has a 3-phase auto-chaining timer (until first fold → until second fold → rest until done). When each phase finishes, an alarm sounds, a notification is sent, and the timer automatically resets to the next phase duration. A phase indicator (e.g. "Phase 1/3 · First fold") shows above the running timer controls.
+
 ## [1.5.0] — 2026-03-22
 
 ### Added
@@ -85,8 +91,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - **Angular Router with lazy loading**: Two-page navigation using `withHashLocation()` — `/#/` for calculator, `/#/sessions` for baking sessions. Routes are lazy-loaded for smaller initial bundle
-- **Bottom tab bar (mobile)**: Fixed bottom navigation with Calculator and Sessions tabs, visible below 600px
-- **Topbar tabs (desktop)**: Inline navigation tabs in the topbar header, visible at 600px and above
+- **Bottom tab bar (mobile)**: Fixed bottom navigation with Calculator and Sessions tabs, visible below 640px
+- **Topbar tabs (desktop)**: Inline navigation tabs in the topbar header, visible at 640px and above
 - **EditorConfig**: Consistent editor settings — 4 spaces, LF line endings, UTF-8, trim trailing whitespace
 - **Prettier**: Code formatter with single quotes, 4-space indent, 100-char print width, Angular HTML parser
 - **ESLint**: Flat config with `typescript-eslint` strict + stylistic rules and `angular-eslint` recommended + accessibility rules

@@ -13,12 +13,20 @@ import { FormsModule } from '@angular/forms';
 import { CalcResult, CalcService } from '../calc.service';
 import { I18nService } from '../i18n.service';
 
+interface TimerPhase {
+    label: string;
+    minutes: number;
+    finishMessage: string;
+}
+
 interface InstructionStep {
     title: string;
     time: string;
     body: string;
     minutes: number;
     tip?: string;
+    hasTimer?: boolean;
+    phases?: TimerPhase[];
 }
 
 @Component({
@@ -58,6 +66,16 @@ export class InstructionsComponent implements OnInit, OnDestroy {
     private pendingAlarm: { stepIndex: number; title: string } | null = null;
     private keepAliveCtx: AudioContext | null = null;
     private readonly onVisibilityChange = () => this.handleVisibilityChange();
+
+    // Multi-phase timer state
+    protected activePhaseIndex = signal(0);
+    private activePhases: TimerPhase[] = [];
+    protected readonly activePhaseLabel = computed(() => {
+        if (this.activePhases.length === 0) return '';
+        const phase = this.activePhases[this.activePhaseIndex()];
+        const t = this.i18n.t();
+        return `${t.phaseLabel(this.activePhaseIndex() + 1, this.activePhases.length)} · ${phase?.label ?? ''}`;
+    });
 
     protected readonly timerDisplays = signal<Record<number, string>>({});
     protected readonly completedSteps = signal<Record<number, boolean>>({});
@@ -155,12 +173,30 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 time: fmt(d.bulkMinutes),
                 body: t.bodyBulk(d.roomTemp, fmt(d.bulkMinutes), fmt(d.fold1), fmt(d.fold2)),
                 minutes: d.bulkMinutes,
+                phases: [
+                    {
+                        label: t.bulkPhaseFold1,
+                        minutes: d.fold1,
+                        finishMessage: t.bulkPhaseFold1,
+                    },
+                    {
+                        label: t.bulkPhaseFold2,
+                        minutes: d.fold2 - d.fold1,
+                        finishMessage: t.bulkPhaseFold2,
+                    },
+                    {
+                        label: t.bulkPhaseRest,
+                        minutes: d.bulkMinutes - d.fold2,
+                        finishMessage: t.bulkPhaseFinal,
+                    },
+                ],
             },
             {
                 title: t.stepDivide,
                 time: fmt(d.divideAndShapeMinutes),
                 body: t.bodyDivide(d.breadCount, Math.round(d.actualPerBall)),
                 minutes: d.divideAndShapeMinutes,
+                hasTimer: false,
             },
             {
                 title: t.stepBenchRest,
@@ -173,6 +209,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 time: '10 min',
                 body: t.bodyFinalShape,
                 minutes: 10,
+                hasTimer: false,
             },
             {
                 title: t.stepFinalProof,
@@ -401,9 +438,10 @@ export class InstructionsComponent implements OnInit, OnDestroy {
 
     private formatTime(seconds: number): string {
         const clamped = Math.max(0, seconds);
-        const mm = String(Math.floor(clamped / 60)).padStart(2, '0');
+        const hh = Math.floor(clamped / 3600);
+        const mm = String(Math.floor((clamped % 3600) / 60)).padStart(2, '0');
         const ss = String(clamped % 60).padStart(2, '0');
-        return `${mm}:${ss}`;
+        return hh > 0 ? `${String(hh).padStart(2, '0')}:${mm}:${ss}` : `${mm}:${ss}`;
     }
 
     private setDisplay(index: number, text: string): void {
@@ -438,12 +476,41 @@ export class InstructionsComponent implements OnInit, OnDestroy {
     private onTimerFinished(stepIndex: number, title: string): void {
         const t = this.i18n.t();
         this.clearTimer();
+
+        // Multi-phase: advance to next phase instead of completing
+        const nextPhase = this.activePhaseIndex() + 1;
+        if (this.activePhases.length > 0 && nextPhase < this.activePhases.length) {
+            const finishedPhase = this.activePhases[this.activePhaseIndex()];
+            this.playAlarm();
+            const msg = finishedPhase.finishMessage;
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification(
+                        `${msg} — ${t.phaseLabel(nextPhase, this.activePhases.length)}`,
+                    );
+                } catch {
+                    /* noop */
+                }
+            }
+            // Start next phase
+            this.activePhaseIndex.set(nextPhase);
+            const next = this.activePhases[nextPhase];
+            const mins = this.getStepMinutes(stepIndex, next.minutes);
+            this.activeTimerRemaining.set(mins * 60);
+            this.timerEndTime = Date.now() + mins * 60 * 1000;
+            this.startTicking(stepIndex, title);
+            return;
+        }
+
+        // Final phase or single-phase: complete the step
         this.stopKeepAlive();
         this.setDisplay(stepIndex, `${title} ${t.finished}`);
         this.activeTimerIndex.set(null);
         this.activeTimerPaused.set(false);
         this.activeTimerRemaining.set(0);
         this.activeTimerTitle = '';
+        this.activePhases = [];
+        this.activePhaseIndex.set(0);
         this.completedSteps.update((c) => ({ ...c, [stepIndex]: true }));
         this.playAlarm();
         if ('Notification' in window && Notification.permission === 'granted') {
@@ -529,18 +596,31 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.editingTimerIndex.set(null);
     }
 
-    startTimer(stepIndex: number, minutes: number, title: string): void {
+    startTimer(stepIndex: number, minutes: number, title: string, phases?: TimerPhase[]): void {
         this.stopActiveTimer(true);
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
 
-        const effectiveMinutes = this.getStepMinutes(stepIndex, minutes);
         this.activeTimerIndex.set(stepIndex);
         this.activeTimerPaused.set(false);
-        this.activeTimerRemaining.set(effectiveMinutes * 60);
-        this.timerEndTime = Date.now() + effectiveMinutes * 60 * 1000;
         this.activeTimerTitle = title;
+
+        // Multi-phase: start at phase 0
+        if (phases && phases.length > 1) {
+            this.activePhases = phases;
+            this.activePhaseIndex.set(0);
+            const phaseMins = this.getStepMinutes(stepIndex, phases[0].minutes);
+            this.activeTimerRemaining.set(phaseMins * 60);
+            this.timerEndTime = Date.now() + phaseMins * 60 * 1000;
+        } else {
+            this.activePhases = [];
+            this.activePhaseIndex.set(0);
+            const effectiveMinutes = this.getStepMinutes(stepIndex, minutes);
+            this.activeTimerRemaining.set(effectiveMinutes * 60);
+            this.timerEndTime = Date.now() + effectiveMinutes * 60 * 1000;
+        }
+
         this.startKeepAlive();
         this.startTicking(stepIndex, title);
     }
@@ -578,6 +658,8 @@ export class InstructionsComponent implements OnInit, OnDestroy {
             this.activeTimerPaused.set(false);
             this.activeTimerRemaining.set(0);
             this.activeTimerTitle = '';
+            this.activePhases = [];
+            this.activePhaseIndex.set(0);
         }
         this.setDisplay(stepIndex, '');
     }
@@ -595,6 +677,8 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.activeTimerPaused.set(false);
         this.activeTimerRemaining.set(0);
         this.activeTimerTitle = '';
+        this.activePhases = [];
+        this.activePhaseIndex.set(0);
     }
 
     async copyInstructions(): Promise<void> {

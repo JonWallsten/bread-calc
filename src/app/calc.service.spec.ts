@@ -222,6 +222,16 @@ describe('Time allocation', () => {
         expect(r.fold2).toBeGreaterThan(r.fold1);
         expect(r.fold2).toBeLessThan(r.bulkMinutes);
     });
+    it('bulk phases sum to total bulk time', () => {
+        const r = calc();
+        const phase1 = r.fold1;
+        const phase2 = r.fold2 - r.fold1;
+        const phase3 = r.bulkMinutes - r.fold2;
+        expect(phase1 + phase2 + phase3).toBe(r.bulkMinutes);
+        expect(phase1).toBeGreaterThan(0);
+        expect(phase2).toBeGreaterThan(0);
+        expect(phase3).toBeGreaterThan(0);
+    });
     it('total steps >= input time', () => {
         const r = calc();
         const total =
