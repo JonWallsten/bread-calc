@@ -12,6 +12,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
+        path: 'sessions/:id',
+        loadComponent: () => import('./sessions/sessions').then((m) => m.SessionsComponent),
+        canActivate: [authGuard],
+    },
+    {
         path: 'bake/:hash',
         loadComponent: () => import('./shared-bake/shared-bake').then((m) => m.SharedBakeComponent),
     },

@@ -18,16 +18,17 @@
     gap: 8px;
     padding: 10px 14px;
     margin-bottom: 12px;
-    background: var(--success-bg);
-    border: 1px solid var(--success-border);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 14px;
-    color: var(--success-text);
+    color: var(--text);
 }
 
 .saved-check {
     font-size: 16px;
     font-weight: 700;
+    color: var(--accent);
 }
 
 .view-sessions-link {

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BakingSessionComponent } from './baking-session';
 
 describe('BakingSessionComponent', () => {
@@ -12,6 +13,16 @@ describe('BakingSessionComponent', () => {
 
         TestBed.configureTestingModule({
             imports: [BakingSessionComponent],
+            providers: [
+                {
+                    provide: Router,
+                    useValue: { navigate: vi.fn() },
+                },
+                {
+                    provide: ActivatedRoute,
+                    useValue: { snapshot: { paramMap: new Map() } },
+                },
+            ],
         });
     });
 

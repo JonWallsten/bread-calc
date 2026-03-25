@@ -16,6 +16,7 @@ interface CompareRow {
     valueB: string;
     diff: string;
     diffClass: string;
+    divider?: boolean;
 }
 
 @Component({
@@ -48,12 +49,13 @@ export class CompareComponent {
             key: keyof CalcResult;
             unit: string;
             decimals?: number;
+            divider?: boolean;
         }> = [
             { label: t.hydration, key: 'hydrationPct', unit: '%' },
             { label: t.salt, key: 'saltPct', unit: '%', decimals: 1 },
             { label: t.sugar, key: 'sugarPct', unit: '%', decimals: 1 },
             { label: t.oil, key: 'oilPct', unit: '%', decimals: 1 },
-            { label: t.totalDoughWeight, key: 'finalDoughWeight', unit: ' g' },
+            { label: t.totalDoughWeight, key: 'finalDoughWeight', unit: ' g', divider: true },
             { label: t.actualPerBall, key: 'actualPerBall', unit: ' g' },
             { label: t.flourToAdd, key: 'flourToAdd', unit: ' g' },
             { label: t.waterToAdd, key: 'waterToAdd', unit: ' g' },
@@ -82,12 +84,45 @@ export class CompareComponent {
                 valueB: `${vb.toFixed(dec)}${f.unit}`,
                 diff,
                 diffClass,
+                divider: f.divider,
             };
         });
     });
 
-    readonly blendA = computed(() => this.formatBlend(this.resultA()));
-    readonly blendB = computed(() => this.formatBlend(this.resultB()));
+    readonly blendRows = computed<CompareRow[]>(() => {
+        const a = this.resultA();
+        const b = this.resultB();
+        if (!a && !b) return [];
+        const rowsA = a?.flourBlendRows ?? [];
+        const rowsB = b?.flourBlendRows ?? [];
+        if (!rowsA.length && !rowsB.length) return [];
+
+        const lang = this.i18n.currentLang();
+        const mapA = new Map(rowsA.map((r) => [r.flourId, r.percent]));
+        const mapB = new Map(rowsB.map((r) => [r.flourId, r.percent]));
+        const allIds = [...new Set([...mapA.keys(), ...mapB.keys()])];
+
+        return allIds.map((id) => {
+            const def = getFlourDefinitionById(id);
+            const name = def ? (lang === 'sv' ? def.nameSv : def.nameEn) : id;
+            const pA = mapA.get(id);
+            const pB = mapB.get(id);
+            const valueA = pA != null ? `${pA}%` : '–';
+            const valueB = pB != null ? `${pB}%` : '–';
+            let diff = '';
+            let diffClass = '';
+            if (pA != null && pB != null) {
+                const d = pB - pA;
+                if (Math.abs(d) > 0.05) {
+                    diff = `${d > 0 ? '+' : ''}${d.toFixed(0)}%`;
+                    diffClass = d > 0 ? 'diff-higher' : 'diff-lower';
+                } else {
+                    diff = this.i18n.t().noChange;
+                }
+            }
+            return { label: name, valueA, valueB, diff, diffClass };
+        });
+    });
 
     async onSelectA(id: string): Promise<void> {
         this.sessionIdA.set(id);
@@ -117,15 +152,5 @@ export class CompareComponent {
         if (s.title) parts.push(s.title);
         if (s.recipe_name) parts.push(s.recipe_name);
         return parts.join(' — ');
-    }
-
-    private formatBlend(result: CalcResult | null): string[] {
-        if (!result?.flourBlendRows?.length) return [];
-        const lang = this.i18n.currentLang();
-        return result.flourBlendRows.map((r) => {
-            const def = getFlourDefinitionById(r.flourId);
-            const name = def ? (lang === 'sv' ? def.nameSv : def.nameEn) : r.flourId;
-            return `${name} ${r.percent}%`;
-        });
     }
 }

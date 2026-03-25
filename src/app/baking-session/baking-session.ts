@@ -7,7 +7,7 @@ import {
     ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { I18nService } from '../i18n.service';
 import { AuthService } from '../auth.service';
 import { StorageService } from '../storage.service';
@@ -40,6 +40,7 @@ export class BakingSessionComponent implements OnInit {
     readonly sessionService = inject(BakingSessionService);
     private readonly storage = inject(StorageService);
     private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
 
     readonly selectedSession = signal<BakingSessionDetail | null>(null);
     readonly uploadingPhoto = signal(false);
@@ -79,6 +80,13 @@ export class BakingSessionComponent implements OnInit {
     ngOnInit(): void {
         if (this.auth.isLoggedIn()) {
             this.sessionService.loadSessions();
+            const idParam = this.route.snapshot.paramMap.get('id');
+            if (idParam) {
+                const id = Number(idParam);
+                if (id > 0) {
+                    this.viewSession(id);
+                }
+            }
         }
     }
 
@@ -86,6 +94,7 @@ export class BakingSessionComponent implements OnInit {
         const detail = await this.sessionService.getSession(id);
         this.selectedSession.set(detail);
         this.editing.set(false);
+        this.router.navigate(['/sessions', id], { replaceUrl: true });
     }
 
     closeDetail(): void {
@@ -93,6 +102,7 @@ export class BakingSessionComponent implements OnInit {
         this.editing.set(false);
         this.showRecipe.set(false);
         this.closeLightbox();
+        this.router.navigate(['/sessions'], { replaceUrl: true });
     }
 
     bakeAgain(): void {
@@ -165,6 +175,7 @@ export class BakingSessionComponent implements OnInit {
         const detail = this.selectedSession();
         if (detail && detail.id === id) {
             this.selectedSession.set(null);
+            this.router.navigate(['/sessions'], { replaceUrl: true });
         }
 
         await this.sessionService.deleteSession(id);
