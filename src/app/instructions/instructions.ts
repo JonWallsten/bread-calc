@@ -8,6 +8,8 @@ import {
     OnInit,
     ElementRef,
     viewChildren,
+    output,
+    effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalcResult, CalcService } from '../calc.service';
@@ -20,6 +22,7 @@ interface TimerPhase {
 }
 
 interface InstructionStep {
+    key: string;
     title: string;
     time: string;
     body: string;
@@ -39,6 +42,8 @@ export class InstructionsComponent implements OnInit, OnDestroy {
     private readonly calc = inject(CalcService);
     readonly i18n = inject(I18nService);
     readonly data = input.required<CalcResult>();
+    readonly savedTimers = input<Record<string, number>>({});
+    readonly timerChanged = output<Record<string, number>>();
     protected readonly instructionsCopied = signal(false);
 
     private yeastLabel(yeastType: string): string {
@@ -61,6 +66,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
     protected activeTimerPaused = signal(false);
     protected activeTimerRemaining = signal(0);
     private activeTimerTitle = '';
+    private activeTimerKey = '';
     private timerInterval: ReturnType<typeof setInterval> | null = null;
     private timerEndTime = 0;
     private pendingAlarm: { stepIndex: number; title: string } | null = null;
@@ -79,10 +85,16 @@ export class InstructionsComponent implements OnInit, OnDestroy {
 
     protected readonly timerDisplays = signal<Record<number, string>>({});
     protected readonly completedSteps = signal<Record<number, boolean>>({});
-    protected readonly customMinutes = signal<Record<number, number>>({});
+    protected readonly customTimerMinutes = signal<Record<string, number>>({});
     protected readonly editingTimerIndex = signal<number | null>(null);
     protected editingTimerValue = 0;
     protected readonly timerInputs = viewChildren<ElementRef<HTMLInputElement>>('timerInput');
+
+    constructor() {
+        effect(() => {
+            this.customTimerMinutes.set({ ...this.savedTimers() });
+        });
+    }
 
     private formatDuration(minutes: number): string {
         if (minutes < 60) return `${minutes} min`;
@@ -167,8 +179,16 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         const saltExtras = this.joinWithAnd(saltParts, t.and);
 
         // Shared steps after mixing
+        // Recalculate bulk phases from custom total if set
+        const customBulk = this.customTimerMinutes()['bulk'];
+        const effectiveBulk = customBulk ?? d.bulkMinutes;
+        const fold1Mins = Math.round(effectiveBulk * 0.33);
+        const fold2Gap = Math.round(effectiveBulk * 0.33);
+        const restMins = effectiveBulk - fold1Mins - fold2Gap;
+
         const sharedSteps: InstructionStep[] = [
             {
+                key: 'bulk',
                 title: t.stepBulk,
                 time: fmt(d.bulkMinutes),
                 body: t.bodyBulk(d.roomTemp, fmt(d.bulkMinutes), fmt(d.fold1), fmt(d.fold2)),
@@ -176,22 +196,23 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 phases: [
                     {
                         label: t.bulkPhaseFold1,
-                        minutes: d.fold1,
+                        minutes: fold1Mins,
                         finishMessage: t.bulkPhaseFold1,
                     },
                     {
                         label: t.bulkPhaseFold2,
-                        minutes: d.fold2 - d.fold1,
+                        minutes: fold2Gap,
                         finishMessage: t.bulkPhaseFold2,
                     },
                     {
                         label: t.bulkPhaseRest,
-                        minutes: d.bulkMinutes - d.fold2,
+                        minutes: restMins,
                         finishMessage: t.bulkPhaseFinal,
                     },
                 ],
             },
             {
+                key: 'divide',
                 title: t.stepDivide,
                 time: fmt(d.divideAndShapeMinutes),
                 body: t.bodyDivide(d.breadCount, Math.round(d.actualPerBall)),
@@ -199,12 +220,14 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 hasTimer: false,
             },
             {
+                key: 'benchRest',
                 title: t.stepBenchRest,
                 time: fmt(d.benchRestMinutes),
                 body: t.bodyBenchRest(fmt(d.benchRestMinutes)),
                 minutes: d.benchRestMinutes,
             },
             {
+                key: 'finalShape',
                 title: t.stepFinalShape,
                 time: '10 min',
                 body: t.bodyFinalShape,
@@ -212,12 +235,14 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 hasTimer: false,
             },
             {
+                key: 'finalProof',
                 title: t.stepFinalProof,
                 time: fmt(d.finalProofMinutes),
                 body: t.bodyFinalProof(d.roomTemp, fmt(d.finalProofMinutes)),
                 minutes: d.finalProofMinutes,
             },
             {
+                key: 'preheat',
                 title: t.stepPreheat,
                 time: fmt(d.preheatMinutes),
                 body: t.bodyPreheat(fmt(d.preheatMinutes), d.ovenTempLow, d.ovenTempHigh),
@@ -225,6 +250,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 tip: t.ovenTempGuide,
             },
             {
+                key: 'bake',
                 title: t.stepBake,
                 time: fmt(d.bakeMinutes),
                 body: t.bodyBake(fmt(d.bakeMinutes)),
@@ -248,6 +274,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                     disperseBody += t.bodyHydrateDryYeastMachine(yeastPhrase);
 
                 machineInitSteps.push({
+                    key: 'mixLiquids',
                     title: t.stepMixLiquids,
                     time: fmt(d.initialMixMinutes),
                     body: disperseBody,
@@ -271,6 +298,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
                 else flourBody = t.bodyAddFlourMachine(machineFlourList, speedPhraseLow);
 
                 machineInitSteps.push({
+                    key: 'addFlour',
                     title: t.stepAddFlour,
                     time: fmt(d.initialMixMinutes),
                     body: flourBody,
@@ -279,6 +307,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
             } else {
                 // No starter — single initial mix step
                 machineInitSteps.push({
+                    key: 'initialMix',
                     title: t.stepInitialMix,
                     time: fmt(d.initialMixMinutes),
                     body: t.bodyInitialMix(machineLiquids, machineFlourList, speedPhraseLow),
@@ -289,18 +318,21 @@ export class InstructionsComponent implements OnInit, OnDestroy {
             mixingSteps = [
                 ...machineInitSteps,
                 {
+                    key: 'rest',
                     title: t.stepMachineRest,
                     time: fmt(d.autolyseMinutes),
                     body: t.bodyMachineRest(fmt(d.autolyseMinutes)),
                     minutes: d.autolyseMinutes,
                 },
                 {
+                    key: 'incorporate',
                     title: t.stepIncorporate,
                     time: fmt(d.incorporationMinutes),
                     body: t.bodyIncorporate(saltExtras, speedPhraseLowMedium),
                     minutes: d.incorporationMinutes,
                 },
                 {
+                    key: 'develop',
                     title: t.stepDevelopMachine,
                     time: fmt(d.developmentMinutes),
                     body: t.bodyDevelopMachine(fmt(d.developmentMinutes), speedPhraseMedium),
@@ -335,30 +367,35 @@ export class InstructionsComponent implements OnInit, OnDestroy {
 
             mixingSteps = [
                 {
+                    key: 'mixLiquids',
                     title: t.stepMixLiquids,
                     time: fmt(d.initialMixMinutes),
                     body: liquidsBody,
                     minutes: d.initialMixMinutes,
                 },
                 {
+                    key: 'addFlour',
                     title: t.stepAddFlour,
                     time: fmt(d.initialMixMinutes),
                     body: flourBody,
                     minutes: d.initialMixMinutes,
                 },
                 {
+                    key: 'rest',
                     title: t.stepRest,
                     time: fmt(d.autolyseMinutes),
                     body: t.bodyRest(fmt(d.autolyseMinutes)),
                     minutes: d.autolyseMinutes,
                 },
                 {
+                    key: 'addSalt',
                     title: t.stepAddSaltEtc,
                     time: '2 min',
                     body: t.bodyAddSaltEtc(saltExtras),
                     minutes: 2,
                 },
                 {
+                    key: 'develop',
                     title: t.stepDevelopByHand,
                     time: fmt(d.developmentMinutes),
                     body: t.bodyDevelopByHand(fmt(d.developmentMinutes)),
@@ -495,9 +532,9 @@ export class InstructionsComponent implements OnInit, OnDestroy {
             // Start next phase
             this.activePhaseIndex.set(nextPhase);
             const next = this.activePhases[nextPhase];
-            const mins = this.getStepMinutes(stepIndex, next.minutes);
-            this.activeTimerRemaining.set(mins * 60);
-            this.timerEndTime = Date.now() + mins * 60 * 1000;
+            // Phase durations are already computed from the custom total
+            this.activeTimerRemaining.set(next.minutes * 60);
+            this.timerEndTime = Date.now() + next.minutes * 60 * 1000;
             this.startTicking(stepIndex, title);
             return;
         }
@@ -509,6 +546,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.activeTimerPaused.set(false);
         this.activeTimerRemaining.set(0);
         this.activeTimerTitle = '';
+        this.activeTimerKey = '';
         this.activePhases = [];
         this.activePhaseIndex.set(0);
         this.completedSteps.update((c) => ({ ...c, [stepIndex]: true }));
@@ -543,24 +581,25 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.timerInterval = setInterval(tick, 1000);
     }
 
-    getStepMinutes(stepIndex: number, defaultMinutes: number): number {
-        return this.customMinutes()[stepIndex] ?? defaultMinutes;
+    getStepMinutes(key: string, defaultMinutes: number): number {
+        return this.customTimerMinutes()[key] ?? defaultMinutes;
     }
 
-    getStepSize(stepIndex: number, defaultMinutes: number): number {
-        return this.getStepMinutes(stepIndex, defaultMinutes) >= 15 ? 5 : 1;
+    getStepSize(key: string, defaultMinutes: number): number {
+        return this.getStepMinutes(key, defaultMinutes) >= 15 ? 5 : 1;
     }
 
-    adjustStepMinutes(stepIndex: number, defaultMinutes: number, delta: number): void {
+    adjustStepMinutes(key: string, stepIndex: number, defaultMinutes: number, delta: number): void {
         const current =
             this.editingTimerIndex() === stepIndex
                 ? this.editingTimerValue
-                : this.getStepMinutes(stepIndex, defaultMinutes);
+                : this.getStepMinutes(key, defaultMinutes);
         const next = Math.max(1, current + delta);
-        this.customMinutes.update((c) => ({ ...c, [stepIndex]: next }));
+        this.customTimerMinutes.update((c) => ({ ...c, [key]: next }));
         if (this.editingTimerIndex() === stepIndex) {
             this.editingTimerValue = next;
         }
+        this.timerChanged.emit({ ...this.customTimerMinutes() });
     }
 
     extendTimer(minutes: number): void {
@@ -574,8 +613,8 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         }
     }
 
-    openTimerEdit(stepIndex: number, defaultMinutes: number): void {
-        this.editingTimerValue = this.getStepMinutes(stepIndex, defaultMinutes);
+    openTimerEdit(stepIndex: number, key: string, defaultMinutes: number): void {
+        this.editingTimerValue = this.getStepMinutes(key, defaultMinutes);
         this.editingTimerIndex.set(stepIndex);
         setTimeout(() => {
             const inputs = this.timerInputs();
@@ -586,17 +625,24 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         });
     }
 
-    commitTimerEdit(stepIndex: number): void {
+    commitTimerEdit(key: string): void {
         const value = Math.max(1, Math.round(this.editingTimerValue));
-        this.customMinutes.update((c) => ({ ...c, [stepIndex]: value }));
+        this.customTimerMinutes.update((c) => ({ ...c, [key]: value }));
         this.editingTimerIndex.set(null);
+        this.timerChanged.emit({ ...this.customTimerMinutes() });
     }
 
     cancelTimerEdit(): void {
         this.editingTimerIndex.set(null);
     }
 
-    startTimer(stepIndex: number, minutes: number, title: string, phases?: TimerPhase[]): void {
+    startTimer(
+        stepIndex: number,
+        key: string,
+        minutes: number,
+        title: string,
+        phases?: TimerPhase[],
+    ): void {
         this.stopActiveTimer(true);
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
@@ -605,18 +651,19 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.activeTimerIndex.set(stepIndex);
         this.activeTimerPaused.set(false);
         this.activeTimerTitle = title;
+        this.activeTimerKey = key;
 
         // Multi-phase: start at phase 0
         if (phases && phases.length > 1) {
             this.activePhases = phases;
             this.activePhaseIndex.set(0);
-            const phaseMins = this.getStepMinutes(stepIndex, phases[0].minutes);
-            this.activeTimerRemaining.set(phaseMins * 60);
-            this.timerEndTime = Date.now() + phaseMins * 60 * 1000;
+            // Phase durations come directly from step.phases (already recalculated)
+            this.activeTimerRemaining.set(phases[0].minutes * 60);
+            this.timerEndTime = Date.now() + phases[0].minutes * 60 * 1000;
         } else {
             this.activePhases = [];
             this.activePhaseIndex.set(0);
-            const effectiveMinutes = this.getStepMinutes(stepIndex, minutes);
+            const effectiveMinutes = this.getStepMinutes(key, minutes);
             this.activeTimerRemaining.set(effectiveMinutes * 60);
             this.timerEndTime = Date.now() + effectiveMinutes * 60 * 1000;
         }
@@ -658,6 +705,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
             this.activeTimerPaused.set(false);
             this.activeTimerRemaining.set(0);
             this.activeTimerTitle = '';
+            this.activeTimerKey = '';
             this.activePhases = [];
             this.activePhaseIndex.set(0);
         }
@@ -677,6 +725,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         this.activeTimerPaused.set(false);
         this.activeTimerRemaining.set(0);
         this.activeTimerTitle = '';
+        this.activeTimerKey = '';
         this.activePhases = [];
         this.activePhaseIndex.set(0);
     }

@@ -40,16 +40,16 @@
             @if (b.notes) {
                 <p class="shared-notes">{{ b.notes }}</p>
             }
-        </div>
 
-        <!-- Recipe toggle -->
-        <app-expansion
-            class="recipe-toggle-btn"
-            [label]="showRecipe() ? i18n.t().hideRecipe : i18n.t().showRecipe"
-            [(open)]="showRecipe"
-        >
-            <app-results [data]="b.results_snapshot" />
-        </app-expansion>
+            <!-- Recipe toggle -->
+            <app-expansion
+                class="recipe-toggle-btn"
+                [label]="showRecipe() ? i18n.t().hideRecipe : i18n.t().showRecipe"
+                [(open)]="showRecipe"
+            >
+                <app-results [data]="b.results_snapshot" />
+            </app-expansion>
+        </div>
     </article>
 
     <!-- Photo lightbox -->

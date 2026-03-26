@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - **Multi-phase bulk fermentation timer**: The bulk fermentation step now has a 3-phase auto-chaining timer (until first fold → until second fold → rest until done). When each phase finishes, an alarm sounds, a notification is sent, and the timer automatically resets to the next phase duration. A phase indicator (e.g. "Phase 1/3 · First fold") shows above the running timer controls.
+- **Timer persistence**: Custom timer durations are now saved with recipes and baking sessions. Adjusted timers survive page reload, recipe load, and bake snapshots. For bulk fermentation, only the total time is persisted; phase durations are recalculated from fixed percentages.
 
 ## [1.5.0] — 2026-03-22
 

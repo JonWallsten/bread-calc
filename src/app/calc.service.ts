@@ -34,6 +34,7 @@ export interface CalcInputs {
     mixerSpeedLow?: string;
     mixerSpeedLowMedium?: string;
     mixerSpeedMedium?: string;
+    customTimers?: Record<string, number>;
 }
 
 export interface CalcResult {

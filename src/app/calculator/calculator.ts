@@ -81,6 +81,7 @@ export class CalculatorComponent implements OnInit {
     readonly mixerSpeedLow = signal(DEFAULT_INPUTS.mixerSpeedLow);
     readonly mixerSpeedLowMedium = signal(DEFAULT_INPUTS.mixerSpeedLowMedium);
     readonly mixerSpeedMedium = signal(DEFAULT_INPUTS.mixerSpeedMedium);
+    readonly customTimers = signal<Record<string, number>>({});
 
     // UI state
     readonly advancedOpen = signal(false);
@@ -186,6 +187,7 @@ export class CalculatorComponent implements OnInit {
         if (saved.mixerSpeedLow) this.mixerSpeedLow.set(saved.mixerSpeedLow);
         if (saved.mixerSpeedLowMedium) this.mixerSpeedLowMedium.set(saved.mixerSpeedLowMedium);
         if (saved.mixerSpeedMedium) this.mixerSpeedMedium.set(saved.mixerSpeedMedium);
+        if (saved.customTimers) this.customTimers.set(saved.customTimers);
         this.runCalculation();
     }
 
@@ -211,6 +213,7 @@ export class CalculatorComponent implements OnInit {
             customHydrationAdjustment: this.blend.blendValid()
                 ? this.blend.customHydrationAdjustment()
                 : 0,
+            customTimers: this.customTimers(),
         };
     }
 
@@ -266,6 +269,11 @@ export class CalculatorComponent implements OnInit {
         this.saveInputs();
     }
 
+    onTimerChanged(timers: Record<string, number>): void {
+        this.customTimers.set(timers);
+        this.saveInputs();
+    }
+
     reset(): void {
         const inst = this.instructionsRef();
         if (inst) inst.stopActiveTimer(false);
@@ -286,6 +294,7 @@ export class CalculatorComponent implements OnInit {
         this.mixerSpeedLow.set(DEFAULT_INPUTS.mixerSpeedLow);
         this.mixerSpeedLowMedium.set(DEFAULT_INPUTS.mixerSpeedLowMedium);
         this.mixerSpeedMedium.set(DEFAULT_INPUTS.mixerSpeedMedium);
+        this.customTimers.set({});
 
         this.validationError.set(null);
         this.resultsVisible.set(false);
@@ -314,6 +323,7 @@ export class CalculatorComponent implements OnInit {
         if (inputs.mixerSpeedLow) this.mixerSpeedLow.set(inputs.mixerSpeedLow);
         if (inputs.mixerSpeedLowMedium) this.mixerSpeedLowMedium.set(inputs.mixerSpeedLowMedium);
         if (inputs.mixerSpeedMedium) this.mixerSpeedMedium.set(inputs.mixerSpeedMedium);
+        this.customTimers.set(inputs.customTimers ?? {});
     }
 
     loadRecipe(recipe: Recipe): void {

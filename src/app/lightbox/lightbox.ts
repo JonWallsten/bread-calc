@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    HostListener,
     input,
     model,
     output,
@@ -46,6 +47,7 @@ export class LightboxComponent {
         this.index.update((i) => (i < len - 1 ? i + 1 : 0));
     }
 
+    @HostListener('document:keydown', ['$event'])
     onKeydown(event: KeyboardEvent): void {
         if (event.key === 'ArrowLeft') this.prev();
         else if (event.key === 'ArrowRight') this.next();

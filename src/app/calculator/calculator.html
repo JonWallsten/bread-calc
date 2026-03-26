@@ -386,7 +386,11 @@
 
 @if (resultsVisible() && result()) {
     <app-results [data]="result()!" />
-    <app-instructions [data]="result()!" />
+    <app-instructions
+        [data]="result()!"
+        [savedTimers]="customTimers()"
+        (timerChanged)="onTimerChanged($event)"
+    />
 
     @if (auth.isLoggedIn()) {
         <app-save-bake

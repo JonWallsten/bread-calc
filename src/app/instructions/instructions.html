@@ -81,14 +81,15 @@
                                     type="button"
                                     (click)="
                                         adjustStepMinutes(
+                                            step.key,
                                             i,
                                             step.minutes,
-                                            -getStepSize(i, step.minutes)
+                                            -getStepSize(step.key, step.minutes)
                                         )
                                     "
                                     [attr.aria-label]="i18n.t().decrease"
                                 >
-                                    &minus;{{ getStepSize(i, step.minutes) }}
+                                    &minus;{{ getStepSize(step.key, step.minutes) }}
                                 </button>
                                 <input
                                     #timerInput
@@ -96,7 +97,7 @@
                                     type="number"
                                     min="1"
                                     [(ngModel)]="editingTimerValue"
-                                    (keydown.enter)="commitTimerEdit(i)"
+                                    (keydown.enter)="commitTimerEdit(step.key)"
                                     (keydown.escape)="cancelTimerEdit()"
                                     [attr.aria-label]="i18n.t().editTimer"
                                 />
@@ -105,20 +106,21 @@
                                     type="button"
                                     (click)="
                                         adjustStepMinutes(
+                                            step.key,
                                             i,
                                             step.minutes,
-                                            getStepSize(i, step.minutes)
+                                            getStepSize(step.key, step.minutes)
                                         )
                                     "
                                     [attr.aria-label]="i18n.t().increase"
                                 >
-                                    +{{ getStepSize(i, step.minutes) }}
+                                    +{{ getStepSize(step.key, step.minutes) }}
                                 </button>
                                 <span class="timer-edit-suffix">min</span>
                                 <button
                                     class="timer-edit-apply"
                                     type="button"
-                                    (click)="commitTimerEdit(i)"
+                                    (click)="commitTimerEdit(step.key)"
                                     [attr.aria-label]="i18n.t().save"
                                 >
                                     <svg
@@ -139,20 +141,22 @@
                             <button
                                 class="timer-btn"
                                 type="button"
-                                (click)="startTimer(i, step.minutes, step.title, step.phases)"
+                                (click)="
+                                    startTimer(i, step.key, step.minutes, step.title, step.phases)
+                                "
                             >
                                 {{ i18n.t().startTimer }}
                                 <span class="timer-btn-time"
                                     >&middot;
                                     {{
-                                        formatDurationPublic(getStepMinutes(i, step.minutes))
+                                        formatDurationPublic(getStepMinutes(step.key, step.minutes))
                                     }}</span
                                 >
                             </button>
                             <button
                                 class="adjust-btn adjust-btn--edit"
                                 type="button"
-                                (click)="openTimerEdit(i, step.minutes)"
+                                (click)="openTimerEdit(i, step.key, step.minutes)"
                                 [attr.aria-label]="i18n.t().editTimer"
                             >
                                 <svg
