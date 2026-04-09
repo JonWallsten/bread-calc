@@ -102,6 +102,21 @@ export class CalcService {
 
     readonly round1 = (v: number): number => Math.round(v * 10) / 10;
 
+    /**
+     * Calculate hours from `now` until the next occurrence of `targetHour:targetMinute`.
+     * If the target is in the past today, it wraps to tomorrow.
+     * Rounds to nearest 0.5 h, clamped to a minimum of 0.5.
+     */
+    hoursUntilTime(now: Date, targetHour: number, targetMinute: number): number {
+        const target = new Date(now);
+        target.setHours(targetHour, targetMinute, 0, 0);
+        let diffMs = target.getTime() - now.getTime();
+        if (diffMs <= 0) {
+            diffMs += 24 * 60 * 60 * 1000;
+        }
+        return Math.max(0.5, Math.round((diffMs / (60 * 60 * 1000)) * 2) / 2);
+    }
+
     /** Format ingredient weight consistently: whole grams, except yeast < 10 g gets 1 decimal */
     formatWeight(value: number, isYeast = false): string {
         if (isYeast && value < 10) return `${this.round1(value)}`;

@@ -132,7 +132,7 @@ This is **degis** — a mobile-first Angular 21 sourdough calculator deployed at
 - Persistence via `localStorage` (offline/local-first) + MySQL cloud sync when logged in
 - PHP 8.5 + MySQL backend under `/bread-calc/api/`, vanilla router, PDO, JWT auth
 - Google Identity Services (GSI) for OAuth login
-- Deployed to Oderland/LiteSpeed via `npm run deploy` (lftp FTP script)
+- Deployed to Host/LiteSpeed via `npm run deploy` (lftp FTP script)
 - Tests use **Vitest** (`npm test`), test file: `src/app/calc.service.spec.ts`
 
 ---

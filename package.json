@@ -7,7 +7,7 @@
     "start:api": "php -S localhost:8080 api/router.php",
     "build": "ng build --base-href /bread-calc/",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --watch=false",
     "deploy": "node scripts/deploy.mjs",
     "deploy:frontend": "node scripts/deploy.mjs --frontend-only",
     "deploy:api": "node scripts/deploy.mjs --api-only",

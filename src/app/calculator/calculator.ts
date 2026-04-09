@@ -8,6 +8,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatTimepicker, MatTimepickerInput } from '@angular/material/timepicker';
 import { CalcService, CalcInputs, CalcResult, CalcOutput } from '../calc.service';
 import { DEFAULT_INPUTS, FIELD_RANGES } from '../config';
 import { I18nService } from '../i18n.service';
@@ -41,6 +42,8 @@ import { ExpansionComponent } from '../expansion/expansion';
         ConfirmDialogComponent,
         SelectComponent,
         ExpansionComponent,
+        MatTimepicker,
+        MatTimepickerInput,
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -88,6 +91,18 @@ export class CalculatorComponent implements OnInit {
     readonly resultsVisible = signal(false);
     readonly validationError = signal<string | null>(null);
     readonly result = signal<CalcResult | null>(null);
+
+    // Timepicker state
+    readonly targetTimeValue = signal<Date | null>(null);
+
+    readonly estimatedReadyTime = computed(() => {
+        const hours = this.totalHours();
+        const now = new Date();
+        const ready = new Date(now.getTime() + hours * 60 * 60 * 1000);
+        const h = ready.getHours().toString().padStart(2, '0');
+        const m = ready.getMinutes().toString().padStart(2, '0');
+        return `${h}:${m}`;
+    });
 
     // Recipe UI state
     readonly showSaveDialog = signal(false);
@@ -266,6 +281,14 @@ export class CalculatorComponent implements OnInit {
     }
 
     onStepperChange(): void {
+        this.saveInputs();
+    }
+
+    onTargetTimeSelected(event: { value: Date; source: unknown }): void {
+        const date = event.value;
+        if (!date) return;
+        const hours = this.calc.hoursUntilTime(new Date(), date.getHours(), date.getMinutes());
+        this.totalHours.set(hours);
         this.saveInputs();
     }
 

@@ -122,6 +122,28 @@
     color-scheme: dark;
 }
 
+/* ── Material timepicker overrides ─────────────────────── */
+.mat-timepicker-panel {
+    font-family: var(--font) !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 4px 16px var(--shadow-strong) !important;
+}
+
+.mat-timepicker-panel .mat-mdc-option {
+    font-family: var(--font) !important;
+    color: var(--text) !important;
+    font-size: 15px !important;
+    min-height: 44px !important;
+}
+
+.mat-timepicker-panel .mat-mdc-option:hover,
+.mat-timepicker-panel .mat-mdc-option.mdc-list-item--selected,
+.mat-timepicker-panel .mat-mdc-option.mat-mdc-option-active {
+    background: var(--bg) !important;
+}
+
 /* ── Reset & base ──────────────────────────────────────── */
 *,
 *::before,

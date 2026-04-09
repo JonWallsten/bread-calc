@@ -261,7 +261,7 @@ Three separate credential files keep secrets organised:
 | ------------------------ | ----------------------------------------------------------------- | :--------: | :-----------------: |
 | `.credentials.env`       | DB host/name/user/pass, Google OAuth client ID/secret, JWT secret |     No     |         Yes         |
 | `.credentials.local.env` | Local overrides (e.g. different DB host for dev)                  |     No     |         No          |
-| `.ftp.env`               | FTP host/user/pass/path for Oderland deployment                   |     No     |         No          |
+| `.ftp.env`               | FTP host/user/pass/path for FTP deployment                        |     No     |         No          |
 
 Copy the examples and fill in your values:
 

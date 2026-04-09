@@ -312,7 +312,26 @@
         </button>
     </div>
 
-    <label class="field-label">{{ i18n.t().timeUntilOven }}</label>
+    <div class="field-label-row">
+        <label class="field-label">{{ i18n.t().timeUntilOven }}</label>
+        <div class="time-pick-wrapper">
+            <input
+                class="time-pick-input"
+                [matTimepicker]="timepicker"
+                [matTimepickerOpenOnClick]="false"
+            />
+            <button
+                class="btn-pick-time"
+                type="button"
+                (click)="timepicker.open()"
+                [attr.aria-label]="i18n.t().pickTime"
+            >
+                <span aria-hidden="true">&#128344;</span>
+                {{ i18n.t().pickTime }}
+            </button>
+            <mat-timepicker #timepicker interval="30m" (selected)="onTargetTimeSelected($event)" />
+        </div>
+    </div>
     <app-stepper
         [(value)]="totalHours"
         [step]="0.5"
@@ -320,6 +339,7 @@
         suffix="h"
         (valueChange)="onStepperChange()"
     />
+    <p class="field-hint field-hint--ready">{{ i18n.t().readyForOvenAt(estimatedReadyTime()) }}</p>
 
     <label class="field-label">{{ i18n.t().roomTemperature }}</label>
     <app-stepper

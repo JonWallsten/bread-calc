@@ -60,6 +60,8 @@ interface Translations {
 
     // Proofing fields
     timeUntilOven: string;
+    pickTime: string;
+    readyForOvenAt: (time: string) => string;
     roomTemperature: string;
 
     // Button
@@ -379,6 +381,8 @@ const en: Translations = {
     starterHydration: 'Starter hydration (%)',
     hintStarterHydration: 'Typical: 80–125%',
     timeUntilOven: 'Time until oven (hours)',
+    pickTime: 'Pick time',
+    readyForOvenAt: (time) => `Ready for oven around ${time}`,
     roomTemperature: 'Room temperature (\u00b0C)',
     calculate: 'Calculate',
     infoDough:
@@ -693,6 +697,8 @@ const sv: Translations = {
     starterHydration: 'Surdeg hydrering (%)',
     hintStarterHydration: 'Typiskt: 80–125%',
     timeUntilOven: 'Tid till ugnen (timmar)',
+    pickTime: 'Välj klockslag',
+    readyForOvenAt: (time) => `Klar för ugnen ca ${time}`,
     roomTemperature: 'Rumstemperatur (\u00b0C)',
     calculate: 'Beräkna',
     infoDough:

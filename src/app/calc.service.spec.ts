@@ -482,3 +482,39 @@ describe('formatWeight', () => {
         expect(service.formatWeight(9.99, true)).toBe('10');
     });
 });
+
+describe('hoursUntilTime', () => {
+    it('same day, target is later → correct hours', () => {
+        const now = new Date(2026, 3, 9, 14, 0); // 14:00
+        expect(service.hoursUntilTime(now, 18, 30)).toBe(4.5);
+    });
+
+    it('target is earlier today → wraps to next day', () => {
+        const now = new Date(2026, 3, 9, 21, 0); // 21:00
+        expect(service.hoursUntilTime(now, 6, 0)).toBe(9);
+    });
+
+    it('target is exactly now → wraps to 24 h', () => {
+        const now = new Date(2026, 3, 9, 12, 0);
+        expect(service.hoursUntilTime(now, 12, 0)).toBe(24);
+    });
+
+    it('target 15 min from now → rounds to 0.5', () => {
+        const now = new Date(2026, 3, 9, 10, 0);
+        expect(service.hoursUntilTime(now, 10, 15)).toBe(0.5);
+    });
+
+    it('rounds to nearest 0.5 h', () => {
+        const now = new Date(2026, 3, 9, 10, 0);
+        // 10:00 → 11:10 = 1h10m → 1.167h → rounds to 1.0
+        expect(service.hoursUntilTime(now, 11, 10)).toBe(1);
+        // 10:00 → 11:20 = 1h20m → 1.333h → rounds to 1.5
+        expect(service.hoursUntilTime(now, 11, 20)).toBe(1.5);
+    });
+
+    it('never returns below 0.5', () => {
+        const now = new Date(2026, 3, 9, 10, 0);
+        // 5 min from now → 0.083h → rounds to 0 but clamped to 0.5
+        expect(service.hoursUntilTime(now, 10, 5)).toBe(0.5);
+    });
+});
