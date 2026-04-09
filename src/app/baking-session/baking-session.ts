@@ -131,7 +131,7 @@ export class BakingSessionComponent implements OnInit {
         if (!s) return;
         const ok = await this.sessionService.updateSession(s.id, {
             title: this.editTitle(),
-            rating: this.editRating(),
+            rating: this.editRating() || null,
             notes: this.editNotes(),
         });
         if (ok) {

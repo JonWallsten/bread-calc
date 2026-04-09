@@ -113,7 +113,7 @@ export class BakingSessionService {
 
     async updateSession(
         id: number,
-        data: { title?: string; notes?: string; rating?: number },
+        data: { title?: string; notes?: string; rating?: number | null },
     ): Promise<boolean> {
         try {
             await this.api.put(`/sessions/${id}`, data);
