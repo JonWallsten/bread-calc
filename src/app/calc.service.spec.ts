@@ -154,6 +154,65 @@ describe('Sugar and oil', () => {
     });
 });
 
+describe('Malt flour', () => {
+    it('defaults to no malt flour', () => expect(calc().maltFlourToAdd).toBe(0));
+
+    it('is calculated as baker percentage of total flour', () => {
+        const r = calc({ maltFlourPct: 1.5 });
+        expect(approx(r.maltFlourToAdd, r.totalFlour * 0.015, 0.001)).toBe(true);
+        expect(r.maltFlourPct).toBe(1.5);
+    });
+
+    it('is included while preserving the target dough weight', () => {
+        const withoutMalt = calc({ maltFlourPct: 0 });
+        const withMalt = calc({ maltFlourPct: 2 });
+        expect(withMalt.maltFlourToAdd).toBeGreaterThan(0);
+        expect(withMalt.flourToAdd).toBeLessThan(withoutMalt.flourToAdd);
+        expect(approx(withMalt.finalDoughWeight, withMalt.targetDoughWeight, 0.01)).toBe(true);
+    });
+});
+
+describe('Flour scald', () => {
+    it('is disabled by default without changing flour or water allocation', () => {
+        const r = calc();
+        expect(r.scaldEnabled).toBe(false);
+        expect(r.scaldFlour).toBe(0);
+        expect(r.scaldWater).toBe(0);
+        expect(r.mainFlourToAdd).toBe(r.flourToAdd);
+        expect(r.mainWaterToAdd).toBe(r.waterToAdd);
+    });
+
+    it('uses 5% flour and a 2:1 water ratio by default when enabled', () => {
+        const r = calc({ scaldEnabled: true });
+        expect(approx(r.scaldFlour, r.totalFlour * 0.05, 0.001)).toBe(true);
+        expect(approx(r.scaldWater, r.scaldFlour * 2, 0.001)).toBe(true);
+    });
+
+    it('subtracts scald flour and water from the main dough', () => {
+        const r = calc({ scaldEnabled: true, scaldFlourPct: 7, scaldWaterRatio: 1.8 });
+        expect(approx(r.mainFlourToAdd + r.scaldFlour, r.flourToAdd, 0.001)).toBe(true);
+        expect(approx(r.mainWaterToAdd + r.scaldWater, r.waterToAdd, 0.001)).toBe(true);
+    });
+
+    it('does not change total hydration or final dough weight', () => {
+        const base = calc({ scaldEnabled: false });
+        const scalded = calc({ scaldEnabled: true });
+        expect(scalded.totalFlour).toBe(base.totalFlour);
+        expect(scalded.totalWater).toBe(base.totalWater);
+        expect(scalded.finalDoughWeight).toBe(base.finalDoughWeight);
+    });
+
+    it('rejects a scald that needs more water than is available', () => {
+        const r = calc({
+            hydrationPct: 20,
+            scaldEnabled: true,
+            scaldFlourPct: 10,
+            scaldWaterRatio: 2.5,
+        });
+        expect(r.error).toBe('scald');
+    });
+});
+
 describe('Zero starter', () => {
     it('no error with starter = 0', () => expect(calc({ starterWeight: 0 }).error).toBeUndefined());
     it('starterFlour = 0', () => expect(calc({ starterWeight: 0 }).starterFlour).toBe(0));
@@ -283,6 +342,8 @@ describe('Dough weight identity', () => {
         {},
         { sugarPct: 5, oilPct: 3 },
         { milkPctOfWater: 30 },
+        { maltFlourPct: 1.5 },
+        { scaldEnabled: true, scaldFlourPct: 5, scaldWaterRatio: 2 },
         { starterHydrationPct: 80 },
         { yeastType: 'instant', totalHours: 4, roomTemp: 28 },
     ];
@@ -297,6 +358,7 @@ describe('Dough weight identity', () => {
                 r.waterToAdd +
                 r.milkToAdd +
                 r.saltToAdd +
+                r.maltFlourToAdd +
                 r.sugarToAdd +
                 r.oilToAdd +
                 r.yeastToAdd;
@@ -364,6 +426,7 @@ describe('Flour blend adjustment', () => {
             r.waterToAdd +
             r.milkToAdd +
             r.saltToAdd +
+            r.maltFlourToAdd +
             r.sugarToAdd +
             r.oilToAdd +
             r.yeastToAdd;

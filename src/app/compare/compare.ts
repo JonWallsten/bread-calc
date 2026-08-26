@@ -53,6 +53,7 @@ export class CompareComponent {
         }> = [
             { label: t.hydration, key: 'hydrationPct', unit: '%' },
             { label: t.salt, key: 'saltPct', unit: '%', decimals: 1 },
+            { label: t.maltFlour, key: 'maltFlourPct', unit: '%', decimals: 1 },
             { label: t.sugar, key: 'sugarPct', unit: '%', decimals: 1 },
             { label: t.oil, key: 'oilPct', unit: '%', decimals: 1 },
             { label: t.totalDoughWeight, key: 'finalDoughWeight', unit: ' g', divider: true },
@@ -60,6 +61,9 @@ export class CompareComponent {
             { label: t.flourToAdd, key: 'flourToAdd', unit: ' g' },
             { label: t.waterToAdd, key: 'waterToAdd', unit: ' g' },
             { label: t.saltIngredient, key: 'saltToAdd', unit: ' g' },
+            { label: t.maltFlourIngredient, key: 'maltFlourToAdd', unit: ' g' },
+            { label: t.scaldedFlour, key: 'scaldFlour', unit: ' g' },
+            { label: t.scaldWaterIngredient, key: 'scaldWater', unit: ' g' },
             { label: t.yeastIngredient, key: 'yeastToAdd', unit: ' g', decimals: 1 },
             { label: t.milkIngredient, key: 'milkToAdd', unit: ' g' },
             { label: t.sugarAmount, key: 'sugarToAdd', unit: ' g' },
@@ -67,8 +71,8 @@ export class CompareComponent {
         ];
 
         return fields.map((f) => {
-            const va = a[f.key] as number;
-            const vb = b[f.key] as number;
+            const va = (a[f.key] as number | undefined) ?? 0;
+            const vb = (b[f.key] as number | undefined) ?? 0;
             const dec = f.decimals ?? 0;
             const d = vb - va;
             let diff = t.noChange;

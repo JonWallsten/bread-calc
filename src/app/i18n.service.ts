@@ -45,12 +45,20 @@ interface Translations {
     hintHydration: string;
     salt: string;
     hintSalt: string;
+    maltFlour: string;
+    hintMaltFlour: string;
     sugar: string;
     hintSugar: string;
     oil: string;
     hintOil: string;
     milkAsPctOfWater: string;
     hintMilk: string;
+    scaldFlour: string;
+    scaldFlourToggleHint: string;
+    scaldFlourPct: string;
+    hintScaldFlourPct: string;
+    scaldWaterRatio: string;
+    hintScaldWaterRatio: string;
 
     // Starter fields
     starterTotalWeight: string;
@@ -84,8 +92,14 @@ interface Translations {
     waterToAdd: string;
     milkToAdd: string;
     saltIngredient: string;
+    maltFlourIngredient: string;
     sugarIngredient: string;
     oilIngredient: string;
+    scaldedFlour: string;
+    scalding: string;
+    scaldWaterIngredient: string;
+    mainDough: string;
+    scaldNotice: string;
 
     // Results support text template parts
     supportStarterCalc: (hydPct: number, flourG: number, waterG: number) => string;
@@ -108,6 +122,11 @@ interface Translations {
     stepRest: string;
     stepAddSaltEtc: string;
     stepDevelopByHand: string;
+    stepPrepareScald: string;
+    prepareAhead: string;
+    cooledScald: string;
+    bodyPrepareScald: (flourG: string, waterG: string) => string;
+    scaldTip: string;
 
     // Machine mixing steps
     stepInitialMix: string;
@@ -262,6 +281,7 @@ interface Translations {
     // Validation
     validationError: string;
     recipeError: string;
+    scaldRecipeError: string;
 
     // Recipes
     recipes: string;
@@ -370,12 +390,20 @@ const en: Translations = {
     hintHydration: 'Typical: 60–80%',
     salt: 'Salt',
     hintSalt: 'Typical: 1.8–2.2%',
+    maltFlour: 'Malt flour',
+    hintMaltFlour: 'Optional, typically 0–2%',
     sugar: 'Sugar',
     hintSugar: 'Optional, 0–5%',
     oil: 'Oil',
     hintOil: 'Optional, 0–5%',
     milkAsPctOfWater: 'Milk as % of added water',
     hintMilk: 'Optional, 0–50%',
+    scaldFlour: 'Scald flour',
+    scaldFlourToggleHint: 'Pre-treat part of the recipe flour with boiling water.',
+    scaldFlourPct: 'Flour to scald',
+    hintScaldFlourPct: 'Recommended: 3–10% of total flour (default 5%)',
+    scaldWaterRatio: 'Water per scalded flour',
+    hintScaldWaterRatio: 'Recommended: 1.5–2.5 parts water per part flour (default 2.0:1)',
     starterTotalWeight: 'Starter total weight (g)',
     hintStarter: (minG, maxG) => `Typical: ${minG}–${maxG} g (10–30% of flour)`,
     starterHydration: 'Starter hydration (%)',
@@ -390,7 +418,7 @@ const en: Translations = {
     infoYeast:
         'Choose the yeast type. The calculator estimates the amount from total time until oven, room temperature, starter amount, and starter hydration.',
     infoPercentages:
-        'Hydration is total liquid divided by total flour, including the flour and water inside the starter. Salt is required. Sugar and oil are optional. Milk replaces part of the added water.',
+        'Hydration is total liquid divided by total flour, including the flour and water inside the starter. Salt is required. Malt flour, sugar, and oil are optional. Milk replaces part of the added water. Water used for a flour scald remains part of total hydration.',
     infoStarter:
         'Starter total weight is the full starter amount in grams. Starter hydration is the water-to-flour ratio inside the starter. For example, 100% hydration means equal parts water and flour by weight.',
     infoProofing:
@@ -404,8 +432,15 @@ const en: Translations = {
     waterToAdd: 'Water to add',
     milkToAdd: 'Milk to add',
     saltIngredient: 'Salt',
+    maltFlourIngredient: 'Malt flour',
     sugarIngredient: 'Sugar',
     oilIngredient: 'Oil',
+    scaldedFlour: 'Scalded flour',
+    scalding: 'For the scald',
+    scaldWaterIngredient: 'Water for the scald',
+    mainDough: 'For the main dough',
+    scaldNotice:
+        'The scald uses flour and water already included in the recipe, so total hydration is unchanged. The dough may still feel firmer because the scald binds water more strongly.',
     supportStarterCalc: (hydPct: number, flourG: number, waterG: number) =>
         `Starter is calculated at ${hydPct}% hydration, which means roughly ${flourG} g flour and ${waterG} g water inside the starter.`,
     supportYeastEstimated: (label: string, hoursStr: string, tempStr: string) =>
@@ -426,6 +461,13 @@ const en: Translations = {
     stepRest: 'Rest',
     stepAddSaltEtc: 'Add salt & extras',
     stepDevelopByHand: 'Develop by hand',
+    stepPrepareScald: 'Prepare flour scald',
+    prepareAhead: 'Prepare ahead',
+    cooledScald: 'cooled flour scald',
+    bodyPrepareScald: (flourG, waterG) =>
+        `Boil ${waterG} g water and pour it directly over ${flourG} g flour. Mix immediately into a thick, evenly hydrated paste, cover so it does not dry out, and let it cool completely to room temperature before mixing the main dough.`,
+    scaldTip:
+        'Do not add the scald while it is warm; it can raise the final dough temperature and damage the yeast.',
 
     // Machine mixing steps
     stepInitialMix: 'Initial mix',
@@ -522,7 +564,7 @@ const en: Translations = {
     splashFeature1: 'Calculate dough for any number of breads',
     splashFeature2: 'Automatic yeast estimation based on time and temperature',
     splashFeature3: 'Step-by-step instructions with built-in timers',
-    splashFeature4: 'Adjustable hydration, salt, sugar, oil & milk',
+    splashFeature4: 'Adjustable hydration, salt, malt flour, sugar, oil & milk',
     splashFeature5: 'Works in English and Swedish',
     splashGetStarted: 'Get started',
     water: 'water',
@@ -579,6 +621,8 @@ const en: Translations = {
     validationError: 'Please enter valid values. Salt must be greater than zero.',
     recipeError:
         'These inputs do not produce a valid recipe. Try increasing target weight or reducing starter.',
+    scaldRecipeError:
+        'The scald requires more available flour or water than the recipe contains. Reduce the scalded-flour percentage or the water ratio.',
     recipes: 'Recipes',
     selectRecipe: 'Select a recipe…',
     saveRecipe: 'Save recipe',
@@ -686,12 +730,20 @@ const sv: Translations = {
     hintHydration: 'Typiskt: 60–80%',
     salt: 'Salt',
     hintSalt: 'Typiskt: 1,8–2,2%',
+    maltFlour: 'Maltmjöl',
+    hintMaltFlour: 'Valfritt, typiskt 0–2%',
     sugar: 'Socker',
     hintSugar: 'Valfritt, 0–5%',
     oil: 'Olja',
     hintOil: 'Valfritt, 0–5%',
     milkAsPctOfWater: 'Mjölk som % av tillsatt vatten',
     hintMilk: 'Valfritt, 0–50%',
+    scaldFlour: 'Skålla mjöl',
+    scaldFlourToggleHint: 'Förbehandla en del av receptets mjöl med kokande vatten.',
+    scaldFlourPct: 'Mjöl att skålla',
+    hintScaldFlourPct: 'Rekommenderat: 3–10% av totalt mjöl (standard 5%)',
+    scaldWaterRatio: 'Vatten per skållat mjöl',
+    hintScaldWaterRatio: 'Rekommenderat: 1,5–2,5 delar vatten per del mjöl (standard 2,0:1)',
     starterTotalWeight: 'Surdeg totalvikt (g)',
     hintStarter: (minG, maxG) => `Typiskt: ${minG}–${maxG} g (10–30% av mjölet)`,
     starterHydration: 'Surdeg hydrering (%)',
@@ -706,7 +758,7 @@ const sv: Translations = {
     infoYeast:
         'Välj jästtyp. Kalkylatorn uppskattar mängden utifrån total tid till ugnen, rumstemperatur, mängd surdeg och surdegens hydrering.',
     infoPercentages:
-        'Hydrering är total vätska delat med totalt mjöl, inklusive mjölet och vattnet i surdegen. Salt krävs. Socker och olja är valfria. Mjölk ersätter en del av det tillsatta vattnet.',
+        'Hydrering är total vätska delat med totalt mjöl, inklusive mjölet och vattnet i surdegen. Salt krävs. Maltmjöl, socker och olja är valfria. Mjölk ersätter en del av det tillsatta vattnet. Vatten som används till skållning ingår fortfarande i den totala hydreringen.',
     infoStarter:
         'Surdegens totalvikt är hela mängden surdeg i gram. Surdegens hydrering är förhållandet vatten-till-mjöl i surdegen. Till exempel, 100% hydrering innebär lika delar vatten och mjöl i vikt.',
     infoProofing:
@@ -720,8 +772,15 @@ const sv: Translations = {
     waterToAdd: 'Vatten att tillsätta',
     milkToAdd: 'Mjölk att tillsätta',
     saltIngredient: 'Salt',
+    maltFlourIngredient: 'Maltmjöl',
     sugarIngredient: 'Socker',
     oilIngredient: 'Olja',
+    scaldedFlour: 'Skållat mjöl',
+    scalding: 'Till skållningen',
+    scaldWaterIngredient: 'Vatten till skållningen',
+    mainDough: 'Till huvuddegen',
+    scaldNotice:
+        'Skållningen använder mjöl och vatten som redan ingår i receptet, så total hydrering är oförändrad. Degen kan ändå kännas fastare eftersom skållningen binder vattnet hårdare.',
     supportStarterCalc: (hydPct: number, flourG: number, waterG: number) =>
         `Surdegen beräknas med ${hydPct}% hydrering, vilket innebär ungefär ${flourG} g mjöl och ${waterG} g vatten i surdegen.`,
     supportYeastEstimated: (label: string, hoursStr: string, tempStr: string) =>
@@ -742,6 +801,13 @@ const sv: Translations = {
     stepRest: 'Vila',
     stepAddSaltEtc: 'Tillsätt salt & tillbehör',
     stepDevelopByHand: 'Bearbeta för hand',
+    stepPrepareScald: 'Förbered skållning',
+    prepareAhead: 'Förbered i förväg',
+    cooledScald: 'avsvalnad skållning',
+    bodyPrepareScald: (flourG, waterG) =>
+        `Koka upp ${waterG} g vatten och häll det direkt över ${flourG} g mjöl. Blanda genast till en tjock, jämnt genomfuktad pasta, täck så att den inte torkar och låt svalna helt till rumstemperatur innan huvuddegen blandas.`,
+    scaldTip:
+        'Tillsätt inte skållningen medan den är varm; den kan höja degtemperaturen kraftigt och skada jästen.',
 
     // Machine mixing steps
     stepInitialMix: 'Grundblandning',
@@ -836,7 +902,7 @@ const sv: Translations = {
     splashFeature1: 'Beräkna deg för valfritt antal bröd',
     splashFeature2: 'Automatisk jästuppskattning baserad på tid och temperatur',
     splashFeature3: 'Steg-för-steg instruktioner med inbyggda timers',
-    splashFeature4: 'Justerbar hydrering, salt, socker, olja & mjölk',
+    splashFeature4: 'Justerbar hydrering, salt, maltmjöl, socker, olja & mjölk',
     splashFeature5: 'Fungerar på engelska och svenska',
     splashGetStarted: 'Kom igång',
     water: 'vatten',
@@ -893,6 +959,8 @@ const sv: Translations = {
     validationError: 'Ange giltiga värden. Salt måste vara större än noll.',
     recipeError:
         'Dessa värden ger inget giltigt recept. Prova att öka målvikten eller minska surdegen.',
+    scaldRecipeError:
+        'Skållningen kräver mer tillgängligt mjöl eller vatten än receptet innehåller. Minska andelen skållat mjöl eller vattenförhållandet.',
     recipes: 'Recept',
     selectRecipe: 'Välj ett recept…',
     saveRecipe: 'Spara recept',

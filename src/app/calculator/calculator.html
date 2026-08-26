@@ -206,6 +206,22 @@
             {{ i18n.t().hintSalt }}
         </p>
 
+        <label class="field-label">{{ i18n.t().maltFlour }}</label>
+        <app-stepper
+            [(value)]="maltFlourPct"
+            [step]="0.1"
+            [min]="0"
+            suffix="%"
+            (valueChange)="onStepperChange()"
+        />
+        <p
+            class="field-hint"
+            [class.field-hint--warn]="maltFlourState() === 'warn'"
+            [class.field-hint--error]="maltFlourState() === 'error'"
+        >
+            {{ i18n.t().hintMaltFlour }}
+        </p>
+
         <label class="field-label">{{ i18n.t().sugar }}</label>
         <app-stepper
             [(value)]="sugarPct"
@@ -253,6 +269,60 @@
         >
             {{ i18n.t().hintMilk }}
         </p>
+
+        <hr class="advanced-divider" />
+
+        <button
+            class="setting-toggle"
+            type="button"
+            role="switch"
+            [attr.aria-checked]="scaldEnabled()"
+            (click)="toggleScald()"
+        >
+            <span class="setting-toggle-copy">
+                <span class="setting-toggle-label">{{ i18n.t().scaldFlour }}</span>
+                <span class="setting-toggle-hint">{{ i18n.t().scaldFlourToggleHint }}</span>
+            </span>
+            <span class="setting-toggle-track" [class.active]="scaldEnabled()" aria-hidden="true">
+                <span class="setting-toggle-thumb"></span>
+            </span>
+        </button>
+
+        @if (scaldEnabled()) {
+            <div class="scald-settings">
+                <label class="field-label">{{ i18n.t().scaldFlourPct }}</label>
+                <app-stepper
+                    [(value)]="scaldFlourPct"
+                    [step]="0.5"
+                    [min]="0.1"
+                    suffix="%"
+                    (valueChange)="onStepperChange()"
+                />
+                <p
+                    class="field-hint"
+                    [class.field-hint--warn]="scaldFlourState() === 'warn'"
+                    [class.field-hint--error]="scaldFlourState() === 'error'"
+                >
+                    {{ i18n.t().hintScaldFlourPct }}
+                </p>
+
+                <label class="field-label">{{ i18n.t().scaldWaterRatio }}</label>
+                <app-stepper
+                    [(value)]="scaldWaterRatio"
+                    [step]="0.1"
+                    [min]="0.1"
+                    suffix=":1"
+                    (valueChange)="onStepperChange()"
+                />
+                <p
+                    class="field-hint"
+                    [class.field-hint--warn]="scaldWaterRatioState() === 'warn'"
+                    [class.field-hint--error]="scaldWaterRatioState() === 'error'"
+                >
+                    {{ i18n.t().hintScaldWaterRatio }}
+                </p>
+            </div>
+        }
 
         <hr class="advanced-divider" />
         <app-flour-blend />

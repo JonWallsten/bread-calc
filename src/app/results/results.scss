@@ -79,7 +79,8 @@
     font-weight: 500;
 }
 
-.hydration-notice {
+.hydration-notice,
+.scald-notice {
     font-size: 13px;
     color: var(--info-text);
     background: var(--info-bg);

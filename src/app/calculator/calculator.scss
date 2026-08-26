@@ -114,6 +114,78 @@
     margin: 20px 0 12px;
 }
 
+.setting-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-ring);
+        outline-offset: 4px;
+        border-radius: 6px;
+    }
+}
+
+.setting-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.setting-toggle-label {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.setting-toggle-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.setting-toggle-track {
+    position: relative;
+    flex: 0 0 auto;
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+    background: var(--border);
+    transition: background 150ms ease;
+
+    &.active {
+        background: var(--accent);
+
+        .setting-toggle-thumb {
+            transform: translateX(20px);
+        }
+    }
+}
+
+.setting-toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 1px 3px var(--shadow-strong);
+    transition: transform 150ms ease;
+}
+
+.scald-settings {
+    padding: 0 0 4px;
+}
+
 /* ── Recipe selector ───────────────────────────────────── */
 .recipe-section {
     padding-bottom: 16px;

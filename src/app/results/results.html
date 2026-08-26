@@ -53,5 +53,9 @@
         <p class="hydration-notice">&#9432; {{ hydrationNotice() }}</p>
     }
 
+    @if (scaldNotice()) {
+        <p class="scald-notice">&#9432; {{ scaldNotice() }}</p>
+    }
+
     <p class="support-text">{{ supportText() }}</p>
 </section>

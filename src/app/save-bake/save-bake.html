@@ -64,6 +64,16 @@
                             />
                         </div>
 
+                        @if (r.scaldEnabled) {
+                            <label>{{ i18n.t().scalding }}</label>
+                            <div class="adjust-field">
+                                <span class="scald-adjust-value">
+                                    {{ calc.formatWeight(r.scaldFlour) }} g {{ i18n.t().flour }} +
+                                    {{ calc.formatWeight(r.scaldWater) }} g {{ i18n.t().water }}
+                                </span>
+                            </div>
+                        }
+
                         <label>{{ i18n.t().flourToAdd }}</label>
                         <div class="adjust-field">
                             @if (r.flourBlendRows?.length) {
@@ -146,6 +156,25 @@
                             />
                             <span>g</span>
                         </div>
+
+                        @if (r.maltFlourToAdd > 0) {
+                            <label>{{ i18n.t().maltFlourIngredient }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    [value]="calc.formatWeight(r.maltFlourToAdd)"
+                                    (input)="
+                                        updateEditedField(
+                                            'maltFlourToAdd',
+                                            $any($event.target).value
+                                        )
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
 
                         @if (r.sugarToAdd > 0) {
                             <label>{{ i18n.t().sugarIngredient }}</label>

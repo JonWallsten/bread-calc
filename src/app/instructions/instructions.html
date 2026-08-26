@@ -240,7 +240,7 @@
                     @if (activeTimerIndex() !== i) {
                         <span class="timer-display">{{ timerDisplays()[i] || '' }}</span>
                     }
-                } @else {
+                } @else if (step.minutes > 0) {
                     <span class="timer-estimated"
                         >{{ i18n.t().estimatedTime }}: ~{{
                             formatDurationPublic(step.minutes)

@@ -42,6 +42,14 @@ export class ResultsComponent {
             },
             { value: `${Math.round(d.actualPerBall)} g`, label: t.actualPerBall },
             { value: hydrationDisplay, label: hydrationLabel },
+            ...((d.scaldEnabled ?? false)
+                ? [
+                      {
+                          value: `${this.calc.round1(d.scaldFlourPct)}% · ${this.calc.round1(d.scaldWaterRatio)}:1`,
+                          label: t.scaldedFlour,
+                      },
+                  ]
+                : []),
             {
                 value: `${this.calc.formatWeight(d.yeastToAdd, true)} g`,
                 label: this.yeastLabel(d.yeastType),
@@ -90,6 +98,17 @@ export class ResultsComponent {
             rows.push([t.flourToAdd, `${fmtW(d.flourToAdd)} g`]);
         }
 
+        if (d.scaldEnabled ?? false) {
+            rows.push([
+                t.scalding,
+                `${fmtW(d.scaldFlour)} g ${t.flour} + ${fmtW(d.scaldWater)} g ${t.water}`,
+            ]);
+            rows.push([
+                t.mainDough,
+                `${fmtW(d.mainFlourToAdd)} g ${t.flour} + ${fmtW(d.mainWaterToAdd)} g ${t.water}`,
+            ]);
+        }
+
         if (d.starterWeight > 0) {
             rows.push([t.starter, `${fmtW(d.starterWeight)} g`]);
         }
@@ -98,6 +117,9 @@ export class ResultsComponent {
             rows.push([t.milkToAdd, `${fmtW(d.milkToAdd)} g`]);
         }
         rows.push([t.saltIngredient, `${fmtW(d.saltToAdd)} g`]);
+        if ((d.maltFlourToAdd ?? 0) > 0) {
+            rows.push([t.maltFlourIngredient, `${fmtW(d.maltFlourToAdd)} g`]);
+        }
         if (d.sugarToAdd > 0) {
             rows.push([t.sugarIngredient, `${fmtW(d.sugarToAdd)} g`]);
         }
@@ -116,6 +138,10 @@ export class ResultsComponent {
         const sign = totalAdj > 0 ? '+' : '';
         return t.hydrationAdjustedNote(sign + this.calc.round1(totalAdj));
     });
+
+    protected readonly scaldNotice = computed(() =>
+        (this.data().scaldEnabled ?? false) ? this.i18n.t().scaldNotice : '',
+    );
 
     protected readonly supportText = computed(() => {
         const d = this.data();

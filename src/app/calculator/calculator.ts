@@ -73,9 +73,13 @@ export class CalculatorComponent implements OnInit {
     readonly yeastType = signal<CalcInputs['yeastType']>(DEFAULT_INPUTS.yeastType);
     readonly hydrationPct = signal(DEFAULT_INPUTS.hydrationPct);
     readonly saltPct = signal(DEFAULT_INPUTS.saltPct);
+    readonly maltFlourPct = signal(DEFAULT_INPUTS.maltFlourPct);
     readonly sugarPct = signal(DEFAULT_INPUTS.sugarPct);
     readonly oilPct = signal(DEFAULT_INPUTS.oilPct);
     readonly milkPctOfWater = signal(DEFAULT_INPUTS.milkPctOfWater);
+    readonly scaldEnabled = signal(DEFAULT_INPUTS.scaldEnabled);
+    readonly scaldFlourPct = signal(DEFAULT_INPUTS.scaldFlourPct);
+    readonly scaldWaterRatio = signal(DEFAULT_INPUTS.scaldWaterRatio);
     readonly starterWeight = signal(DEFAULT_INPUTS.starterWeight);
     readonly starterHydrationPct = signal(DEFAULT_INPUTS.starterHydrationPct);
     readonly totalHours = signal(DEFAULT_INPUTS.totalHours);
@@ -135,9 +139,10 @@ export class CalculatorComponent implements OnInit {
         const doughWeight = this.breadCount() * this.targetBallWeight();
         const h = this.hydrationPct() / 100;
         const s = this.saltPct() / 100;
+        const m = this.maltFlourPct() / 100;
         const su = this.sugarPct() / 100;
         const o = this.oilPct() / 100;
-        const flourEstimate = doughWeight / (1 + h + s + su + o);
+        const flourEstimate = doughWeight / (1 + h + s + m + su + o);
         const minG = Math.round(flourEstimate * 0.1);
         const maxG = Math.round(flourEstimate * 0.3);
         return t.hintStarter(minG, maxG);
@@ -169,10 +174,19 @@ export class CalculatorComponent implements OnInit {
         this.fieldState(this.hydrationPct(), FIELD_RANGES['hydration']),
     );
     readonly saltState = computed(() => this.fieldState(this.saltPct(), FIELD_RANGES['salt']));
+    readonly maltFlourState = computed(() =>
+        this.fieldState(this.maltFlourPct(), FIELD_RANGES['maltFlour']),
+    );
     readonly sugarState = computed(() => this.fieldState(this.sugarPct(), FIELD_RANGES['sugar']));
     readonly oilState = computed(() => this.fieldState(this.oilPct(), FIELD_RANGES['oil']));
     readonly milkState = computed(() =>
         this.fieldState(this.milkPctOfWater(), FIELD_RANGES['milk']),
+    );
+    readonly scaldFlourState = computed(() =>
+        this.fieldState(this.scaldFlourPct(), FIELD_RANGES['scaldFlour']),
+    );
+    readonly scaldWaterRatioState = computed(() =>
+        this.fieldState(this.scaldWaterRatio(), FIELD_RANGES['scaldWaterRatio']),
     );
 
     private fieldState(
@@ -191,9 +205,13 @@ export class CalculatorComponent implements OnInit {
         this.yeastType.set(saved.yeastType);
         this.hydrationPct.set(saved.hydrationPct);
         this.saltPct.set(saved.saltPct);
+        this.maltFlourPct.set(saved.maltFlourPct);
         this.sugarPct.set(saved.sugarPct);
         this.oilPct.set(saved.oilPct);
         this.milkPctOfWater.set(saved.milkPctOfWater);
+        this.scaldEnabled.set(saved.scaldEnabled);
+        this.scaldFlourPct.set(saved.scaldFlourPct);
+        this.scaldWaterRatio.set(saved.scaldWaterRatio);
         this.starterWeight.set(saved.starterWeight);
         this.starterHydrationPct.set(saved.starterHydrationPct);
         this.totalHours.set(saved.totalHours);
@@ -213,9 +231,13 @@ export class CalculatorComponent implements OnInit {
             yeastType: this.yeastType(),
             hydrationPct: this.hydrationPct(),
             saltPct: this.saltPct(),
+            maltFlourPct: this.maltFlourPct(),
             sugarPct: this.sugarPct(),
             oilPct: this.oilPct(),
             milkPctOfWater: this.milkPctOfWater(),
+            scaldEnabled: this.scaldEnabled(),
+            scaldFlourPct: this.scaldFlourPct(),
+            scaldWaterRatio: this.scaldWaterRatio(),
             starterWeight: this.starterWeight(),
             starterHydrationPct: this.starterHydrationPct(),
             totalHours: this.totalHours(),
@@ -242,7 +264,12 @@ export class CalculatorComponent implements OnInit {
         const output: CalcOutput = this.calc.calculate(this.getInputs());
         if ('error' in output) {
             const t = this.i18n.t();
-            const msg = output.error === 'validation' ? t.validationError : t.recipeError;
+            const msg =
+                output.error === 'validation'
+                    ? t.validationError
+                    : output.error === 'scald'
+                      ? t.scaldRecipeError
+                      : t.recipeError;
             this.validationError.set(msg);
             this.resultsVisible.set(false);
             this.result.set(null);
@@ -284,6 +311,14 @@ export class CalculatorComponent implements OnInit {
         this.saveInputs();
     }
 
+    toggleScald(): void {
+        this.scaldEnabled.update((enabled) => !enabled);
+        this.saveInputs();
+        if (this.resultsVisible()) {
+            this.runCalculation();
+        }
+    }
+
     onTargetTimeSelected(event: { value: Date; source: unknown }): void {
         const date = event.value;
         if (!date) return;
@@ -306,9 +341,13 @@ export class CalculatorComponent implements OnInit {
         this.yeastType.set(DEFAULT_INPUTS.yeastType);
         this.hydrationPct.set(DEFAULT_INPUTS.hydrationPct);
         this.saltPct.set(DEFAULT_INPUTS.saltPct);
+        this.maltFlourPct.set(DEFAULT_INPUTS.maltFlourPct);
         this.sugarPct.set(DEFAULT_INPUTS.sugarPct);
         this.oilPct.set(DEFAULT_INPUTS.oilPct);
         this.milkPctOfWater.set(DEFAULT_INPUTS.milkPctOfWater);
+        this.scaldEnabled.set(DEFAULT_INPUTS.scaldEnabled);
+        this.scaldFlourPct.set(DEFAULT_INPUTS.scaldFlourPct);
+        this.scaldWaterRatio.set(DEFAULT_INPUTS.scaldWaterRatio);
         this.starterWeight.set(DEFAULT_INPUTS.starterWeight);
         this.starterHydrationPct.set(DEFAULT_INPUTS.starterHydrationPct);
         this.totalHours.set(DEFAULT_INPUTS.totalHours);
@@ -335,9 +374,13 @@ export class CalculatorComponent implements OnInit {
         this.yeastType.set(inputs.yeastType);
         this.hydrationPct.set(inputs.hydrationPct);
         this.saltPct.set(inputs.saltPct);
+        this.maltFlourPct.set(inputs.maltFlourPct ?? DEFAULT_INPUTS.maltFlourPct);
         this.sugarPct.set(inputs.sugarPct);
         this.oilPct.set(inputs.oilPct);
         this.milkPctOfWater.set(inputs.milkPctOfWater);
+        this.scaldEnabled.set(inputs.scaldEnabled ?? DEFAULT_INPUTS.scaldEnabled);
+        this.scaldFlourPct.set(inputs.scaldFlourPct ?? DEFAULT_INPUTS.scaldFlourPct);
+        this.scaldWaterRatio.set(inputs.scaldWaterRatio ?? DEFAULT_INPUTS.scaldWaterRatio);
         this.starterWeight.set(inputs.starterWeight);
         this.starterHydrationPct.set(inputs.starterHydrationPct);
         this.totalHours.set(inputs.totalHours);

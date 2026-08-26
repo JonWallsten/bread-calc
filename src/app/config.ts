@@ -14,9 +14,13 @@ export const DEFAULT_INPUTS: CalcInputs = {
     yeastType: 'fresh',
     hydrationPct: 66,
     saltPct: 2.0,
+    maltFlourPct: 0,
     sugarPct: 2.0,
     oilPct: 2.0,
     milkPctOfWater: 0,
+    scaldEnabled: false,
+    scaldFlourPct: 5,
+    scaldWaterRatio: 2,
     starterWeight: 0,
     starterHydrationPct: 100,
     totalHours: 8,
@@ -112,6 +116,11 @@ export const FIELD_RANGES: Record<string, FieldRange> = {
         warn: { min: 1.5, max: 3.0 },
         error: { min: 1.5, max: 3.0 },
     },
+    maltFlour: {
+        rec: { min: 0, max: 2 },
+        warn: { min: 0, max: 5 },
+        error: { min: 0, max: 5 },
+    },
     sugar: {
         rec: { min: 0, max: 5 },
         warn: { min: 0, max: 10 },
@@ -126,5 +135,15 @@ export const FIELD_RANGES: Record<string, FieldRange> = {
         rec: { min: 0, max: 50 },
         warn: { min: 0, max: 75 },
         error: { min: 0, max: 75 },
+    },
+    scaldFlour: {
+        rec: { min: 3, max: 10 },
+        warn: { min: 1, max: 15 },
+        error: { min: 0.1, max: 20 },
+    },
+    scaldWaterRatio: {
+        rec: { min: 1.5, max: 2.5 },
+        warn: { min: 1, max: 3 },
+        error: { min: 0.5, max: 4 },
     },
 };

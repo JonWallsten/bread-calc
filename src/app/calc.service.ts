@@ -21,9 +21,13 @@ export interface CalcInputs {
     yeastType: 'fresh' | 'activeDry' | 'instant' | 'swedishDry';
     hydrationPct: number;
     saltPct: number;
+    maltFlourPct: number;
     sugarPct: number;
     oilPct: number;
     milkPctOfWater: number;
+    scaldEnabled: boolean;
+    scaldFlourPct: number;
+    scaldWaterRatio: number;
     starterWeight: number;
     starterHydrationPct: number;
     totalHours: number;
@@ -48,9 +52,13 @@ export interface CalcResult {
     flourBlendAdjustment: number;
     customHydrationAdjustment: number;
     saltPct: number;
+    maltFlourPct: number;
     sugarPct: number;
     oilPct: number;
     milkPctOfWater: number;
+    scaldEnabled: boolean;
+    scaldFlourPct: number;
+    scaldWaterRatio: number;
     starterWeight: number;
     starterHydrationPct: number;
     starterFlour: number;
@@ -63,9 +71,14 @@ export interface CalcResult {
     waterToAdd: number;
     milkToAdd: number;
     saltToAdd: number;
+    maltFlourToAdd: number;
     sugarToAdd: number;
     oilToAdd: number;
     yeastToAdd: number;
+    scaldFlour: number;
+    scaldWater: number;
+    mainFlourToAdd: number;
+    mainWaterToAdd: number;
     chosenYeastPct: number;
     finalDoughWeight: number;
     actualPerBall: number;
@@ -151,9 +164,13 @@ export class CalcService {
             yeastType,
             hydrationPct,
             saltPct,
+            maltFlourPct = 0,
             sugarPct,
             oilPct,
             milkPctOfWater,
+            scaldEnabled = false,
+            scaldFlourPct = 5,
+            scaldWaterRatio = 2,
             starterWeight,
             starterHydrationPct,
             totalHours,
@@ -173,6 +190,7 @@ export class CalcService {
             targetBallWeight < 1 ||
             hydrationPct < 1 ||
             saltPct <= 0 ||
+            (scaldEnabled && (scaldFlourPct <= 0 || scaldWaterRatio <= 0)) ||
             starterHydrationPct < 1 ||
             totalHours <= 0
         ) {
@@ -184,6 +202,7 @@ export class CalcService {
         const targetDoughWeight = breadCount * targetBallWeight;
         const hydration = effectiveHydrationPct / 100;
         const salt = saltPct / 100;
+        const maltFlour = maltFlourPct / 100;
         const sugar = sugarPct / 100;
         const oil = oilPct / 100;
         const milkFraction = milkPctOfWater / 100;
@@ -215,11 +234,12 @@ export class CalcService {
             chosenYeastPct = freshPctFinal;
         }
 
-        const additivePct = hydration + salt + sugar + oil + chosenYeastPct;
+        const additivePct = hydration + salt + maltFlour + sugar + oil + chosenYeastPct;
         const starterImpact =
             starterWeight +
             (hydration * starterFlour - starterWater) +
             salt * starterFlour +
+            maltFlour * starterFlour +
             sugar * starterFlour +
             oil * starterFlour +
             chosenYeastPct * starterFlour;
@@ -238,14 +258,27 @@ export class CalcService {
         const milkToAdd = addedWaterTotal * milkFraction;
         const waterToAdd = addedWaterTotal - milkToAdd;
         const saltToAdd = totalFlour * salt;
+        const maltFlourToAdd = totalFlour * maltFlour;
         const sugarToAdd = totalFlour * sugar;
         const oilToAdd = totalFlour * oil;
         const yeastToAdd = totalFlour * chosenYeastPct;
+        const scaldFlour = scaldEnabled ? totalFlour * (scaldFlourPct / 100) : 0;
+        const scaldWater = scaldEnabled ? scaldFlour * scaldWaterRatio : 0;
+
+        if (scaldFlour > flourToAdd || scaldWater > waterToAdd) {
+            return {
+                error: 'scald',
+            };
+        }
+
+        const mainFlourToAdd = flourToAdd - scaldFlour;
+        const mainWaterToAdd = waterToAdd - scaldWater;
         const finalDoughWeight =
             flourToAdd +
             starterWeight +
             addedWaterTotal +
             saltToAdd +
+            maltFlourToAdd +
             sugarToAdd +
             oilToAdd +
             yeastToAdd;
@@ -321,9 +354,13 @@ export class CalcService {
             flourBlendAdjustment: flourAdj,
             customHydrationAdjustment: customAdj,
             saltPct,
+            maltFlourPct,
             sugarPct,
             oilPct,
             milkPctOfWater,
+            scaldEnabled,
+            scaldFlourPct,
+            scaldWaterRatio,
             starterWeight,
             starterHydrationPct,
             starterFlour,
@@ -336,9 +373,14 @@ export class CalcService {
             waterToAdd,
             milkToAdd,
             saltToAdd,
+            maltFlourToAdd,
             sugarToAdd,
             oilToAdd,
             yeastToAdd,
+            scaldFlour,
+            scaldWater,
+            mainFlourToAdd,
+            mainWaterToAdd,
             chosenYeastPct,
             finalDoughWeight,
             actualPerBall,

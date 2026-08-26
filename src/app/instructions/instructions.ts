@@ -122,20 +122,26 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         const t = this.i18n.t();
         const yeastInLiquid = d.yeastType === 'fresh' || d.yeastType === 'activeDry';
         const yeastName = this.yeastLabel(d.yeastType).toLowerCase();
+        const hasScald = d.scaldEnabled ?? false;
+        const mainFlourToAdd = hasScald ? d.mainFlourToAdd : d.flourToAdd;
+        const mainWaterToAdd = hasScald ? d.mainWaterToAdd : d.waterToAdd;
 
         // Build liquid ingredient list (for manual mix-liquids step)
         const liquidParts: string[] = [];
         if (d.starterWeight > 0)
             liquidParts.push(`${fmtW(d.starterWeight)} g ${t.starter.toLowerCase()}`);
-        liquidParts.push(`${fmtW(d.waterToAdd)} g ${t.water}`);
+        liquidParts.push(`${fmtW(mainWaterToAdd)} g ${t.water}`);
         if (d.milkToAdd > 0) liquidParts.push(`${fmtW(d.milkToAdd)} g ${t.milk}`);
+        if (hasScald) liquidParts.push(t.cooledScald);
         if (yeastInLiquid && d.yeastToAdd > 0)
             liquidParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
         const liquidsList = this.joinWithAnd(liquidParts, t.and);
 
         // Build flour ingredient list (for manual add-flour step)
         const flourParts: string[] = [];
-        flourParts.push(`${fmtW(d.flourToAdd)} g ${t.flour}`);
+        flourParts.push(`${fmtW(mainFlourToAdd)} g ${t.flour}`);
+        if ((d.maltFlourToAdd ?? 0) > 0)
+            flourParts.push(`${fmtW(d.maltFlourToAdd)} g ${t.maltFlourIngredient.toLowerCase()}`);
         if (!yeastInLiquid && d.yeastToAdd > 0)
             flourParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
         const flourIngredients = this.joinWithAnd(flourParts, t.and);
@@ -144,13 +150,19 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         const machineLiquidParts: string[] = [];
         if (d.starterWeight > 0)
             machineLiquidParts.push(`${fmtW(d.starterWeight)} g ${t.starter.toLowerCase()}`);
-        machineLiquidParts.push(`${fmtW(d.waterToAdd)} g ${t.water}`);
+        machineLiquidParts.push(`${fmtW(mainWaterToAdd)} g ${t.water}`);
         if (d.milkToAdd > 0) machineLiquidParts.push(`${fmtW(d.milkToAdd)} g ${t.milk}`);
+        if (hasScald) machineLiquidParts.push(t.cooledScald);
         if (d.yeastToAdd > 0) machineLiquidParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
         const machineLiquids = this.joinWithAnd(machineLiquidParts, t.and);
 
         // Machine flour list
-        const machineFlourList = `${fmtW(d.flourToAdd)} g ${t.flour}`;
+        const machineFlourParts = [`${fmtW(mainFlourToAdd)} g ${t.flour}`];
+        if ((d.maltFlourToAdd ?? 0) > 0)
+            machineFlourParts.push(
+                `${fmtW(d.maltFlourToAdd)} g ${t.maltFlourIngredient.toLowerCase()}`,
+            );
+        const machineFlourList = this.joinWithAnd(machineFlourParts, t.and);
 
         // Starter-aware helpers
         const hasStarter = d.starterWeight > 0;
@@ -160,8 +172,9 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         const baseLiquidParts: string[] = [];
         if (hasStarter)
             baseLiquidParts.push(`${fmtW(d.starterWeight)} g ${t.starter.toLowerCase()}`);
-        baseLiquidParts.push(`${fmtW(d.waterToAdd)} g ${t.water}`);
+        baseLiquidParts.push(`${fmtW(mainWaterToAdd)} g ${t.water}`);
         if (d.milkToAdd > 0) baseLiquidParts.push(`${fmtW(d.milkToAdd)} g ${t.milk}`);
+        if (hasScald) baseLiquidParts.push(t.cooledScald);
         const baseLiquids = this.joinWithAnd(baseLiquidParts, t.and);
 
         // Build speed phrases: "speed label (your mixer: value)"
@@ -177,6 +190,20 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         if (d.oilToAdd > 0)
             saltParts.push(`${fmtW(d.oilToAdd)} g ${t.oilIngredient.toLowerCase()}`);
         const saltExtras = this.joinWithAnd(saltParts, t.and);
+
+        const preparationSteps: InstructionStep[] = hasScald
+            ? [
+                  {
+                      key: 'scald',
+                      title: t.stepPrepareScald,
+                      time: t.prepareAhead,
+                      body: t.bodyPrepareScald(fmtW(d.scaldFlour), fmtW(d.scaldWater)),
+                      minutes: 0,
+                      hasTimer: false,
+                      tip: t.scaldTip,
+                  },
+              ]
+            : [];
 
         // Shared steps after mixing
         // Recalculate bulk phases from custom total if set
@@ -405,7 +432,7 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         }
 
         // Number the steps
-        const allSteps = [...mixingSteps, ...sharedSteps];
+        const allSteps = [...preparationSteps, ...mixingSteps, ...sharedSteps];
         return allSteps.map((step, i) => ({
             ...step,
             title: `${i + 1}. ${step.title}`,
