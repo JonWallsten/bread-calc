@@ -11,6 +11,7 @@ function mockResult(overrides: Partial<CalcResult> = {}): CalcResult {
         targetDoughWeight: 540,
         yeastType: 'fresh',
         yeastTypeLabel: 'Fresh yeast',
+        yeastAdjustmentPct: 0,
         hydrationPct: 66,
         effectiveHydrationPct: 66,
         flourBlendAdjustment: 0,

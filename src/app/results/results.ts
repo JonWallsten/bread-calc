@@ -50,6 +50,14 @@ export class ResultsComponent {
                       },
                   ]
                 : []),
+            ...((d.yeastAdjustmentPct ?? 0) !== 0
+                ? [
+                      {
+                          value: `${d.yeastAdjustmentPct > 0 ? '+' : '−'}${Math.abs(d.yeastAdjustmentPct)}%`,
+                          label: t.yeastAdjustment,
+                      },
+                  ]
+                : []),
             {
                 value: `${this.calc.formatWeight(d.yeastToAdd, true)} g`,
                 label: this.yeastLabel(d.yeastType),

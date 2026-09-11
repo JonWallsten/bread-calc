@@ -52,6 +52,11 @@ export class CompareComponent {
             divider?: boolean;
         }> = [
             { label: t.hydration, key: 'hydrationPct', unit: '%' },
+            {
+                label: t.yeastAdjustment,
+                key: 'yeastAdjustmentPct',
+                unit: '%',
+            },
             { label: t.salt, key: 'saltPct', unit: '%', decimals: 1 },
             { label: t.maltFlour, key: 'maltFlourPct', unit: '%', decimals: 1 },
             { label: t.buckwheatFlour, key: 'buckwheatFlourPct', unit: '%', decimals: 1 },

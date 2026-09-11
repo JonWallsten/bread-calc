@@ -11,6 +11,7 @@ import {
     MACHINE_MIX_CONSTANTS,
     BAKE_TIME_TABLE,
     OVEN_TEMP_TABLE,
+    YEAST_TEMP_FACTOR_PER_DEGREE,
 } from './config';
 export { YEAST_LABELS } from './config';
 export { DEFAULT_INPUTS } from './config';
@@ -19,6 +20,7 @@ export interface CalcInputs {
     breadCount: number;
     targetBallWeight: number;
     yeastType: 'fresh' | 'activeDry' | 'instant' | 'swedishDry';
+    yeastAdjustmentPct: number;
     hydrationPct: number;
     saltPct: number;
     maltFlourPct: number;
@@ -48,6 +50,7 @@ export interface CalcResult {
     targetDoughWeight: number;
     yeastType: string;
     yeastTypeLabel: string;
+    yeastAdjustmentPct: number;
     hydrationPct: number;
     effectiveHydrationPct: number;
     flourBlendAdjustment: number;
@@ -165,6 +168,7 @@ export class CalcService {
             breadCount,
             targetBallWeight,
             yeastType,
+            yeastAdjustmentPct = 0,
             hydrationPct,
             saltPct,
             maltFlourPct = 0,
@@ -194,6 +198,8 @@ export class CalcService {
             targetBallWeight < 1 ||
             hydrationPct < 1 ||
             saltPct <= 0 ||
+            yeastAdjustmentPct < -30 ||
+            yeastAdjustmentPct > 30 ||
             (scaldEnabled && (scaldFlourPct <= 0 || scaldWaterRatio <= 0)) ||
             starterHydrationPct < 1 ||
             totalHours <= 0
@@ -217,7 +223,7 @@ export class CalcService {
         const starterWater = starterWeight - starterFlour;
 
         let freshPct = this.yeastBaseline(totalHours) / 100;
-        freshPct *= Math.pow(0.9, roomTemp - 22);
+        freshPct *= Math.pow(YEAST_TEMP_FACTOR_PER_DEGREE, roomTemp - 22);
 
         const starterRatio = starterWeight / targetDoughWeight;
         const starterHydrationFactor = this.clamp(
@@ -230,14 +236,15 @@ export class CalcService {
         freshPct = Math.max(0.0005, freshPct);
 
         const freshPctFinal = freshPct;
-        let chosenYeastPct: number;
+        let baseChosenYeastPct: number;
         if (yeastType === 'activeDry') {
-            chosenYeastPct = freshPctFinal / 2.5;
+            baseChosenYeastPct = freshPctFinal / 2.5;
         } else if (yeastType === 'instant' || yeastType === 'swedishDry') {
-            chosenYeastPct = freshPctFinal / 3.0;
+            baseChosenYeastPct = freshPctFinal / 3.0;
         } else {
-            chosenYeastPct = freshPctFinal;
+            baseChosenYeastPct = freshPctFinal;
         }
+        const chosenYeastPct = baseChosenYeastPct * (1 + yeastAdjustmentPct / 100);
 
         const additivePct =
             hydration + salt + maltFlour + buckwheatFlour + sugar + oil + chosenYeastPct;
@@ -358,6 +365,7 @@ export class CalcService {
             targetDoughWeight,
             yeastType,
             yeastTypeLabel,
+            yeastAdjustmentPct,
             hydrationPct,
             effectiveHydrationPct,
             flourBlendAdjustment: flourAdj,

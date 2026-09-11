@@ -32,6 +32,22 @@ interface Translations {
     activeDryYeast: string;
     instantYeast: string;
     yeastRecommendationPending: string;
+    yeastRecommendation: (
+        label: string,
+        amount: string,
+        difference: string,
+        direction: 'more' | 'less' | 'standard',
+    ) => string;
+    yeastAdjustment: string;
+    yeastAdjustmentHelp: string;
+    yeastAdjustmentLess: string;
+    yeastAdjustmentStandard: string;
+    yeastAdjustmentMore: string;
+    yeastAdjustmentStandardHelp: string;
+    yeastAdjustmentWarmer: (degrees: string) => string;
+    yeastAdjustmentColder: (degrees: string) => string;
+    coldSeasonTitle: string;
+    coldSeasonHint: string;
     yeastHelpFresh: string;
     yeastHelpSwedishDry: string;
     yeastHelpActiveDry: string;
@@ -73,6 +89,7 @@ interface Translations {
     pickTime: string;
     readyForOvenAt: (time: string) => string;
     roomTemperature: string;
+    hintRoomTemperature: string;
 
     // Button
     calculate: string;
@@ -383,6 +400,28 @@ const en: Translations = {
     activeDryYeast: 'Active dry yeast',
     instantYeast: 'Instant yeast',
     yeastRecommendationPending: 'Estimated yeast will appear after calculate.',
+    yeastRecommendation: (label, amount, difference, direction) => {
+        if (direction === 'standard') return `${label}: ${amount} g (standard).`;
+        const comparison =
+            direction === 'more'
+                ? `${difference} g more than standard`
+                : `${difference} g less than standard`;
+        return `${label}: ${amount} g (${comparison}).`;
+    },
+    yeastAdjustment: 'Fermentation adjustment',
+    yeastAdjustmentHelp: 'Fine-tune only the yeast amount for warmer or colder conditions.',
+    yeastAdjustmentLess: 'Less yeast',
+    yeastAdjustmentStandard: 'Standard',
+    yeastAdjustmentMore: 'More yeast',
+    yeastAdjustmentStandardHelp:
+        'Uses the calculated yeast amount for the selected time and temperature.',
+    yeastAdjustmentWarmer: (degrees) =>
+        `Compensates for approximately ${degrees} °C warmer fermentation.`,
+    yeastAdjustmentColder: (degrees) =>
+        `Compensates for approximately ${degrees} °C colder fermentation.`,
+    coldSeasonTitle: 'Cool-season tip:',
+    coldSeasonHint:
+        'Cold ingredients, drafts, or falling overnight temperatures can slow the dough. If you notice sluggish fermentation, try +5–10% yeast.',
     yeastHelpFresh: 'Crumble into the liquid and mix until dispersed.',
     yeastHelpSwedishDry:
         'Mix into the flour first, let stand about 10 minutes, then add finger-warm liquid.',
@@ -417,6 +456,8 @@ const en: Translations = {
     pickTime: 'Pick time',
     readyForOvenAt: (time) => `Ready for oven around ${time}`,
     roomTemperature: 'Room temperature (\u00b0C)',
+    hintRoomTemperature:
+        'Enter the expected average temperature around the dough during the entire fermentation.',
     calculate: 'Calculate',
     infoDough:
         'Enter how many breads you want and the target weight per ball. Final weight per ball is approximate because the final dough weight depends on rounding.',
@@ -726,6 +767,25 @@ const sv: Translations = {
     activeDryYeast: 'Aktiv torrjäst',
     instantYeast: 'Snabbjäst',
     yeastRecommendationPending: 'Beräknad jäst visas efter beräkning.',
+    yeastRecommendation: (label, amount, difference, direction) => {
+        if (direction === 'standard') return `${label}: ${amount} g (standard).`;
+        const comparison =
+            direction === 'more'
+                ? `${difference} g mer än standard`
+                : `${difference} g mindre än standard`;
+        return `${label}: ${amount} g (${comparison}).`;
+    },
+    yeastAdjustment: 'Jäsningsjustering',
+    yeastAdjustmentHelp: 'Finjustera bara jästmängden för varmare eller kallare förhållanden.',
+    yeastAdjustmentLess: 'Mindre jäst',
+    yeastAdjustmentStandard: 'Standard',
+    yeastAdjustmentMore: 'Mer jäst',
+    yeastAdjustmentStandardHelp: 'Använder den beräknade jästmängden för vald tid och temperatur.',
+    yeastAdjustmentWarmer: (degrees) => `Kompenserar ungefär för ${degrees} °C varmare jäsning.`,
+    yeastAdjustmentColder: (degrees) => `Kompenserar ungefär för ${degrees} °C kallare jäsning.`,
+    coldSeasonTitle: 'Kall årstid:',
+    coldSeasonHint:
+        'Kalla ingredienser, drag eller sjunkande nattemperatur kan göra degen trögare. Om du märker det kan du prova +5–10% jäst.',
     yeastHelpFresh: 'Smula ner i vätskan och rör tills den lösts upp.',
     yeastHelpSwedishDry:
         'Blanda i mjölet först, låt stå ca 10 minuter, tillsätt sedan fingervarmt vatten.',
@@ -760,6 +820,8 @@ const sv: Translations = {
     pickTime: 'Välj klockslag',
     readyForOvenAt: (time) => `Klar för ugnen ca ${time}`,
     roomTemperature: 'Rumstemperatur (\u00b0C)',
+    hintRoomTemperature:
+        'Ange den förväntade genomsnittstemperaturen runt degen under hela jäsningen.',
     calculate: 'Beräkna',
     infoDough:
         'Ange antal bröd och målvikt per boll. Slutvikten per boll är ungefärlig eftersom den slutliga degvikten beror på avrundning.',

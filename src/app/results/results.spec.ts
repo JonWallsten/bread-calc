@@ -54,4 +54,19 @@ describe('ResultsComponent recipe details', () => {
         expect(fixture.nativeElement.textContent).not.toContain('Bovetemjöl');
         fixture.destroy();
     });
+
+    it('shows a non-standard fermentation adjustment', () => {
+        const fixture = render({ yeastAdjustmentPct: -20 });
+        const text = fixture.nativeElement.textContent as string;
+
+        expect(text).toContain('Jäsningsjustering');
+        expect(text).toContain('−20%');
+        fixture.destroy();
+    });
+
+    it('hides the fermentation adjustment when standard is selected', () => {
+        const fixture = render({ yeastAdjustmentPct: 0 });
+        expect(fixture.nativeElement.textContent).not.toContain('Jäsningsjustering');
+        fixture.destroy();
+    });
 });

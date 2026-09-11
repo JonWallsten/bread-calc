@@ -10,7 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatTimepicker, MatTimepickerInput } from '@angular/material/timepicker';
 import { CalcService, CalcInputs, CalcResult, CalcOutput } from '../calc.service';
-import { DEFAULT_INPUTS, FIELD_RANGES } from '../config';
+import { DEFAULT_INPUTS, FIELD_RANGES, YEAST_TEMP_FACTOR_PER_DEGREE } from '../config';
 import { I18nService } from '../i18n.service';
 import { StorageService } from '../storage.service';
 import { StepperComponent } from '../stepper/stepper';
@@ -26,6 +26,7 @@ import { SaveBakeComponent } from '../save-bake/save-bake';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog';
 import { SelectComponent } from '../select/select';
 import { ExpansionComponent } from '../expansion/expansion';
+import { isColdSeasonMonth } from '../seasonal-guidance';
 
 @Component({
     selector: 'app-calculator',
@@ -71,6 +72,7 @@ export class CalculatorComponent implements OnInit {
     readonly breadCount = signal(DEFAULT_INPUTS.breadCount);
     readonly targetBallWeight = signal(DEFAULT_INPUTS.targetBallWeight);
     readonly yeastType = signal<CalcInputs['yeastType']>(DEFAULT_INPUTS.yeastType);
+    readonly yeastAdjustmentPct = signal(DEFAULT_INPUTS.yeastAdjustmentPct);
     readonly hydrationPct = signal(DEFAULT_INPUTS.hydrationPct);
     readonly saltPct = signal(DEFAULT_INPUTS.saltPct);
     readonly maltFlourPct = signal(DEFAULT_INPUTS.maltFlourPct);
@@ -129,10 +131,61 @@ export class CalculatorComponent implements OnInit {
         const r = this.result();
         const t = this.i18n.t();
         if (!r) return t.yeastRecommendationPending;
-        const pct = r.chosenYeastPct * 100;
         const label = this.yeastLabel(r.yeastType);
-        return `${label}: ${this.calc.round1(r.yeastToAdd)} g (${this.calc.round1(pct)}% of total flour).`;
+        const adjustment = r.yeastAdjustmentPct ?? DEFAULT_INPUTS.yeastAdjustmentPct;
+        if (adjustment === 0) {
+            return t.yeastRecommendation(
+                label,
+                this.localizeNumber(Number(this.calc.formatWeight(r.yeastToAdd, true))),
+                '0',
+                'standard',
+            );
+        }
+
+        const standardOutput = this.calc.calculate({
+            ...this.getInputs(),
+            yeastAdjustmentPct: DEFAULT_INPUTS.yeastAdjustmentPct,
+        });
+        const standardYeastToAdd =
+            'error' in standardOutput ? r.yeastToAdd : standardOutput.yeastToAdd;
+        const difference = r.yeastToAdd - standardYeastToAdd;
+        const roundedDifference = this.calc.round1(Math.abs(difference));
+        const differenceText =
+            roundedDifference === 0
+                ? `<${this.i18n.currentLang() === 'sv' ? '0,1' : '0.1'}`
+                : this.localizeNumber(roundedDifference);
+        return t.yeastRecommendation(
+            label,
+            this.localizeNumber(Number(this.calc.formatWeight(r.yeastToAdd, true))),
+            differenceText,
+            difference > 0 ? 'more' : 'less',
+        );
     });
+
+    readonly yeastAdjustmentDisplay = computed(() => {
+        const value = this.yeastAdjustmentPct();
+        if (value === 0) return '0 %';
+        return `${value > 0 ? '+' : '−'}${Math.abs(value)} %`;
+    });
+
+    readonly yeastAdjustmentTemperatureHint = computed(() => {
+        const adjustment = this.yeastAdjustmentPct();
+        const t = this.i18n.t();
+        if (adjustment === 0) return t.yeastAdjustmentStandardHelp;
+
+        const multiplier = 1 + adjustment / 100;
+        const equivalentDelta = Math.log(multiplier) / Math.log(YEAST_TEMP_FACTOR_PER_DEGREE);
+        const degrees = this.localizeNumber(Math.abs(this.calc.round1(equivalentDelta)));
+        return equivalentDelta > 0
+            ? t.yeastAdjustmentWarmer(degrees)
+            : t.yeastAdjustmentColder(degrees);
+    });
+
+    readonly showColdSeasonTip = computed(
+        () =>
+            this.yeastAdjustmentPct() === DEFAULT_INPUTS.yeastAdjustmentPct &&
+            isColdSeasonMonth(new Date().getMonth()),
+    );
 
     // Dynamic starter hint based on estimated flour
     readonly starterHint = computed(() => {
@@ -203,11 +256,18 @@ export class CalculatorComponent implements OnInit {
         return 'ok';
     }
 
+    private localizeNumber(value: number): string {
+        return value.toLocaleString(this.i18n.currentLang() === 'sv' ? 'sv-SE' : 'en-US', {
+            maximumFractionDigits: 1,
+        });
+    }
+
     ngOnInit(): void {
         const saved = this.storage.load();
         this.breadCount.set(saved.breadCount);
         this.targetBallWeight.set(saved.targetBallWeight);
         this.yeastType.set(saved.yeastType);
+        this.yeastAdjustmentPct.set(saved.yeastAdjustmentPct);
         this.hydrationPct.set(saved.hydrationPct);
         this.saltPct.set(saved.saltPct);
         this.maltFlourPct.set(saved.maltFlourPct);
@@ -235,6 +295,7 @@ export class CalculatorComponent implements OnInit {
             breadCount: this.breadCount(),
             targetBallWeight: this.targetBallWeight(),
             yeastType: this.yeastType(),
+            yeastAdjustmentPct: this.yeastAdjustmentPct(),
             hydrationPct: this.hydrationPct(),
             saltPct: this.saltPct(),
             maltFlourPct: this.maltFlourPct(),
@@ -298,6 +359,14 @@ export class CalculatorComponent implements OnInit {
         }
     }
 
+    onYeastAdjustmentChange(value: number): void {
+        this.yeastAdjustmentPct.set(this.calc.clamp(value, -30, 30));
+        this.saveInputs();
+        if (this.resultsVisible()) {
+            this.runCalculation();
+        }
+    }
+
     onMixingMethodChange(value: string): void {
         this.mixingMethod.set(value as CalcInputs['mixingMethod']);
         this.storage.saveMixingMethod(value as CalcInputs['mixingMethod']);
@@ -346,6 +415,7 @@ export class CalculatorComponent implements OnInit {
         this.breadCount.set(DEFAULT_INPUTS.breadCount);
         this.targetBallWeight.set(DEFAULT_INPUTS.targetBallWeight);
         this.yeastType.set(DEFAULT_INPUTS.yeastType);
+        this.yeastAdjustmentPct.set(DEFAULT_INPUTS.yeastAdjustmentPct);
         this.hydrationPct.set(DEFAULT_INPUTS.hydrationPct);
         this.saltPct.set(DEFAULT_INPUTS.saltPct);
         this.maltFlourPct.set(DEFAULT_INPUTS.maltFlourPct);
@@ -380,6 +450,7 @@ export class CalculatorComponent implements OnInit {
         this.breadCount.set(inputs.breadCount);
         this.targetBallWeight.set(inputs.targetBallWeight);
         this.yeastType.set(inputs.yeastType);
+        this.yeastAdjustmentPct.set(inputs.yeastAdjustmentPct ?? DEFAULT_INPUTS.yeastAdjustmentPct);
         this.hydrationPct.set(inputs.hydrationPct);
         this.saltPct.set(inputs.saltPct);
         this.maltFlourPct.set(inputs.maltFlourPct ?? DEFAULT_INPUTS.maltFlourPct);

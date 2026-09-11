@@ -1,4 +1,7 @@
-import { CalcInputs } from './calc.service';
+import type { CalcInputs } from './calc.service';
+
+// Multiplicative yeast adjustment for each degree above/below 22 °C.
+export const YEAST_TEMP_FACTOR_PER_DEGREE = 0.9;
 
 // Default mixer speed labels (display only, do not affect timing)
 export const DEFAULT_MIXER_SPEEDS = {
@@ -12,6 +15,7 @@ export const DEFAULT_INPUTS: CalcInputs = {
     breadCount: 6,
     targetBallWeight: 90,
     yeastType: 'fresh',
+    yeastAdjustmentPct: 0,
     hydrationPct: 66,
     saltPct: 2.0,
     maltFlourPct: 0,

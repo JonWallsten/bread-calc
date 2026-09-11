@@ -252,6 +252,40 @@ describe('Temperature adjustment', () => {
     });
 });
 
+describe('Fermentation adjustment', () => {
+    it('defaults to the existing yeast calculation', () => {
+        const r = calc();
+        expect(r.yeastAdjustmentPct).toBe(0);
+        expect(r.chosenYeastPct).toBe(r.freshPctFinal);
+    });
+
+    it('increases the calculated yeast percentage by 30%', () => {
+        const base = calc({ yeastAdjustmentPct: 0 });
+        const adjusted = calc({ yeastAdjustmentPct: 30 });
+        expect(adjusted.chosenYeastPct).toBeCloseTo(base.chosenYeastPct * 1.3, 10);
+        expect(adjusted.yeastToAdd).toBeGreaterThan(base.yeastToAdd);
+    });
+
+    it('decreases the calculated yeast percentage by 30%', () => {
+        const base = calc({ yeastAdjustmentPct: 0 });
+        const adjusted = calc({ yeastAdjustmentPct: -30 });
+        expect(adjusted.chosenYeastPct).toBeCloseTo(base.chosenYeastPct * 0.7, 10);
+        expect(adjusted.yeastToAdd).toBeLessThan(base.yeastToAdd);
+    });
+
+    it('preserves the target dough weight after adjustment', () => {
+        const adjusted = calc({ yeastAdjustmentPct: 25 });
+        expect(approx(adjusted.finalDoughWeight, adjusted.targetDoughWeight, 0.01)).toBe(true);
+    });
+
+    it('treats the missing value in an older saved recipe as 0%', () => {
+        const legacyInputs = { ...DEFAULT_INPUTS } as Partial<CalcInputs>;
+        delete legacyInputs.yeastAdjustmentPct;
+        const result = service.calculate(legacyInputs as CalcInputs) as CalcResult;
+        expect(result.yeastAdjustmentPct).toBe(0);
+    });
+});
+
 describe('Time allocation', () => {
     it('mix = 35 min', () => expect(calc().mixMinutes).toBe(35));
     it('bench rest = 15 min', () => expect(calc().benchRestMinutes).toBe(15));
@@ -332,6 +366,10 @@ describe('Validation', () => {
     it('starterHydrationPct=0 → error', () =>
         expect(calc({ starterHydrationPct: 0 }).error).toBeDefined());
     it('hydrationPct=0 → error', () => expect(calc({ hydrationPct: 0 }).error).toBeDefined());
+    it('yeast adjustment outside −30–30% → error', () => {
+        expect(calc({ yeastAdjustmentPct: 31 }).error).toBe('validation');
+        expect(calc({ yeastAdjustmentPct: -31 }).error).toBe('validation');
+    });
 });
 
 describe('Impossible recipe', () => {
@@ -367,6 +405,7 @@ describe('Dough weight identity', () => {
         { scaldEnabled: true, scaldFlourPct: 5, scaldWaterRatio: 2 },
         { starterHydrationPct: 80 },
         { yeastType: 'instant', totalHours: 4, roomTemp: 28 },
+        { yeastAdjustmentPct: 30 },
     ];
 
     for (const cfg of configs) {

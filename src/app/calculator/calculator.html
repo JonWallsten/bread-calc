@@ -154,6 +154,48 @@
         }
     </app-select>
     <p class="field-hint">{{ yeastHelpText() }}</p>
+
+    <div class="yeast-adjustment">
+        <div class="yeast-adjustment-header">
+            <label class="field-label" for="yeast-adjustment">
+                {{ i18n.t().yeastAdjustment }}
+            </label>
+            <output class="yeast-adjustment-value" for="yeast-adjustment" aria-live="polite">
+                {{ yeastAdjustmentDisplay() }}
+            </output>
+        </div>
+        <input
+            id="yeast-adjustment"
+            class="yeast-adjustment-slider"
+            type="range"
+            min="-30"
+            max="30"
+            step="5"
+            [value]="yeastAdjustmentPct()"
+            [attr.aria-valuetext]="yeastAdjustmentDisplay()"
+            (input)="onYeastAdjustmentChange($any($event.target).valueAsNumber)"
+        />
+        <div class="yeast-adjustment-scale" aria-hidden="true">
+            <span>{{ i18n.t().yeastAdjustmentLess }}</span>
+            <span>{{ i18n.t().yeastAdjustmentStandard }}</span>
+            <span>{{ i18n.t().yeastAdjustmentMore }}</span>
+        </div>
+        <p class="field-hint">{{ i18n.t().yeastAdjustmentHelp }}</p>
+        @if (yeastAdjustmentPct() !== 0) {
+            <p class="field-hint yeast-adjustment-equivalent">
+                {{ yeastAdjustmentTemperatureHint() }}
+            </p>
+        }
+        @if (showColdSeasonTip()) {
+            <aside class="seasonal-tip">
+                <span class="seasonal-tip-icon" aria-hidden="true">&#10052;</span>
+                <span>
+                    <strong>{{ i18n.t().coldSeasonTitle }}</strong>
+                    {{ i18n.t().coldSeasonHint }}
+                </span>
+            </aside>
+        }
+    </div>
     <p class="yeast-recommendation">{{ yeastRecommendation() }}</p>
 </section>
 
@@ -435,6 +477,7 @@
         suffix="&deg;C"
         (valueChange)="onStepperChange()"
     />
+    <p class="field-hint">{{ i18n.t().hintRoomTemperature }}</p>
 </section>
 
 <!-- Mixing method section -->
