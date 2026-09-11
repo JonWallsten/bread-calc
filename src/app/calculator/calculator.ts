@@ -74,6 +74,7 @@ export class CalculatorComponent implements OnInit {
     readonly hydrationPct = signal(DEFAULT_INPUTS.hydrationPct);
     readonly saltPct = signal(DEFAULT_INPUTS.saltPct);
     readonly maltFlourPct = signal(DEFAULT_INPUTS.maltFlourPct);
+    readonly buckwheatFlourPct = signal(DEFAULT_INPUTS.buckwheatFlourPct);
     readonly sugarPct = signal(DEFAULT_INPUTS.sugarPct);
     readonly oilPct = signal(DEFAULT_INPUTS.oilPct);
     readonly milkPctOfWater = signal(DEFAULT_INPUTS.milkPctOfWater);
@@ -140,9 +141,10 @@ export class CalculatorComponent implements OnInit {
         const h = this.hydrationPct() / 100;
         const s = this.saltPct() / 100;
         const m = this.maltFlourPct() / 100;
+        const b = this.buckwheatFlourPct() / 100;
         const su = this.sugarPct() / 100;
         const o = this.oilPct() / 100;
-        const flourEstimate = doughWeight / (1 + h + s + m + su + o);
+        const flourEstimate = doughWeight / (1 + h + s + m + b + su + o);
         const minG = Math.round(flourEstimate * 0.1);
         const maxG = Math.round(flourEstimate * 0.3);
         return t.hintStarter(minG, maxG);
@@ -177,6 +179,9 @@ export class CalculatorComponent implements OnInit {
     readonly maltFlourState = computed(() =>
         this.fieldState(this.maltFlourPct(), FIELD_RANGES['maltFlour']),
     );
+    readonly buckwheatFlourState = computed(() =>
+        this.fieldState(this.buckwheatFlourPct(), FIELD_RANGES['buckwheatFlour']),
+    );
     readonly sugarState = computed(() => this.fieldState(this.sugarPct(), FIELD_RANGES['sugar']));
     readonly oilState = computed(() => this.fieldState(this.oilPct(), FIELD_RANGES['oil']));
     readonly milkState = computed(() =>
@@ -206,6 +211,7 @@ export class CalculatorComponent implements OnInit {
         this.hydrationPct.set(saved.hydrationPct);
         this.saltPct.set(saved.saltPct);
         this.maltFlourPct.set(saved.maltFlourPct);
+        this.buckwheatFlourPct.set(saved.buckwheatFlourPct);
         this.sugarPct.set(saved.sugarPct);
         this.oilPct.set(saved.oilPct);
         this.milkPctOfWater.set(saved.milkPctOfWater);
@@ -232,6 +238,7 @@ export class CalculatorComponent implements OnInit {
             hydrationPct: this.hydrationPct(),
             saltPct: this.saltPct(),
             maltFlourPct: this.maltFlourPct(),
+            buckwheatFlourPct: this.buckwheatFlourPct(),
             sugarPct: this.sugarPct(),
             oilPct: this.oilPct(),
             milkPctOfWater: this.milkPctOfWater(),
@@ -342,6 +349,7 @@ export class CalculatorComponent implements OnInit {
         this.hydrationPct.set(DEFAULT_INPUTS.hydrationPct);
         this.saltPct.set(DEFAULT_INPUTS.saltPct);
         this.maltFlourPct.set(DEFAULT_INPUTS.maltFlourPct);
+        this.buckwheatFlourPct.set(DEFAULT_INPUTS.buckwheatFlourPct);
         this.sugarPct.set(DEFAULT_INPUTS.sugarPct);
         this.oilPct.set(DEFAULT_INPUTS.oilPct);
         this.milkPctOfWater.set(DEFAULT_INPUTS.milkPctOfWater);
@@ -375,6 +383,7 @@ export class CalculatorComponent implements OnInit {
         this.hydrationPct.set(inputs.hydrationPct);
         this.saltPct.set(inputs.saltPct);
         this.maltFlourPct.set(inputs.maltFlourPct ?? DEFAULT_INPUTS.maltFlourPct);
+        this.buckwheatFlourPct.set(inputs.buckwheatFlourPct ?? DEFAULT_INPUTS.buckwheatFlourPct);
         this.sugarPct.set(inputs.sugarPct);
         this.oilPct.set(inputs.oilPct);
         this.milkPctOfWater.set(inputs.milkPctOfWater);

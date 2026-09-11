@@ -176,6 +176,25 @@
                             </div>
                         }
 
+                        @if (r.buckwheatFlourToAdd > 0) {
+                            <label>{{ i18n.t().buckwheatFlourIngredient }}</label>
+                            <div class="adjust-field">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    [value]="calc.formatWeight(r.buckwheatFlourToAdd)"
+                                    (input)="
+                                        updateEditedField(
+                                            'buckwheatFlourToAdd',
+                                            $any($event.target).value
+                                        )
+                                    "
+                                />
+                                <span>g</span>
+                            </div>
+                        }
+
                         @if (r.sugarToAdd > 0) {
                             <label>{{ i18n.t().sugarIngredient }}</label>
                             <div class="adjust-field">

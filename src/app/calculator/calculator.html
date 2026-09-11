@@ -222,6 +222,22 @@
             {{ i18n.t().hintMaltFlour }}
         </p>
 
+        <label class="field-label">{{ i18n.t().buckwheatFlour }}</label>
+        <app-stepper
+            [(value)]="buckwheatFlourPct"
+            [step]="0.5"
+            [min]="0"
+            suffix="%"
+            (valueChange)="onStepperChange()"
+        />
+        <p
+            class="field-hint"
+            [class.field-hint--warn]="buckwheatFlourState() === 'warn'"
+            [class.field-hint--error]="buckwheatFlourState() === 'error'"
+        >
+            {{ i18n.t().hintBuckwheatFlour }}
+        </p>
+
         <label class="field-label">{{ i18n.t().sugar }}</label>
         <app-stepper
             [(value)]="sugarPct"

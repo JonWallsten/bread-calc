@@ -172,6 +172,26 @@ describe('Malt flour', () => {
     });
 });
 
+describe('Buckwheat flour', () => {
+    it('defaults to no buckwheat flour', () => expect(calc().buckwheatFlourToAdd).toBe(0));
+
+    it('is calculated as baker percentage of total flour', () => {
+        const r = calc({ buckwheatFlourPct: 12.5 });
+        expect(approx(r.buckwheatFlourToAdd, r.totalFlour * 0.125, 0.001)).toBe(true);
+        expect(r.buckwheatFlourPct).toBe(12.5);
+    });
+
+    it('is included while preserving the target dough weight', () => {
+        const withoutBuckwheat = calc({ buckwheatFlourPct: 0 });
+        const withBuckwheat = calc({ buckwheatFlourPct: 15 });
+        expect(withBuckwheat.buckwheatFlourToAdd).toBeGreaterThan(0);
+        expect(withBuckwheat.flourToAdd).toBeLessThan(withoutBuckwheat.flourToAdd);
+        expect(approx(withBuckwheat.finalDoughWeight, withBuckwheat.targetDoughWeight, 0.01)).toBe(
+            true,
+        );
+    });
+});
+
 describe('Flour scald', () => {
     it('is disabled by default without changing flour or water allocation', () => {
         const r = calc();
@@ -343,6 +363,7 @@ describe('Dough weight identity', () => {
         { sugarPct: 5, oilPct: 3 },
         { milkPctOfWater: 30 },
         { maltFlourPct: 1.5 },
+        { buckwheatFlourPct: 15 },
         { scaldEnabled: true, scaldFlourPct: 5, scaldWaterRatio: 2 },
         { starterHydrationPct: 80 },
         { yeastType: 'instant', totalHours: 4, roomTemp: 28 },
@@ -359,6 +380,7 @@ describe('Dough weight identity', () => {
                 r.milkToAdd +
                 r.saltToAdd +
                 r.maltFlourToAdd +
+                r.buckwheatFlourToAdd +
                 r.sugarToAdd +
                 r.oilToAdd +
                 r.yeastToAdd;
@@ -427,6 +449,7 @@ describe('Flour blend adjustment', () => {
             r.milkToAdd +
             r.saltToAdd +
             r.maltFlourToAdd +
+            r.buckwheatFlourToAdd +
             r.sugarToAdd +
             r.oilToAdd +
             r.yeastToAdd;

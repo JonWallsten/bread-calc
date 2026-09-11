@@ -142,6 +142,10 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         flourParts.push(`${fmtW(mainFlourToAdd)} g ${t.flour}`);
         if ((d.maltFlourToAdd ?? 0) > 0)
             flourParts.push(`${fmtW(d.maltFlourToAdd)} g ${t.maltFlourIngredient.toLowerCase()}`);
+        if ((d.buckwheatFlourToAdd ?? 0) > 0)
+            flourParts.push(
+                `${fmtW(d.buckwheatFlourToAdd)} g ${t.buckwheatFlourIngredient.toLowerCase()}`,
+            );
         if (!yeastInLiquid && d.yeastToAdd > 0)
             flourParts.push(`${fmtY(d.yeastToAdd)} g ${yeastName}`);
         const flourIngredients = this.joinWithAnd(flourParts, t.and);
@@ -161,6 +165,10 @@ export class InstructionsComponent implements OnInit, OnDestroy {
         if ((d.maltFlourToAdd ?? 0) > 0)
             machineFlourParts.push(
                 `${fmtW(d.maltFlourToAdd)} g ${t.maltFlourIngredient.toLowerCase()}`,
+            );
+        if ((d.buckwheatFlourToAdd ?? 0) > 0)
+            machineFlourParts.push(
+                `${fmtW(d.buckwheatFlourToAdd)} g ${t.buckwheatFlourIngredient.toLowerCase()}`,
             );
         const machineFlourList = this.joinWithAnd(machineFlourParts, t.and);
 

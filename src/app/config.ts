@@ -15,6 +15,7 @@ export const DEFAULT_INPUTS: CalcInputs = {
     hydrationPct: 66,
     saltPct: 2.0,
     maltFlourPct: 0,
+    buckwheatFlourPct: 0,
     sugarPct: 2.0,
     oilPct: 2.0,
     milkPctOfWater: 0,
@@ -120,6 +121,11 @@ export const FIELD_RANGES: Record<string, FieldRange> = {
         rec: { min: 0, max: 2 },
         warn: { min: 0, max: 5 },
         error: { min: 0, max: 5 },
+    },
+    buckwheatFlour: {
+        rec: { min: 0, max: 20 },
+        warn: { min: 0, max: 30 },
+        error: { min: 0, max: 30 },
     },
     sugar: {
         rec: { min: 0, max: 5 },

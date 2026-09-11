@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CalcResult, CalcService } from '../calc.service';
+import { CalcInputs, CalcResult, CalcService } from '../calc.service';
 import { DEFAULT_INPUTS } from '../config';
 import { InstructionsComponent } from './instructions';
 
-describe('InstructionsComponent flour scald', () => {
+describe('InstructionsComponent recipe details', () => {
     beforeEach(() => {
         localStorage.clear();
         TestBed.configureTestingModule({ imports: [InstructionsComponent] });
@@ -12,8 +12,8 @@ describe('InstructionsComponent flour scald', () => {
 
     afterEach(() => localStorage.clear());
 
-    function render(scaldEnabled: boolean) {
-        const result = new CalcService().calculate({ ...DEFAULT_INPUTS, scaldEnabled });
+    function render(overrides: Partial<CalcInputs>) {
+        const result = new CalcService().calculate({ ...DEFAULT_INPUTS, ...overrides });
         if ('error' in result) throw new Error(result.error);
 
         const fixture = TestBed.createComponent(InstructionsComponent);
@@ -24,7 +24,7 @@ describe('InstructionsComponent flour scald', () => {
     }
 
     it('adds a preparation step with exact flour and water amounts', () => {
-        const fixture = render(true);
+        const fixture = render({ scaldEnabled: true });
         const firstStep = fixture.nativeElement.querySelector('.instruction-card') as HTMLElement;
 
         expect(firstStep.textContent).toContain('Förbered skållning');
@@ -35,14 +35,20 @@ describe('InstructionsComponent flour scald', () => {
     });
 
     it('adds the cooled scald to the main-dough mixing instruction', () => {
-        const fixture = render(true);
+        const fixture = render({ scaldEnabled: true });
         expect(fixture.nativeElement.textContent).toContain('avsvalnad skållning');
         fixture.destroy();
     });
 
     it('does not add a scald step when the option is disabled', () => {
-        const fixture = render(false);
+        const fixture = render({ scaldEnabled: false });
         expect(fixture.nativeElement.textContent).not.toContain('Förbered skållning');
+        fixture.destroy();
+    });
+
+    it('adds buckwheat flour to the flour-mixing instruction', () => {
+        const fixture = render({ buckwheatFlourPct: 15 });
+        expect(fixture.nativeElement.textContent).toContain('bovetemjöl');
         fixture.destroy();
     });
 });

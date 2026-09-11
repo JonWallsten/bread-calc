@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CalcResult, CalcService } from '../calc.service';
+import { CalcInputs, CalcResult, CalcService } from '../calc.service';
 import { DEFAULT_INPUTS } from '../config';
 import { ResultsComponent } from './results';
 
-describe('ResultsComponent flour scald', () => {
+describe('ResultsComponent recipe details', () => {
     beforeEach(() => {
         localStorage.clear();
         TestBed.configureTestingModule({ imports: [ResultsComponent] });
@@ -12,8 +12,8 @@ describe('ResultsComponent flour scald', () => {
 
     afterEach(() => localStorage.clear());
 
-    function render(scaldEnabled: boolean) {
-        const result = new CalcService().calculate({ ...DEFAULT_INPUTS, scaldEnabled });
+    function render(overrides: Partial<CalcInputs>) {
+        const result = new CalcService().calculate({ ...DEFAULT_INPUTS, ...overrides });
         if ('error' in result) throw new Error(result.error);
 
         const fixture = TestBed.createComponent(ResultsComponent);
@@ -24,7 +24,7 @@ describe('ResultsComponent flour scald', () => {
     }
 
     it('shows scald and main-dough allocations without changing total hydration', () => {
-        const fixture = render(true);
+        const fixture = render({ scaldEnabled: true });
         const text = fixture.nativeElement.textContent as string;
 
         expect(text).toContain('Skållat mjöl');
@@ -35,11 +35,23 @@ describe('ResultsComponent flour scald', () => {
     });
 
     it('hides the scald summary for recipes without a scald', () => {
-        const fixture = render(false);
+        const fixture = render({ scaldEnabled: false });
         const text = fixture.nativeElement.textContent as string;
 
         expect(text).not.toContain('Till skållningen');
         expect(text).not.toContain('Till huvuddegen');
+        fixture.destroy();
+    });
+
+    it('shows buckwheat flour when it is included', () => {
+        const fixture = render({ buckwheatFlourPct: 15 });
+        expect(fixture.nativeElement.textContent).toContain('Bovetemjöl');
+        fixture.destroy();
+    });
+
+    it('hides buckwheat flour when its percentage is zero', () => {
+        const fixture = render({ buckwheatFlourPct: 0 });
+        expect(fixture.nativeElement.textContent).not.toContain('Bovetemjöl');
         fixture.destroy();
     });
 });

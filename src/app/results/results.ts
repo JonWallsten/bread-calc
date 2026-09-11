@@ -120,6 +120,9 @@ export class ResultsComponent {
         if ((d.maltFlourToAdd ?? 0) > 0) {
             rows.push([t.maltFlourIngredient, `${fmtW(d.maltFlourToAdd)} g`]);
         }
+        if ((d.buckwheatFlourToAdd ?? 0) > 0) {
+            rows.push([t.buckwheatFlourIngredient, `${fmtW(d.buckwheatFlourToAdd)} g`]);
+        }
         if (d.sugarToAdd > 0) {
             rows.push([t.sugarIngredient, `${fmtW(d.sugarToAdd)} g`]);
         }

@@ -22,6 +22,7 @@ export interface CalcInputs {
     hydrationPct: number;
     saltPct: number;
     maltFlourPct: number;
+    buckwheatFlourPct: number;
     sugarPct: number;
     oilPct: number;
     milkPctOfWater: number;
@@ -53,6 +54,7 @@ export interface CalcResult {
     customHydrationAdjustment: number;
     saltPct: number;
     maltFlourPct: number;
+    buckwheatFlourPct: number;
     sugarPct: number;
     oilPct: number;
     milkPctOfWater: number;
@@ -72,6 +74,7 @@ export interface CalcResult {
     milkToAdd: number;
     saltToAdd: number;
     maltFlourToAdd: number;
+    buckwheatFlourToAdd: number;
     sugarToAdd: number;
     oilToAdd: number;
     yeastToAdd: number;
@@ -165,6 +168,7 @@ export class CalcService {
             hydrationPct,
             saltPct,
             maltFlourPct = 0,
+            buckwheatFlourPct = 0,
             sugarPct,
             oilPct,
             milkPctOfWater,
@@ -203,6 +207,7 @@ export class CalcService {
         const hydration = effectiveHydrationPct / 100;
         const salt = saltPct / 100;
         const maltFlour = maltFlourPct / 100;
+        const buckwheatFlour = buckwheatFlourPct / 100;
         const sugar = sugarPct / 100;
         const oil = oilPct / 100;
         const milkFraction = milkPctOfWater / 100;
@@ -234,12 +239,14 @@ export class CalcService {
             chosenYeastPct = freshPctFinal;
         }
 
-        const additivePct = hydration + salt + maltFlour + sugar + oil + chosenYeastPct;
+        const additivePct =
+            hydration + salt + maltFlour + buckwheatFlour + sugar + oil + chosenYeastPct;
         const starterImpact =
             starterWeight +
             (hydration * starterFlour - starterWater) +
             salt * starterFlour +
             maltFlour * starterFlour +
+            buckwheatFlour * starterFlour +
             sugar * starterFlour +
             oil * starterFlour +
             chosenYeastPct * starterFlour;
@@ -259,6 +266,7 @@ export class CalcService {
         const waterToAdd = addedWaterTotal - milkToAdd;
         const saltToAdd = totalFlour * salt;
         const maltFlourToAdd = totalFlour * maltFlour;
+        const buckwheatFlourToAdd = totalFlour * buckwheatFlour;
         const sugarToAdd = totalFlour * sugar;
         const oilToAdd = totalFlour * oil;
         const yeastToAdd = totalFlour * chosenYeastPct;
@@ -279,6 +287,7 @@ export class CalcService {
             addedWaterTotal +
             saltToAdd +
             maltFlourToAdd +
+            buckwheatFlourToAdd +
             sugarToAdd +
             oilToAdd +
             yeastToAdd;
@@ -355,6 +364,7 @@ export class CalcService {
             customHydrationAdjustment: customAdj,
             saltPct,
             maltFlourPct,
+            buckwheatFlourPct,
             sugarPct,
             oilPct,
             milkPctOfWater,
@@ -374,6 +384,7 @@ export class CalcService {
             milkToAdd,
             saltToAdd,
             maltFlourToAdd,
+            buckwheatFlourToAdd,
             sugarToAdd,
             oilToAdd,
             yeastToAdd,

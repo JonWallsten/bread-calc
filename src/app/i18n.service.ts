@@ -47,6 +47,8 @@ interface Translations {
     hintSalt: string;
     maltFlour: string;
     hintMaltFlour: string;
+    buckwheatFlour: string;
+    hintBuckwheatFlour: string;
     sugar: string;
     hintSugar: string;
     oil: string;
@@ -93,6 +95,7 @@ interface Translations {
     milkToAdd: string;
     saltIngredient: string;
     maltFlourIngredient: string;
+    buckwheatFlourIngredient: string;
     sugarIngredient: string;
     oilIngredient: string;
     scaldedFlour: string;
@@ -392,6 +395,8 @@ const en: Translations = {
     hintSalt: 'Typical: 1.8–2.2%',
     maltFlour: 'Malt flour',
     hintMaltFlour: 'Optional, typically 0–2%',
+    buckwheatFlour: 'Buckwheat flour',
+    hintBuckwheatFlour: 'Optional, typically 5–20%',
     sugar: 'Sugar',
     hintSugar: 'Optional, 0–5%',
     oil: 'Oil',
@@ -418,7 +423,7 @@ const en: Translations = {
     infoYeast:
         'Choose the yeast type. The calculator estimates the amount from total time until oven, room temperature, starter amount, and starter hydration.',
     infoPercentages:
-        'Hydration is total liquid divided by total flour, including the flour and water inside the starter. Salt is required. Malt flour, sugar, and oil are optional. Milk replaces part of the added water. Water used for a flour scald remains part of total hydration.',
+        'Hydration is total liquid divided by total flour, including the flour and water inside the starter. Salt is required. Malt flour, buckwheat flour, sugar, and oil are optional. Milk replaces part of the added water. Water used for a flour scald remains part of total hydration.',
     infoStarter:
         'Starter total weight is the full starter amount in grams. Starter hydration is the water-to-flour ratio inside the starter. For example, 100% hydration means equal parts water and flour by weight.',
     infoProofing:
@@ -433,6 +438,7 @@ const en: Translations = {
     milkToAdd: 'Milk to add',
     saltIngredient: 'Salt',
     maltFlourIngredient: 'Malt flour',
+    buckwheatFlourIngredient: 'Buckwheat flour',
     sugarIngredient: 'Sugar',
     oilIngredient: 'Oil',
     scaldedFlour: 'Scalded flour',
@@ -564,7 +570,7 @@ const en: Translations = {
     splashFeature1: 'Calculate dough for any number of breads',
     splashFeature2: 'Automatic yeast estimation based on time and temperature',
     splashFeature3: 'Step-by-step instructions with built-in timers',
-    splashFeature4: 'Adjustable hydration, salt, malt flour, sugar, oil & milk',
+    splashFeature4: 'Adjustable hydration, salt, malt flour, buckwheat flour, sugar, oil & milk',
     splashFeature5: 'Works in English and Swedish',
     splashGetStarted: 'Get started',
     water: 'water',
@@ -732,6 +738,8 @@ const sv: Translations = {
     hintSalt: 'Typiskt: 1,8–2,2%',
     maltFlour: 'Maltmjöl',
     hintMaltFlour: 'Valfritt, typiskt 0–2%',
+    buckwheatFlour: 'Bovetemjöl',
+    hintBuckwheatFlour: 'Valfritt, typiskt 5–20%',
     sugar: 'Socker',
     hintSugar: 'Valfritt, 0–5%',
     oil: 'Olja',
@@ -758,7 +766,7 @@ const sv: Translations = {
     infoYeast:
         'Välj jästtyp. Kalkylatorn uppskattar mängden utifrån total tid till ugnen, rumstemperatur, mängd surdeg och surdegens hydrering.',
     infoPercentages:
-        'Hydrering är total vätska delat med totalt mjöl, inklusive mjölet och vattnet i surdegen. Salt krävs. Maltmjöl, socker och olja är valfria. Mjölk ersätter en del av det tillsatta vattnet. Vatten som används till skållning ingår fortfarande i den totala hydreringen.',
+        'Hydrering är total vätska delat med totalt mjöl, inklusive mjölet och vattnet i surdegen. Salt krävs. Maltmjöl, bovetemjöl, socker och olja är valfria. Mjölk ersätter en del av det tillsatta vattnet. Vatten som används till skållning ingår fortfarande i den totala hydreringen.',
     infoStarter:
         'Surdegens totalvikt är hela mängden surdeg i gram. Surdegens hydrering är förhållandet vatten-till-mjöl i surdegen. Till exempel, 100% hydrering innebär lika delar vatten och mjöl i vikt.',
     infoProofing:
@@ -773,6 +781,7 @@ const sv: Translations = {
     milkToAdd: 'Mjölk att tillsätta',
     saltIngredient: 'Salt',
     maltFlourIngredient: 'Maltmjöl',
+    buckwheatFlourIngredient: 'Bovetemjöl',
     sugarIngredient: 'Socker',
     oilIngredient: 'Olja',
     scaldedFlour: 'Skållat mjöl',
@@ -902,7 +911,7 @@ const sv: Translations = {
     splashFeature1: 'Beräkna deg för valfritt antal bröd',
     splashFeature2: 'Automatisk jästuppskattning baserad på tid och temperatur',
     splashFeature3: 'Steg-för-steg instruktioner med inbyggda timers',
-    splashFeature4: 'Justerbar hydrering, salt, maltmjöl, socker, olja & mjölk',
+    splashFeature4: 'Justerbar hydrering, salt, maltmjöl, bovetemjöl, socker, olja & mjölk',
     splashFeature5: 'Fungerar på engelska och svenska',
     splashGetStarted: 'Kom igång',
     water: 'vatten',
